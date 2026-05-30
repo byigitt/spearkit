@@ -13,6 +13,7 @@ export * from "discord.js";
 export * from "./embeds.js";
 export * from "./lock.js";
 export * from "./safe-fetch.js";
+export * from "./format.js";
 export * from "./logger.js";
 export * from "./env.js";
 export * from "./cooldown.js";

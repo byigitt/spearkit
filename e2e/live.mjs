@@ -86,6 +86,9 @@ import {
   DEFAULT_EMBED_COLORS,
   KeyedLock,
   safeFetch,
+  formatDuration,
+  parseDuration,
+  discordTimestamp,
 } from "../dist/index.js";
 
 // --- credentials -----------------------------------------------------------
@@ -1125,6 +1128,24 @@ async function main() {
   check("safeFetch.channel returns null for unknown channel ids", sfMissingChannel === null);
   const sfTimeout = await safeFetch.try(() => Promise.reject(new Error("nope")));
   check("safeFetch.try absorbs rejections", sfTimeout === null);
+
+  // T. Format ----------------------------------------------------------------
+  group("T. Format");
+  check(
+    "formatDuration English",
+    formatDuration(3_725_000) === "1 hour 2 minutes",
+  );
+  check(
+    "formatDuration Turkish",
+    formatDuration(3_725_000, { locale: "tr" }) === "1 saat 2 dakika",
+  );
+  check("parseDuration short form", parseDuration("1h30m") === 5_400_000);
+  check("parseDuration Turkish", parseDuration("1 saat 30 dakika") === 5_400_000);
+  const now = new Date(1_700_000_000_000);
+  check(
+    "discordTimestamp emits <t:secs:style>",
+    discordTimestamp(now, "R") === `<t:${Math.floor(now.getTime() / 1000)}:R>`,
+  );
   // --- report ---------------------------------------------------------------
   console.log(lines.join("\n"));
   console.log(`\n${passed} passed, ${failed} failed.`);
