@@ -85,6 +85,7 @@ import {
   Embeds,
   DEFAULT_EMBED_COLORS,
   KeyedLock,
+  safeFetch,
 } from "../dist/index.js";
 
 // --- credentials -----------------------------------------------------------
@@ -1109,6 +1110,21 @@ async function main() {
   check("run() runs after release and holds during fn", out2 === "ran" && observed);
   check("released after run completes", !klock.isHeld("ticket:1:claim"));
   klock.dispose();
+
+  // S. safeFetch ------------------------------------------------------------
+  group("S. safeFetch");
+  const sfGuild = await safeFetch.guild(client, guildId);
+  check("safeFetch.guild resolves a real guild", sfGuild?.id === guildId, sfGuild?.name);
+  const sfMissingGuild = await safeFetch.guild(client, "000000000000000000");
+  check("safeFetch.guild returns null for unknown ids", sfMissingGuild === null);
+  if (sfGuild != null) {
+    const sfMissingMember = await safeFetch.member(sfGuild, "000000000000000000");
+    check("safeFetch.member returns null for unknown user ids", sfMissingMember === null);
+  }
+  const sfMissingChannel = await safeFetch.channel(client, "000000000000000000");
+  check("safeFetch.channel returns null for unknown channel ids", sfMissingChannel === null);
+  const sfTimeout = await safeFetch.try(() => Promise.reject(new Error("nope")));
+  check("safeFetch.try absorbs rejections", sfTimeout === null);
   // --- report ---------------------------------------------------------------
   console.log(lines.join("\n"));
   console.log(`\n${passed} passed, ${failed} failed.`);
