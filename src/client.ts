@@ -1,6 +1,7 @@
 import {
   Client,
   GatewayIntentBits,
+  Routes,
   type ClientOptions,
   type Interaction,
 } from "discord.js";
@@ -18,9 +19,16 @@ import { PrefixRegistry, type PrefixCommand, type PrefixOptions } from "./prefix
 import { UsageTracker, type UsageEvent, type UsageOptions } from "./usage.js";
 import { Embeds, type EmbedsOptions } from "./embeds.js";
 import type { Guard } from "./guards.js";
+import { ContextMenuRegistry, type ContextMenuCommand } from "./context-menus.js";
 
 /** Anything that can be handed to {@link SpearClient.register}. */
-export type Registerable = SlashCommand | EventDef | ComponentDef | ScheduledTask | PrefixCommand;
+export type Registerable =
+  | SlashCommand
+  | EventDef
+  | ComponentDef
+  | ScheduledTask
+  | PrefixCommand
+  | ContextMenuCommand;
 
 const allIntents = Object.values(GatewayIntentBits).filter(
   (value): value is GatewayIntentBits => typeof value === "number",
@@ -73,15 +81,16 @@ export interface SpearOptions {
 export type SpearClientOptions = Partial<ClientOptions> & SpearOptions;
 
 /**
- * A discord.js {@link Client} with batteries included: command, event and
- * component registries plus interaction routing wired up automatically.
+ * A discord.js {@link Client} with batteries included: command, event,
+ * component, prefix-command, scheduler and context-menu registries plus
+ * interaction routing wired up automatically.
  *
  * @example
  * ```ts
  * const client = new SpearClient({ intents: Intents.default });
  * client.register(ping, onReady, voteButton);
  * await client.start(process.env.TOKEN);
- * await client.deployCommands({ guildId: "123" });
+ * await client.deployAllCommands({ guildId: "123" });
  * ```
  */
 export class SpearClient extends Client {
@@ -103,6 +112,8 @@ export class SpearClient extends Client {
   readonly usage = new UsageTracker();
   /** Preset embed factory used by `ctx.error/success/info/warn` and available to your code. */
   readonly embeds: Embeds;
+  /** User- and message-context-menu command registry. */
+  readonly contextMenus = new ContextMenuRegistry();
   private readonly envConfig: false | LoadEnvOptions;
 
   constructor(options: SpearClientOptions = {}) {
@@ -111,40 +122,48 @@ export class SpearClient extends Client {
     this.embeds = embeds instanceof Embeds ? embeds : new Embeds(embeds);
     this.envConfig = dotenv === false ? false : dotenv === undefined || dotenv === true ? {} : dotenv;
     this.logger = logger instanceof Logger ? logger : new Logger(logger);
-    this.commands.setLogger(this.logger.child("commands"));
     const defaultCooldown = cooldown !== undefined ? normalizeCooldown(cooldown) : undefined;
+
+    this.commands.setLogger(this.logger.child("commands"));
     this.commands.setCooldowns(this.cooldowns, defaultCooldown);
-    if (guards !== undefined && guards.length > 0) {
-      this.commands.setDefaultGuards(guards);
-      this.components.setDefaultGuards(guards);
-      this.prefix.setDefaultGuards(guards);
-    }
     this.components.setLogger(this.logger.child("components"));
-    this.events.attachAll(this);
-    this.on("interactionCreate", (interaction) => this.route(interaction));
-    this.on("error", (error) => this.logger.error("client error", { error: toError(error) }));
-    this.scheduler.setLogger(this.logger.child("scheduler"));
-    this.once("clientReady", () => this.scheduler.start(this));
+    this.contextMenus.setLogger(this.logger.child("contextMenus"));
+    this.contextMenus.setCooldowns(this.cooldowns, defaultCooldown);
     this.prefix.setLogger(this.logger.child("prefix"));
     this.prefix.setCooldowns(this.cooldowns, defaultCooldown);
     if (prefix !== undefined) this.prefix.setOptions(prefix);
-    this.on("messageCreate", (message) => {
-      void this.prefix.handle(message);
-    });
+    this.scheduler.setLogger(this.logger.child("scheduler"));
+
+    if (guards !== undefined && guards.length > 0) {
+      this.commands.setDefaultGuards(guards);
+      this.contextMenus.setDefaultGuards(guards);
+      this.components.setDefaultGuards(guards);
+      this.prefix.setDefaultGuards(guards);
+    }
+
     this.usage.setClient(this).setLogger(this.logger.child("usage"));
     if (usage !== undefined) {
       if (usage.store !== undefined) this.usage.setStore(usage.store);
       if (usage.channel !== undefined) this.usage.reportTo(usage.channel, usage.format);
       const onUsage = (event: UsageEvent): void => this.usage.track(event);
       this.commands.setUsageHook(onUsage);
+      this.contextMenus.setUsageHook(onUsage);
       this.components.setUsageHook(onUsage);
       this.prefix.setUsageHook(onUsage);
     }
+
+    this.events.attachAll(this);
+    this.on("interactionCreate", (interaction) => this.route(interaction));
+    this.on("error", (error) => this.logger.error("client error", { error: toError(error) }));
+    this.once("clientReady", () => this.scheduler.start(this));
+    this.on("messageCreate", (message) => {
+      void this.prefix.handle(message);
+    });
   }
 
   /**
-   * Register commands, events and components in one call. Each item is routed
-   * to the matching registry based on its kind.
+   * Register commands, events, components, scheduled tasks, prefix commands
+   * and context menus in one call. Each item is routed to its matching registry.
    */
   register(...items: Registerable[]): this {
     for (const item of items) {
@@ -156,6 +175,10 @@ export class SpearClient extends Client {
         this.scheduler.add(item);
       } else if (item.kind === "prefixCommand") {
         this.prefix.add(item);
+      } else if (item.kind === "userMenu") {
+        this.contextMenus.add(item);
+      } else if (item.kind === "messageMenu") {
+        this.contextMenus.add(item);
       } else {
         this.components.add(item);
       }
@@ -194,8 +217,9 @@ export class SpearClient extends Client {
   }
 
   /**
-   * Push the registered slash commands to discord using the client's own
-   * authenticated REST connection. Call after the client is ready.
+   * Push the registered slash commands to Discord using the client's REST
+   * connection. Slash-only — use {@link deployAllCommands} to include context
+   * menus in the same request.
    */
   async deployCommands(options: { guildId?: string } = {}): Promise<DeployResult> {
     const applicationId = this.application?.id ?? this.user?.id;
@@ -205,14 +229,21 @@ export class SpearClient extends Client {
     return this.commands.deploy({ rest: this.rest, applicationId, guildId: options.guildId });
   }
 
-  private async route(interaction: Interaction): Promise<void> {
-    if (interaction.isChatInputCommand()) {
-      await this.commands.handle(interaction);
-    } else if (interaction.isAutocomplete()) {
-      await this.commands.handleAutocomplete(interaction);
-    } else {
-      await this.components.handle(interaction);
+  /**
+   * Deploy slash commands AND context menus together to Discord in a single
+   * PUT. Use this once you mix `userCommand` / `messageCommand` with `command`.
+   */
+  async deployAllCommands(options: { guildId?: string } = {}): Promise<DeployResult> {
+    const applicationId = this.application?.id ?? this.user?.id;
+    if (applicationId == null) {
+      throw new Error("spearkit: deployAllCommands() must run after the client is ready");
     }
+    const body = [...this.commands.toJSON(), ...this.contextMenus.toJSON()];
+    const route =
+      options.guildId !== undefined
+        ? Routes.applicationGuildCommands(applicationId, options.guildId)
+        : Routes.applicationCommands(applicationId);
+    return (await this.rest.put(route, { body })) as DeployResult;
   }
 
   /** Define and register a scheduled task in one call. */
@@ -226,5 +257,19 @@ export class SpearClient extends Client {
   override async destroy(): Promise<void> {
     this.scheduler.stop();
     await super.destroy();
+  }
+
+  private async route(interaction: Interaction): Promise<void> {
+    if (interaction.isChatInputCommand()) {
+      await this.commands.handle(interaction);
+    } else if (interaction.isAutocomplete()) {
+      await this.commands.handleAutocomplete(interaction);
+    } else if (interaction.isUserContextMenuCommand()) {
+      await this.contextMenus.handleUser(interaction);
+    } else if (interaction.isMessageContextMenuCommand()) {
+      await this.contextMenus.handleMessage(interaction);
+    } else {
+      await this.components.handle(interaction);
+    }
   }
 }

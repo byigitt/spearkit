@@ -96,6 +96,8 @@ import {
   guildOnly,
   requireAnyRole,
   denied,
+  userCommand,
+  messageCommand,
 } from "../dist/index.js";
 
 // --- credentials -----------------------------------------------------------
@@ -499,6 +501,15 @@ client.register(
   task({ name: "e2e-tick", interval: 250, runOnStart: true, run: () => { tickCount += 1; } }),
 );
 client.register(prefixCommand({ name: "ptest", run: (ctx) => ctx.reply("prefix-pong") }));
+const reportUserCmd = userCommand({
+  name: "Report user (e2e)",
+  run: (ctx) => ctx.replyError(`Reporting ${ctx.targetUser.tag}`),
+});
+const inspectMsgCmd = messageCommand({
+  name: "Inspect message (e2e)",
+  run: (ctx) => ctx.replyInfo(`len=${ctx.targetMessage.content.length}`),
+});
+client.register(reportUserCmd, inspectMsgCmd);
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // =====================================================================
@@ -646,7 +657,7 @@ async function main() {
   const appId = client.application.id;
   let remoteNames = [];
   try {
-    const deployed = await client.deployCommands({ guildId });
+    const deployed = await client.deployAllCommands({ guildId });
     check("deployCommands resolved", Array.isArray(deployed), `${deployed.length} commands`);
   } catch (err) {
     check("deployCommands resolved", false, String(err?.message ?? err));
@@ -1261,6 +1272,29 @@ async function main() {
   const passChat = { ...denyChat, commandName: "owneronly2", user: { id: "u-pass", tag: "u-pass#0001" }, replied: false, replies: [] };
   await passReg.handle(passChat);
   check("command guard pass runs handler", passChat.replies.some((r) => r.content === "ok" || r === "ok"));
+
+  // X. Context-menu commands -------------------------------------------------
+  group("X. Context menus");
+  check(
+    "context-menu registry has both kinds",
+    client.contextMenus.size === 2 &&
+      client.contextMenus.all().some((c) => c.kind === "userMenu") &&
+      client.contextMenus.all().some((c) => c.kind === "messageMenu"),
+    `size=${client.contextMenus.size}`,
+  );
+  const remoteAll = await client.rest.get(Routes.applicationGuildCommands(appId, guildId));
+  const userMenu = remoteAll.find((c) => c.name === "Report user (e2e)");
+  const msgMenu = remoteAll.find((c) => c.name === "Inspect message (e2e)");
+  check(
+    "user context-menu deployed (type 2)",
+    userMenu?.type === 2,
+    `type=${userMenu?.type}`,
+  );
+  check(
+    "message context-menu deployed (type 3)",
+    msgMenu?.type === 3,
+    `type=${msgMenu?.type}`,
+  );
   // --- report ---------------------------------------------------------------
   console.log(lines.join("\n"));
   console.log(`\n${passed} passed, ${failed} failed.`);
