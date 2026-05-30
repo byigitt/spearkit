@@ -10,6 +10,7 @@ import { EventRegistry, type EventDef } from "./events.js";
 import { ComponentRegistry, type ComponentDef } from "./components/registry.js";
 import type { SpearPlugin } from "./plugin.js";
 import { loadInto, type LoadOptions } from "./loader.js";
+import { Logger, type LoggerOptions, toError } from "./logger.js";
 
 /** Anything that can be handed to {@link SpearClient.register}. */
 export type Registerable = SlashCommand | EventDef | ComponentDef;
@@ -39,8 +40,14 @@ export const Intents = {
   all: allIntents,
 } as const;
 
-/** Options for {@link SpearClient}. Identical to discord.js but `intents` may be omitted. */
-export type SpearClientOptions = Partial<ClientOptions>;
+/** spearkit-specific client options layered on top of discord.js {@link ClientOptions}. */
+export interface SpearOptions {
+  /** A {@link Logger} instance, or options to build one. Exposed as `client.logger`. */
+  logger?: Logger | LoggerOptions;
+}
+
+/** Options for {@link SpearClient}: discord.js options plus {@link SpearOptions}. `intents` may be omitted. */
+export type SpearClientOptions = Partial<ClientOptions> & SpearOptions;
 
 /**
  * A discord.js {@link Client} with batteries included: command, event and
@@ -61,12 +68,18 @@ export class SpearClient extends Client {
   readonly events = new EventRegistry();
   /** Button / select / modal registry and router. */
   readonly components = new ComponentRegistry();
+  /** Structured logger shared across spearkit and available to your code. */
+  readonly logger: Logger;
 
   constructor(options: SpearClientOptions = {}) {
-    const { intents, ...rest } = options;
+    const { intents, logger, ...rest } = options;
     super({ ...rest, intents: intents ?? Intents.default });
+    this.logger = logger instanceof Logger ? logger : new Logger(logger);
+    this.commands.setLogger(this.logger.child("commands"));
+    this.components.setLogger(this.logger.child("components"));
     this.events.attachAll(this);
     this.on("interactionCreate", (interaction) => this.route(interaction));
+    this.on("error", (error) => this.logger.error("client error", { error: toError(error) }));
   }
 
   /**

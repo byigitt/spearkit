@@ -10,6 +10,7 @@ import {
   type RESTPutAPIApplicationGuildCommandsResult,
 } from "discord.js";
 import type { SlashCommand } from "./command.js";
+import type { Logger } from "../logger.js";
 
 /** Error hook invoked when a command handler throws. */
 export type CommandErrorHandler = (
@@ -38,6 +39,7 @@ export type DeployResult =
 export class CommandRegistry {
   private readonly commands = new Map<string, SlashCommand>();
   private errorHandler?: CommandErrorHandler;
+  private logger?: Logger;
 
   /** Register one or more commands. Later registrations override by name. */
   add(...commands: SlashCommand[]): this {
@@ -76,6 +78,12 @@ export class CommandRegistry {
     return this;
   }
 
+  /** Attach a logger used for dispatch tracing (debug level). */
+  setLogger(logger: Logger): this {
+    this.logger = logger;
+    return this;
+  }
+
   /** Serialise every command to discord REST payloads. */
   toJSON(): RESTPostAPIApplicationCommandsJSONBody[] {
     return this.all().map((c) => c.toJSON());
@@ -85,6 +93,9 @@ export class CommandRegistry {
   async handle(interaction: ChatInputCommandInteraction): Promise<void> {
     const command = this.commands.get(interaction.commandName);
     if (command === undefined) return;
+    this.logger?.debug("command", {
+      data: { command: interaction.commandName, user: interaction.user.id },
+    });
     try {
       await command.execute(interaction);
     } catch (error) {

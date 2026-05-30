@@ -10,6 +10,7 @@
 export * from "discord.js";
 
 // --- spearkit additions -------------------------------------------------------
+export * from "./logger.js";
 export * from "./context.js";
 export * from "./commands/options.js";
 export * from "./commands/command.js";

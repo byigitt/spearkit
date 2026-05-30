@@ -70,6 +70,7 @@ import {
   parseCustomId,
   paramsFromValues,
   MAX_CUSTOM_ID_LENGTH,
+  Logger,
 } from "../dist/index.js";
 
 // --- credentials -----------------------------------------------------------
@@ -434,8 +435,16 @@ const feedback = modal({
   },
 });
 
+const logEntries = [];
 const client = new SpearClient({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
+  logger: {
+    level: "debug",
+    sink: (entry) => {
+      logEntries.push(entry);
+      if (entry.level === "error") console.error(`[log] ${entry.message}`, entry.error?.message ?? "");
+    },
+  },
 });
 client.on("error", (err) => console.error("client error:", err?.message ?? err));
 client.register(
@@ -777,6 +786,7 @@ async function main() {
   // command + typed option resolution
   const fakeChat = {
     commandName: "allopts",
+    user: { id: "u1", tag: "user#0001" },
     replied: false,
     deferred: false,
     client,
@@ -878,6 +888,22 @@ async function main() {
   check("once:true handler fires exactly once", onceCount === 1, `count=${onceCount}`);
   check("default handler fires every time", manyCount === 2, `count=${manyCount}`);
 
+  // K. Logging ---------------------------------------------------------------
+  group("K. Logging");
+  check("client.logger is a Logger", client.logger instanceof Logger);
+  client.logger.child("e2e").info("e2e logger check");
+  check(
+    "logger captured the command dispatch trace",
+    logEntries.some((entry) => entry.level === "debug" && entry.message === "command"),
+  );
+  check(
+    "logger captured the component dispatch trace",
+    logEntries.some((entry) => entry.level === "debug" && entry.message === "component"),
+  );
+  check(
+    "child logger applies its scope",
+    logEntries.some((entry) => entry.scope === "e2e" && entry.message === "e2e logger check"),
+  );
   // --- report ---------------------------------------------------------------
   console.log(lines.join("\n"));
   console.log(`\n${passed} passed, ${failed} failed.`);
