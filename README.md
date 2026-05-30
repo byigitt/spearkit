@@ -38,6 +38,19 @@ npm install spearkit discord.js
 - **Guides & API reference** ([`docs/`](./docs)) — the Markdown the site is built from.
 - **Examples** ([`examples/`](./examples)) — one folder per topic (commands, options, components, events, loading, …).
 
+## For AI agents
+
+spearkit ships machine-readable guidance so coding agents write correct code with it:
+
+- **[`AGENTS.md`](./AGENTS.md)** — the golden rules and canonical patterns, auto-read by most coding agents.
+- **[`llms.txt`](./llms.txt)** — an [llmstxt.org](https://llmstxt.org) index of the docs; **[`llms-full.txt`](./llms-full.txt)** is every guide and the full API reference in one file.
+- **Agent skill** ([`.claude/skills/spearkit/`](./.claude/skills/spearkit)) — a drop-in [Agent Skill](https://docs.anthropic.com/en/docs/agents-and-tools/agent-skills) with recipes and a symbol cheatsheet.
+
+`AGENTS.md`, `llms.txt`, `llms-full.txt`, `docs/` and the agent skill ship in the
+npm package as plain files (no install hook), so an installed copy lives under
+`node_modules/spearkit/` — e.g. `node_modules/spearkit/.claude/skills/spearkit/SKILL.md`.
+The `llms` files are generated from `docs/`; run `npm run docs:llms` after editing docs.
+
 ## Quick start
 
 ```ts

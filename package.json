@@ -1,6 +1,6 @@
 {
   "name": "spearkit",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "discord.js++ — a developer-experience-first Discord library. Drop-in compatible with discord.js, with ergonomic events, slash commands, and interactive components.",
   "type": "module",
   "license": "PolyForm-Noncommercial-1.0.0",
@@ -35,7 +35,12 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "llms.txt",
+    "llms-full.txt",
+    "AGENTS.md",
+    "docs",
+    ".claude/skills"
   ],
   "scripts": {
     "build": "tsup",
@@ -44,7 +49,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "e2e": "node e2e/live.mjs",
-    "prepublishOnly": "npm run build"
+    "docs:llms": "node scripts/generate-llms.mjs",
+    "prepublishOnly": "npm run docs:llms && npm run build"
   },
   "dependencies": {
     "discord.js": "^14.16.3"
