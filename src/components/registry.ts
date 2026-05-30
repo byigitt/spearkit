@@ -216,11 +216,14 @@ export class ComponentRegistry {
     }
     const { values } = parseCustomId(interaction.customId);
     const params = paramsFromValues(route.paramNames, values);
+    const start = Date.now();
     try {
       await route.handle(interaction, params);
       this.onUsage?.({
         type: "component",
         name: route.namespace,
+        outcome: "success",
+        durationMs: Date.now() - start,
         userId: interaction.user.id,
         userTag: interaction.user.tag,
         guildId: interaction.guildId,
@@ -229,6 +232,18 @@ export class ComponentRegistry {
       });
     } catch (error) {
       const err = toError(error);
+      this.onUsage?.({
+        type: "component",
+        name: route.namespace,
+        outcome: "error",
+        errorMessage: err.message,
+        durationMs: Date.now() - start,
+        userId: interaction.user.id,
+        userTag: interaction.user.tag,
+        guildId: interaction.guildId,
+        channelId: interaction.channelId,
+        timestamp: new Date(),
+      });
       if (this.errorHandler !== undefined) {
         await this.errorHandler(err, interaction);
       } else {

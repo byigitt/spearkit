@@ -247,6 +247,7 @@ export class ContextMenuRegistry {
         return;
       }
     }
+    const start = Date.now();
     try {
       if (command.kind === "userMenu") {
         await command.execute(interaction as UserContextMenuCommandInteraction);
@@ -257,6 +258,8 @@ export class ContextMenuRegistry {
         type: "command",
         name: command.name,
         detail: command.kind,
+        outcome: "success",
+        durationMs: Date.now() - start,
         userId: interaction.user.id,
         userTag: interaction.user.tag,
         guildId: interaction.guildId,
@@ -265,6 +268,19 @@ export class ContextMenuRegistry {
       });
     } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error));
+      this.onUsage?.({
+        type: "command",
+        name: command.name,
+        detail: command.kind,
+        outcome: "error",
+        errorMessage: err.message,
+        durationMs: Date.now() - start,
+        userId: interaction.user.id,
+        userTag: interaction.user.tag,
+        guildId: interaction.guildId,
+        channelId: interaction.channelId,
+        timestamp: new Date(),
+      });
       interaction.client.emit("error", err);
       try {
         if (!interaction.replied && !interaction.deferred) {

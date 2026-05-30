@@ -340,11 +340,14 @@ export class PrefixRegistry {
       }
       options = parsed.values as Record<string, unknown>;
     }
+    const start = Date.now();
     try {
       await command.run(new PrefixContext(message, name, args, rest, options) as PrefixContext);
       this.onUsage?.({
         type: "prefix",
         name: command.name,
+        outcome: "success",
+        durationMs: Date.now() - start,
         userId: message.author.id,
         userTag: message.author.tag,
         guildId: message.guildId,
@@ -354,6 +357,18 @@ export class PrefixRegistry {
     } catch (error) {
       const err = toError(error);
       this.logger?.error(`prefix command "${command.name}" failed`, { error: err });
+      this.onUsage?.({
+        type: "prefix",
+        name: command.name,
+        outcome: "error",
+        errorMessage: err.message,
+        durationMs: Date.now() - start,
+        userId: message.author.id,
+        userTag: message.author.tag,
+        guildId: message.guildId,
+        channelId: message.channelId,
+        timestamp: new Date(),
+      });
       if (this.errorHandler !== undefined) await this.errorHandler(err, message);
     }
     return true;

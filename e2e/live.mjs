@@ -1060,6 +1060,12 @@ async function main() {
     "store recorded a command usage from dispatch",
     usageStore.all().some((e) => e.type === "command" && e.name === "allopts"),
   );
+  const allOpts = usageStore.all().find((e) => e.type === "command" && e.name === "allopts");
+  check(
+    "usage event carries outcome + durationMs",
+    allOpts?.outcome === "success" && typeof allOpts?.durationMs === "number",
+    `outcome=${allOpts?.outcome} durationMs=${allOpts?.durationMs}`,
+  );
   check(
     "store recorded a component usage from dispatch",
     usageStore.all().some((e) => e.type === "component"),

@@ -18,6 +18,12 @@ import { toError } from "./logger.js";
 /** What kind of interaction was used. */
 export type UsageType = "command" | "prefix" | "component" | "event";
 
+/** Outcome of a tracked use — `"success"` if the handler returned without throwing. */
+export type UsageOutcome = "success" | "error";
+
+/** A primitive metadata value attached to a usage event. */
+export type UsageMetaValue = string | number | boolean | null;
+
 /** A single recorded use. */
 export interface UsageEvent {
   readonly type: UsageType;
@@ -30,6 +36,14 @@ export interface UsageEvent {
   /** Free-form extra detail. */
   readonly detail?: string;
   readonly timestamp: Date;
+  /** Outcome of the handler — `"success"` or `"error"`. */
+  readonly outcome?: UsageOutcome;
+  /** Wall-clock duration of the handler in milliseconds. */
+  readonly durationMs?: number;
+  /** Snapshot of the typed options the handler ran with. */
+  readonly options?: Readonly<Record<string, UsageMetaValue>>;
+  /** Error message if `outcome === "error"`. */
+  readonly errorMessage?: string;
 }
 
 /** A pluggable persistence backend for {@link UsageEvent}s. */

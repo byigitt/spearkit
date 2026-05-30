@@ -132,7 +132,7 @@ describe("command dispatch emits usage", () => {
     expect(events[0]).toMatchObject({ type: "command", name: "ping", userId: "u1" });
   });
 
-  it("does not emit usage when the command throws", async () => {
+  it("emits usage with outcome 'error' and errorMessage when the command throws", async () => {
     const events: UsageEvent[] = [];
     const reg = new CommandRegistry().add(
       command({
@@ -145,6 +145,20 @@ describe("command dispatch emits usage", () => {
     );
     reg.setUsageHook((event) => events.push(event));
     await reg.handle(fakeChatInput({ commandName: "boom" }).interaction);
-    expect(events).toHaveLength(0);
+    expect(events).toHaveLength(1);
+    expect(events[0]?.outcome).toBe("error");
+    expect(events[0]?.errorMessage).toBe("nope");
+    expect(typeof events[0]?.durationMs).toBe("number");
+  });
+
+  it("emits usage with outcome 'success' and durationMs on a clean run", async () => {
+    const events: UsageEvent[] = [];
+    const reg = new CommandRegistry().add(
+      command({ name: "ok", description: "d", run: (ctx) => ctx.reply("ok") }),
+    );
+    reg.setUsageHook((event) => events.push(event));
+    await reg.handle(fakeChatInput({ commandName: "ok" }).interaction);
+    expect(events[0]?.outcome).toBe("success");
+    expect(typeof events[0]?.durationMs).toBe("number");
   });
 });

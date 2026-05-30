@@ -151,11 +151,14 @@ export class CommandRegistry {
         return;
       }
     }
+    const start = Date.now();
     try {
       await command.execute(interaction);
       this.onUsage?.({
         type: "command",
         name: command.name,
+        outcome: "success",
+        durationMs: Date.now() - start,
         userId: interaction.user.id,
         userTag: interaction.user.tag,
         guildId: interaction.guildId,
@@ -164,6 +167,18 @@ export class CommandRegistry {
       });
     } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error));
+      this.onUsage?.({
+        type: "command",
+        name: command.name,
+        outcome: "error",
+        errorMessage: err.message,
+        durationMs: Date.now() - start,
+        userId: interaction.user.id,
+        userTag: interaction.user.tag,
+        guildId: interaction.guildId,
+        channelId: interaction.channelId,
+        timestamp: new Date(),
+      });
       if (this.errorHandler !== undefined) {
         await this.errorHandler(err, interaction);
       } else {
