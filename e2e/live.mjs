@@ -89,6 +89,7 @@ import {
   formatDuration,
   parseDuration,
   discordTimestamp,
+  MemoryCache,
 } from "../dist/index.js";
 
 // --- credentials -----------------------------------------------------------
@@ -1145,6 +1146,22 @@ async function main() {
   check(
     "discordTimestamp emits <t:secs:style>",
     discordTimestamp(now, "R") === `<t:${Math.floor(now.getTime() / 1000)}:R>`,
+  );
+
+  // U. Cache -----------------------------------------------------------------
+  group("U. Cache");
+  const cache = new MemoryCache();
+  await cache.set("hello", { who: "world" }, { ttl: 60_000 });
+  const cached = await cache.get("hello");
+  check("cache.set + cache.get round-trip JSON", JSON.stringify(cached) === JSON.stringify({ who: "world" }));
+  check("cache.increment from 0", (await cache.increment("ctr")) === 1);
+  check("cache.increment by delta", (await cache.increment("ctr", 4)) === 5);
+  const r1 = await cache.rateLimit("user:1", { limit: 2, windowMs: 60_000 });
+  const r2 = await cache.rateLimit("user:1", { limit: 2, windowMs: 60_000 });
+  const r3 = await cache.rateLimit("user:1", { limit: 2, windowMs: 60_000 });
+  check(
+    "rateLimit allows up to limit then blocks",
+    r1.allowed && r2.allowed && !r3.allowed && r3.remaining === 0,
   );
   // --- report ---------------------------------------------------------------
   console.log(lines.join("\n"));
