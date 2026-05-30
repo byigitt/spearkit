@@ -13,6 +13,7 @@ import type {
 import { MessageFlags } from "discord.js";
 import { parseCustomId, paramsFromValues } from "./customId.js";
 import type { Logger } from "../logger.js";
+import type { UsageEvent } from "../usage.js";
 
 /** Shared shape of every routed component. */
 interface RouteBase {
@@ -94,6 +95,7 @@ export class ComponentRegistry {
   private readonly modals = new Map<string, ModalRoute>();
   private errorHandler?: ComponentErrorHandler;
   private logger?: Logger;
+  private onUsage?: (event: UsageEvent) => void;
 
   /** Register one or more components. Later registrations override by namespace. */
   add(...defs: ComponentDef[]): this {
@@ -134,6 +136,12 @@ export class ComponentRegistry {
   /** Attach a logger used for dispatch tracing (debug level). */
   setLogger(logger: Logger): this {
     this.logger = logger;
+    return this;
+  }
+
+  /** Attach a hook called after each successful component handler run. */
+  setUsageHook(hook: (event: UsageEvent) => void): this {
+    this.onUsage = hook;
     return this;
   }
 
@@ -189,6 +197,15 @@ export class ComponentRegistry {
     const params = paramsFromValues(route.paramNames, values);
     try {
       await route.handle(interaction, params);
+      this.onUsage?.({
+        type: "component",
+        name: route.namespace,
+        userId: interaction.user.id,
+        userTag: interaction.user.tag,
+        guildId: interaction.guildId,
+        channelId: interaction.channelId,
+        timestamp: new Date(),
+      });
     } catch (error) {
       const err = toError(error);
       if (this.errorHandler !== undefined) {

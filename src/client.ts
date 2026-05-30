@@ -15,6 +15,7 @@ import { loadEnv, type LoadEnvOptions } from "./env.js";
 import { CooldownManager, normalizeCooldown, type CooldownInput } from "./cooldown.js";
 import { TaskScheduler, task, type ScheduledTask, type TaskConfig } from "./scheduler.js";
 import { PrefixRegistry, type PrefixCommand, type PrefixOptions } from "./prefix.js";
+import { UsageTracker, type UsageEvent, type UsageOptions } from "./usage.js";
 
 /** Anything that can be handed to {@link SpearClient.register}. */
 export type Registerable = SlashCommand | EventDef | ComponentDef | ScheduledTask | PrefixCommand;
@@ -58,6 +59,8 @@ export interface SpearOptions {
   cooldown?: CooldownInput;
   /** Enable prefix (text) commands. A string/array sets prefixes; an object configures matching. */
   prefix?: string | readonly string[] | PrefixOptions;
+  /** Track command/component/prefix usage to a store and/or a Discord channel. */
+  usage?: UsageOptions;
 }
 
 /** Options for {@link SpearClient}: discord.js options plus {@link SpearOptions}. `intents` may be omitted. */
@@ -90,10 +93,12 @@ export class SpearClient extends Client {
   readonly scheduler = new TaskScheduler();
   /** Prefix (text) command registry, dispatched from `messageCreate`. */
   readonly prefix = new PrefixRegistry();
+  /** Usage tracker: records who used what to a store and/or a Discord channel. */
+  readonly usage = new UsageTracker();
   private readonly envConfig: false | LoadEnvOptions;
 
   constructor(options: SpearClientOptions = {}) {
-    const { intents, logger, dotenv, cooldown, prefix, ...rest } = options;
+    const { intents, logger, dotenv, cooldown, prefix, usage, ...rest } = options;
     super({ ...rest, intents: intents ?? Intents.default });
     this.envConfig = dotenv === false ? false : dotenv === undefined || dotenv === true ? {} : dotenv;
     this.logger = logger instanceof Logger ? logger : new Logger(logger);
@@ -112,6 +117,15 @@ export class SpearClient extends Client {
     this.on("messageCreate", (message) => {
       void this.prefix.handle(message);
     });
+    this.usage.setClient(this).setLogger(this.logger.child("usage"));
+    if (usage !== undefined) {
+      if (usage.store !== undefined) this.usage.setStore(usage.store);
+      if (usage.channel !== undefined) this.usage.reportTo(usage.channel, usage.format);
+      const onUsage = (event: UsageEvent): void => this.usage.track(event);
+      this.commands.setUsageHook(onUsage);
+      this.components.setUsageHook(onUsage);
+      this.prefix.setUsageHook(onUsage);
+    }
   }
 
   /**

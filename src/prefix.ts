@@ -16,6 +16,7 @@ import type {
 } from "discord.js";
 import type { Logger } from "./logger.js";
 import { toError } from "./logger.js";
+import type { UsageEvent } from "./usage.js";
 import {
   formatCooldownMessage,
   normalizeCooldown,
@@ -171,6 +172,7 @@ export class PrefixRegistry {
   private cooldowns?: CooldownManager;
   private defaultCooldown?: CooldownConfig;
   private errorHandler?: PrefixErrorHandler;
+  private onUsage?: (event: UsageEvent) => void;
 
   /** Configure prefixes and matching behaviour. */
   setOptions(input: string | readonly string[] | PrefixOptions): this {
@@ -181,6 +183,12 @@ export class PrefixRegistry {
   /** Attach a logger for dispatch tracing and error reporting. */
   setLogger(logger: Logger): this {
     this.logger = logger;
+    return this;
+  }
+
+  /** Attach a hook called after each successful prefix command run. */
+  setUsageHook(hook: (event: UsageEvent) => void): this {
+    this.onUsage = hook;
     return this;
   }
 
@@ -271,6 +279,15 @@ export class PrefixRegistry {
     const args = rest.length > 0 ? rest.split(/\s+/) : [];
     try {
       await command.run(new PrefixContext(message, name, args, rest));
+      this.onUsage?.({
+        type: "prefix",
+        name: command.name,
+        userId: message.author.id,
+        userTag: message.author.tag,
+        guildId: message.guildId,
+        channelId: message.channelId,
+        timestamp: new Date(),
+      });
     } catch (error) {
       const err = toError(error);
       this.logger?.error(`prefix command "${command.name}" failed`, { error: err });

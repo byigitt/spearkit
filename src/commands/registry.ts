@@ -17,6 +17,7 @@ import {
   type CooldownActor,
   type CooldownConfig,
 } from "../cooldown.js";
+import type { UsageEvent } from "../usage.js";
 
 /** Error hook invoked when a command handler throws. */
 export type CommandErrorHandler = (
@@ -48,6 +49,7 @@ export class CommandRegistry {
   private logger?: Logger;
   private cooldowns?: CooldownManager;
   private defaultCooldown?: CooldownConfig;
+  private onUsage?: (event: UsageEvent) => void;
 
   /** Register one or more commands. Later registrations override by name. */
   add(...commands: SlashCommand[]): this {
@@ -99,6 +101,12 @@ export class CommandRegistry {
     return this;
   }
 
+  /** Attach a hook called after each successful command execution. */
+  setUsageHook(hook: (event: UsageEvent) => void): this {
+    this.onUsage = hook;
+    return this;
+  }
+
   /** Serialise every command to discord REST payloads. */
   toJSON(): RESTPostAPIApplicationCommandsJSONBody[] {
     return this.all().map((c) => c.toJSON());
@@ -121,6 +129,15 @@ export class CommandRegistry {
     }
     try {
       await command.execute(interaction);
+      this.onUsage?.({
+        type: "command",
+        name: command.name,
+        userId: interaction.user.id,
+        userTag: interaction.user.tag,
+        guildId: interaction.guildId,
+        channelId: interaction.channelId,
+        timestamp: new Date(),
+      });
     } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error));
       if (this.errorHandler !== undefined) {

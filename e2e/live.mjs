@@ -80,6 +80,8 @@ import {
   task,
   cron,
   prefixCommand,
+  MemoryUsageStore,
+  JsonFileUsageStore,
 } from "../dist/index.js";
 
 // --- credentials -----------------------------------------------------------
@@ -444,10 +446,12 @@ const feedback = modal({
   },
 });
 
+const usageStore = new MemoryUsageStore();
 const logEntries = [];
 const client = new SpearClient({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
   prefix: { prefix: "!", ignoreBots: false },
+  usage: { store: usageStore },
   logger: {
     level: "debug",
     sink: (entry) => {
@@ -577,6 +581,9 @@ function fakeComponent(kind, customId, extra) {
   return {
     ...guards(kind),
     customId,
+    user: { id: "comp-user", tag: "comp#0001" },
+    guildId: null,
+    channelId: null,
     client,
     replied: false,
     deferred: false,
@@ -1011,6 +1018,49 @@ async function main() {
     await trigger.delete().catch(() => undefined);
     await prefixReply?.delete().catch(() => undefined);
   }
+
+  // P. Usage tracking ---------------------------------------------------------
+  group("P. Usage tracking");
+  check(
+    "store recorded a command usage from dispatch",
+    usageStore.all().some((e) => e.type === "command" && e.name === "allopts"),
+  );
+  check(
+    "store recorded a component usage from dispatch",
+    usageStore.all().some((e) => e.type === "component"),
+  );
+  const uchannel = await findSendableTextChannel(await client.guilds.fetch(guildId));
+  if (uchannel == null) {
+    check("usage reported to a Discord channel live", false, "no sendable channel");
+  } else {
+    client.usage.reportTo(uchannel.id);
+    client.usage.track({
+      type: "command",
+      name: "e2e-usage-probe",
+      userId: client.user?.id,
+      userTag: client.user?.tag,
+      guildId,
+      channelId: uchannel.id,
+      timestamp: new Date(),
+    });
+    let report;
+    for (let i = 0; i < 24 && report === undefined; i++) {
+      await sleep(250);
+      const recent = await uchannel.messages.fetch({ limit: 6 });
+      report = recent.find((m) => m.content.includes("e2e-usage-probe") && m.author.id === client.user?.id);
+    }
+    check("usage reported to a Discord channel live", report !== undefined, `#${uchannel.name}`);
+    await report?.delete().catch(() => undefined);
+  }
+  const usageDir = mkdtempSync(join(tmpdir(), "spearkit-e2e-usage-"));
+  const fileStore = new JsonFileUsageStore(join(usageDir, "usage.jsonl"));
+  await fileStore.record({ type: "prefix", name: "filed", userId: "u", timestamp: new Date() });
+  const persisted = await fileStore.all();
+  check(
+    "JSON file store persists and reads back",
+    persisted.length === 1 && persisted[0].name === "filed" && persisted[0].timestamp instanceof Date,
+  );
+  rmSync(usageDir, { recursive: true, force: true });
   // --- report ---------------------------------------------------------------
   console.log(lines.join("\n"));
   console.log(`\n${passed} passed, ${failed} failed.`);
