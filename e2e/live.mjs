@@ -79,6 +79,7 @@ import {
   effectiveDuration,
   task,
   cron,
+  prefixCommand,
 } from "../dist/index.js";
 
 // --- credentials -----------------------------------------------------------
@@ -446,6 +447,7 @@ const feedback = modal({
 const logEntries = [];
 const client = new SpearClient({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
+  prefix: { prefix: "!", ignoreBots: false },
   logger: {
     level: "debug",
     sink: (entry) => {
@@ -478,6 +480,8 @@ let tickCount = 0;
 client.register(
   task({ name: "e2e-tick", interval: 250, runOnStart: true, run: () => { tickCount += 1; } }),
 );
+client.register(prefixCommand({ name: "ptest", run: (ctx) => ctx.reply("prefix-pong") }));
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // =====================================================================
 // E. Plugin + F. Loader (register before deploy)
@@ -988,6 +992,25 @@ async function main() {
   check("scheduler is active after ready", client.scheduler.active === true);
   check("tick task is registered", client.scheduler.list().some((t) => t.name === "e2e-tick"));
   check("interval task fired live", tickCount >= 2, `ticks=${tickCount}`);
+
+  // O. Prefix commands --------------------------------------------------------
+  group("O. Prefix commands");
+  check("prefix command registered", client.prefix.list().some((c) => c.name === "ptest"));
+  const pchannel = await findSendableTextChannel(await client.guilds.fetch(guildId));
+  if (pchannel == null) {
+    check("prefix live message handled", false, "no sendable channel");
+  } else {
+    const trigger = await pchannel.send("!ptest live-args");
+    let prefixReply;
+    for (let i = 0; i < 24 && prefixReply === undefined; i++) {
+      await sleep(250);
+      const recent = await pchannel.messages.fetch({ limit: 8 });
+      prefixReply = recent.find((m) => m.content === "prefix-pong" && m.author.id === client.user?.id);
+    }
+    check("prefix command handled a live message", prefixReply !== undefined, `#${pchannel.name}`);
+    await trigger.delete().catch(() => undefined);
+    await prefixReply?.delete().catch(() => undefined);
+  }
   // --- report ---------------------------------------------------------------
   console.log(lines.join("\n"));
   console.log(`\n${passed} passed, ${failed} failed.`);

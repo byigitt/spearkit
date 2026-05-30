@@ -14,9 +14,10 @@ import { Logger, type LoggerOptions, toError } from "./logger.js";
 import { loadEnv, type LoadEnvOptions } from "./env.js";
 import { CooldownManager, normalizeCooldown, type CooldownInput } from "./cooldown.js";
 import { TaskScheduler, task, type ScheduledTask, type TaskConfig } from "./scheduler.js";
+import { PrefixRegistry, type PrefixCommand, type PrefixOptions } from "./prefix.js";
 
 /** Anything that can be handed to {@link SpearClient.register}. */
-export type Registerable = SlashCommand | EventDef | ComponentDef | ScheduledTask;
+export type Registerable = SlashCommand | EventDef | ComponentDef | ScheduledTask | PrefixCommand;
 
 const allIntents = Object.values(GatewayIntentBits).filter(
   (value): value is GatewayIntentBits => typeof value === "number",
@@ -55,6 +56,8 @@ export interface SpearOptions {
   dotenv?: boolean | LoadEnvOptions;
   /** A default cooldown applied to every command. A command's own cooldown overrides it. */
   cooldown?: CooldownInput;
+  /** Enable prefix (text) commands. A string/array sets prefixes; an object configures matching. */
+  prefix?: string | readonly string[] | PrefixOptions;
 }
 
 /** Options for {@link SpearClient}: discord.js options plus {@link SpearOptions}. `intents` may be omitted. */
@@ -85,24 +88,30 @@ export class SpearClient extends Client {
   readonly cooldowns = new CooldownManager();
   /** Cron/interval task scheduler; started on ready and stopped on destroy. */
   readonly scheduler = new TaskScheduler();
+  /** Prefix (text) command registry, dispatched from `messageCreate`. */
+  readonly prefix = new PrefixRegistry();
   private readonly envConfig: false | LoadEnvOptions;
 
   constructor(options: SpearClientOptions = {}) {
-    const { intents, logger, dotenv, cooldown, ...rest } = options;
+    const { intents, logger, dotenv, cooldown, prefix, ...rest } = options;
     super({ ...rest, intents: intents ?? Intents.default });
     this.envConfig = dotenv === false ? false : dotenv === undefined || dotenv === true ? {} : dotenv;
     this.logger = logger instanceof Logger ? logger : new Logger(logger);
     this.commands.setLogger(this.logger.child("commands"));
-    this.commands.setCooldowns(
-      this.cooldowns,
-      cooldown !== undefined ? normalizeCooldown(cooldown) : undefined,
-    );
+    const defaultCooldown = cooldown !== undefined ? normalizeCooldown(cooldown) : undefined;
+    this.commands.setCooldowns(this.cooldowns, defaultCooldown);
     this.components.setLogger(this.logger.child("components"));
     this.events.attachAll(this);
     this.on("interactionCreate", (interaction) => this.route(interaction));
     this.on("error", (error) => this.logger.error("client error", { error: toError(error) }));
     this.scheduler.setLogger(this.logger.child("scheduler"));
     this.once("clientReady", () => this.scheduler.start(this));
+    this.prefix.setLogger(this.logger.child("prefix"));
+    this.prefix.setCooldowns(this.cooldowns, defaultCooldown);
+    if (prefix !== undefined) this.prefix.setOptions(prefix);
+    this.on("messageCreate", (message) => {
+      void this.prefix.handle(message);
+    });
   }
 
   /**
@@ -117,6 +126,8 @@ export class SpearClient extends Client {
         this.events.add(item);
       } else if (item.kind === "task") {
         this.scheduler.add(item);
+      } else if (item.kind === "prefixCommand") {
+        this.prefix.add(item);
       } else {
         this.components.add(item);
       }
