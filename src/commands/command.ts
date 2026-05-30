@@ -21,6 +21,7 @@ import {
   type OptionValue,
   type ResolvedOptions,
 } from "./options.js";
+import { normalizeCooldown, type CooldownConfig, type CooldownInput } from "../cooldown.js";
 
 /** Metadata shared by every kind of command. */
 interface CommonMeta {
@@ -32,6 +33,8 @@ interface CommonMeta {
   guildOnly?: boolean;
   nameLocalizations?: LocalizationMap;
   descriptionLocalizations?: LocalizationMap;
+  /** Rate-limit this command. A number is a duration in ms; see {@link CooldownConfig}. */
+  cooldown?: CooldownInput;
 }
 
 /** Configuration for a leaf (non-subcommand) slash command. */
@@ -91,6 +94,7 @@ interface SlashCommandSpec {
   hasAutocomplete: boolean;
   executor: (interaction: ChatInputCommandInteraction) => Promise<void>;
   autocompleter: (interaction: AutocompleteInteraction) => Promise<void>;
+  cooldown?: CooldownConfig;
 }
 
 /**
@@ -106,6 +110,8 @@ export class SlashCommand {
   private readonly json: RESTPostAPIChatInputApplicationCommandsJSONBody;
   private readonly executor: (interaction: ChatInputCommandInteraction) => Promise<void>;
   private readonly autocompleter: (interaction: AutocompleteInteraction) => Promise<void>;
+  /** Resolved cooldown configuration for this command, if any. */
+  readonly cooldown?: CooldownConfig;
 
   /** @internal */
   constructor(spec: SlashCommandSpec) {
@@ -114,6 +120,7 @@ export class SlashCommand {
     this.json = spec.json;
     this.executor = spec.executor;
     this.autocompleter = spec.autocompleter;
+    this.cooldown = spec.cooldown;
   }
 
   /** Serialise to the discord REST chat-input command payload. */
@@ -233,6 +240,7 @@ export function command<O extends OptionMap = Record<string, never>, R = void>(
     hasAutocomplete: optionsHaveAutocomplete(options),
     executor,
     autocompleter: makeAutocompleter(options),
+    cooldown: config.cooldown !== undefined ? normalizeCooldown(config.cooldown) : undefined,
   });
 }
 
@@ -320,5 +328,6 @@ export function commandGroup(config: CommandGroupConfig): SlashCommand {
     hasAutocomplete,
     executor,
     autocompleter,
+    cooldown: config.cooldown !== undefined ? normalizeCooldown(config.cooldown) : undefined,
   });
 }

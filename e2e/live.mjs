@@ -74,6 +74,9 @@ import {
   loadEnv,
   parseEnv,
   env,
+  CommandRegistry,
+  CooldownManager,
+  effectiveDuration,
 } from "../dist/index.js";
 
 // --- credentials -----------------------------------------------------------
@@ -916,6 +919,58 @@ async function main() {
   const loadedEnv = loadEnv({ path: envPath });
   check("loadEnv returns the parsed pairs", loadedEnv.TEST_DISCORD_GUILD === guildId);
   check("env.require reads the loaded value", env.require("TEST_DISCORD_GUILD") === guildId);
+
+  // M. Cooldown ---------------------------------------------------------------
+  group("M. Cooldown");
+  const cd = new CooldownManager();
+  const cdActor = { userId: "cdx", roleIds: ["r1", "r2"], guildId: "g", channelId: "c" };
+  check(
+    "manager allows first, blocks within window, allows after",
+    cd.consume("b", 1000, cdActor, 0).allowed === true &&
+      cd.consume("b", 1000, cdActor, 400).allowed === false &&
+      cd.consume("b", 1000, cdActor, 1000).allowed === true,
+  );
+  check(
+    "exempt users bypass the cooldown",
+    cd.consume("x", { duration: 1000, exempt: { users: ["cdx"] } }, cdActor, 0).allowed === true &&
+      cd.consume("x", { duration: 1000, exempt: { users: ["cdx"] } }, cdActor, 1).allowed === true,
+  );
+  check(
+    "most lenient matching role override wins",
+    effectiveDuration({ duration: 9000, overrides: { roles: { r1: 3000, r2: 1000 } } }, cdActor) === 1000,
+  );
+  const fakeCmd = (name, replies, userId) => ({
+    commandName: name,
+    user: { id: userId },
+    member: null,
+    guildId: null,
+    channelId: null,
+    replied: false,
+    deferred: false,
+    async reply(p) {
+      replies.push(p);
+      this.replied = true;
+    },
+    async editReply(p) {
+      replies.push(p);
+    },
+    async followUp(p) {
+      replies.push(p);
+    },
+  });
+  const cdReg = new CommandRegistry().add(
+    command({ name: "limited", description: "rate limited", cooldown: 60000, run: (c) => c.reply("ok") }),
+  );
+  cdReg.setCooldowns(new CooldownManager());
+  const cdReplies1 = [];
+  await cdReg.handle(fakeCmd("limited", cdReplies1, "cd-user"));
+  const cdReplies2 = [];
+  await cdReg.handle(fakeCmd("limited", cdReplies2, "cd-user"));
+  check("command dispatch runs the first call", payloadText(cdReplies1[0]) === "ok");
+  check(
+    "command dispatch blocks the second call",
+    typeof payloadText(cdReplies2[0]) === "string" && /cooldown/i.test(payloadText(cdReplies2[0])),
+  );
   // --- report ---------------------------------------------------------------
   console.log(lines.join("\n"));
   console.log(`\n${passed} passed, ${failed} failed.`);

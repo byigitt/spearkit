@@ -12,6 +12,7 @@ import type { SpearPlugin } from "./plugin.js";
 import { loadInto, type LoadOptions } from "./loader.js";
 import { Logger, type LoggerOptions, toError } from "./logger.js";
 import { loadEnv, type LoadEnvOptions } from "./env.js";
+import { CooldownManager, normalizeCooldown, type CooldownInput } from "./cooldown.js";
 
 /** Anything that can be handed to {@link SpearClient.register}. */
 export type Registerable = SlashCommand | EventDef | ComponentDef;
@@ -51,6 +52,8 @@ export interface SpearOptions {
    * a custom path or override behaviour, or `false` to disable.
    */
   dotenv?: boolean | LoadEnvOptions;
+  /** A default cooldown applied to every command. A command's own cooldown overrides it. */
+  cooldown?: CooldownInput;
 }
 
 /** Options for {@link SpearClient}: discord.js options plus {@link SpearOptions}. `intents` may be omitted. */
@@ -77,14 +80,20 @@ export class SpearClient extends Client {
   readonly components = new ComponentRegistry();
   /** Structured logger shared across spearkit and available to your code. */
   readonly logger: Logger;
+  /** Shared cooldown manager used by command dispatch; also usable directly. */
+  readonly cooldowns = new CooldownManager();
   private readonly envConfig: false | LoadEnvOptions;
 
   constructor(options: SpearClientOptions = {}) {
-    const { intents, logger, dotenv, ...rest } = options;
+    const { intents, logger, dotenv, cooldown, ...rest } = options;
     super({ ...rest, intents: intents ?? Intents.default });
     this.envConfig = dotenv === false ? false : dotenv === undefined || dotenv === true ? {} : dotenv;
     this.logger = logger instanceof Logger ? logger : new Logger(logger);
     this.commands.setLogger(this.logger.child("commands"));
+    this.commands.setCooldowns(
+      this.cooldowns,
+      cooldown !== undefined ? normalizeCooldown(cooldown) : undefined,
+    );
     this.components.setLogger(this.logger.child("components"));
     this.events.attachAll(this);
     this.on("interactionCreate", (interaction) => this.route(interaction));

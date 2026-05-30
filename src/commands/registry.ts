@@ -11,6 +11,12 @@ import {
 } from "discord.js";
 import type { SlashCommand } from "./command.js";
 import type { Logger } from "../logger.js";
+import {
+  CooldownManager,
+  formatCooldownMessage,
+  type CooldownActor,
+  type CooldownConfig,
+} from "../cooldown.js";
 
 /** Error hook invoked when a command handler throws. */
 export type CommandErrorHandler = (
@@ -40,6 +46,8 @@ export class CommandRegistry {
   private readonly commands = new Map<string, SlashCommand>();
   private errorHandler?: CommandErrorHandler;
   private logger?: Logger;
+  private cooldowns?: CooldownManager;
+  private defaultCooldown?: CooldownConfig;
 
   /** Register one or more commands. Later registrations override by name. */
   add(...commands: SlashCommand[]): this {
@@ -84,6 +92,13 @@ export class CommandRegistry {
     return this;
   }
 
+  /** Wire a shared cooldown manager and an optional default cooldown for every command. */
+  setCooldowns(manager: CooldownManager, defaultCooldown?: CooldownConfig): this {
+    this.cooldowns = manager;
+    this.defaultCooldown = defaultCooldown;
+    return this;
+  }
+
   /** Serialise every command to discord REST payloads. */
   toJSON(): RESTPostAPIApplicationCommandsJSONBody[] {
     return this.all().map((c) => c.toJSON());
@@ -96,6 +111,14 @@ export class CommandRegistry {
     this.logger?.debug("command", {
       data: { command: interaction.commandName, user: interaction.user.id },
     });
+    const cooldown = command.cooldown ?? this.defaultCooldown;
+    if (cooldown !== undefined && this.cooldowns !== undefined) {
+      const result = this.cooldowns.consume(command.name, cooldown, actorOf(interaction));
+      if (!result.allowed) {
+        await this.replyCooldown(interaction, cooldown, result.remaining);
+        return;
+      }
+    }
     try {
       await command.execute(interaction);
     } catch (error) {
@@ -159,4 +182,37 @@ export class CommandRegistry {
       // Interaction likely expired; nothing actionable left to do.
     }
   }
+
+  private async replyCooldown(
+    interaction: ChatInputCommandInteraction,
+    config: CooldownConfig,
+    remaining: number,
+  ): Promise<void> {
+    this.logger?.debug("cooldown", {
+      data: { command: interaction.commandName, user: interaction.user.id, remaining },
+    });
+    const content = formatCooldownMessage(config, remaining);
+    try {
+      if (interaction.deferred) await interaction.editReply({ content });
+      else if (interaction.replied) await interaction.followUp({ content, flags: MessageFlags.Ephemeral });
+      else await interaction.reply({ content, flags: MessageFlags.Ephemeral });
+    } catch {
+      // Interaction likely expired.
+    }
+  }
+}
+
+function actorOf(interaction: ChatInputCommandInteraction): CooldownActor {
+  const member = interaction.member;
+  let roleIds: readonly string[] = [];
+  if (member !== null) {
+    const roles = member.roles;
+    roleIds = Array.isArray(roles) ? roles : [...roles.cache.keys()];
+  }
+  return {
+    userId: interaction.user.id,
+    roleIds,
+    guildId: interaction.guildId,
+    channelId: interaction.channelId,
+  };
 }
