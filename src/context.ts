@@ -6,6 +6,11 @@ import {
   type Message,
   type RepliableInteraction,
 } from "discord.js";
+import type { Client } from "discord.js";
+import { Embeds, defaultEmbeds, type EmbedLevel, type EmbedPresetInput } from "./embeds.js";
+
+/** A client (or anything client-shaped) that may expose a configured {@link Embeds}. */
+type EmbedHost = Client & { embeds?: Embeds };
 
 /** Reply options with an ergonomic `ephemeral` shortcut (mapped to flags). */
 export type ReplyData = InteractionReplyOptions & { ephemeral?: boolean };
@@ -127,8 +132,59 @@ export abstract class BaseContext<I extends RepliableInteraction = RepliableInte
     }
   }
 
-  /** State-aware ephemeral error message. */
-  error(message: string): Promise<void> {
-    return this.send(asEphemeral(message));
+
+  /** Get the configured {@link Embeds} factory — `client.embeds` or the default. */
+  protected getEmbeds(): Embeds {
+    return (this.interaction.client as EmbedHost).embeds ?? defaultEmbeds;
+  }
+
+  /** State-aware send of a red error embed. Defaults to ephemeral. */
+  error(input: EmbedPresetInput, options: { ephemeral?: boolean } = {}): Promise<void> {
+    return this.sendPreset("error", input, { ephemeral: options.ephemeral ?? true });
+  }
+
+  /** State-aware send of a green success embed. */
+  success(input: EmbedPresetInput, options: { ephemeral?: boolean } = {}): Promise<void> {
+    return this.sendPreset("success", input, options);
+  }
+
+  /** State-aware send of a blue info embed. */
+  info(input: EmbedPresetInput, options: { ephemeral?: boolean } = {}): Promise<void> {
+    return this.sendPreset("info", input, options);
+  }
+
+  /** State-aware send of a yellow warn embed. */
+  warn(input: EmbedPresetInput, options: { ephemeral?: boolean } = {}): Promise<void> {
+    return this.sendPreset("warn", input, options);
+  }
+
+  /** Initial-reply variant of {@link error} (always `reply`, never `editReply`/`followUp`). */
+  replyError(input: EmbedPresetInput, options: { ephemeral?: boolean } = {}): Promise<InteractionResponse<boolean>> {
+    return this.replyPreset("error", input, { ephemeral: options.ephemeral ?? true });
+  }
+
+  /** Initial-reply variant of {@link success}. */
+  replySuccess(input: EmbedPresetInput, options: { ephemeral?: boolean } = {}): Promise<InteractionResponse<boolean>> {
+    return this.replyPreset("success", input, options);
+  }
+
+  /** Initial-reply variant of {@link info}. */
+  replyInfo(input: EmbedPresetInput, options: { ephemeral?: boolean } = {}): Promise<InteractionResponse<boolean>> {
+    return this.replyPreset("info", input, options);
+  }
+
+  /** Initial-reply variant of {@link warn}. */
+  replyWarn(input: EmbedPresetInput, options: { ephemeral?: boolean } = {}): Promise<InteractionResponse<boolean>> {
+    return this.replyPreset("warn", input, options);
+  }
+
+  private sendPreset(level: EmbedLevel, input: EmbedPresetInput, options: { ephemeral?: boolean }): Promise<void> {
+    const embed = this.getEmbeds().build(level, input);
+    return this.send({ embeds: [embed], ephemeral: options.ephemeral });
+  }
+
+  private replyPreset(level: EmbedLevel, input: EmbedPresetInput, options: { ephemeral?: boolean }): Promise<InteractionResponse<boolean>> {
+    const embed = this.getEmbeds().build(level, input);
+    return this.reply({ embeds: [embed], ephemeral: options.ephemeral });
   }
 }

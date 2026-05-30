@@ -82,6 +82,8 @@ import {
   prefixCommand,
   MemoryUsageStore,
   JsonFileUsageStore,
+  Embeds,
+  DEFAULT_EMBED_COLORS,
 } from "../dist/index.js";
 
 // --- credentials -----------------------------------------------------------
@@ -1061,6 +1063,33 @@ async function main() {
     persisted.length === 1 && persisted[0].name === "filed" && persisted[0].timestamp instanceof Date,
   );
   rmSync(usageDir, { recursive: true, force: true });
+
+  // Q. Embed presets ----------------------------------------------------------
+  group("Q. Embed presets");
+  check("client.embeds is an Embeds instance", client.embeds instanceof Embeds);
+  const successJson = client.embeds.success("done").toJSON();
+  check(
+    "embeds.success builds with default success color and icon prefix",
+    successJson.color === DEFAULT_EMBED_COLORS.success && /✅/.test(successJson.description ?? ""),
+  );
+  const echannel = await findSendableTextChannel(await client.guilds.fetch(guildId));
+  if (echannel == null) {
+    check("preset embed sent + read back on the wire", false, "no sendable channel");
+  } else {
+    const sent = await echannel.send({
+      embeds: [client.embeds.success("spearkit E2E embed preset")],
+    });
+    const back = await echannel.messages.fetch(sent.id);
+    const embed = back.embeds[0];
+    check(
+      "preset embed sent + read back on the wire",
+      embed != null &&
+        embed.color === DEFAULT_EMBED_COLORS.success &&
+        /spearkit E2E embed preset/.test(embed.description ?? ""),
+      `color=${embed?.color}`,
+    );
+    await sent.delete().catch(() => undefined);
+  }
   // --- report ---------------------------------------------------------------
   console.log(lines.join("\n"));
   console.log(`\n${passed} passed, ${failed} failed.`);

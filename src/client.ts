@@ -16,6 +16,7 @@ import { CooldownManager, normalizeCooldown, type CooldownInput } from "./cooldo
 import { TaskScheduler, task, type ScheduledTask, type TaskConfig } from "./scheduler.js";
 import { PrefixRegistry, type PrefixCommand, type PrefixOptions } from "./prefix.js";
 import { UsageTracker, type UsageEvent, type UsageOptions } from "./usage.js";
+import { Embeds, type EmbedsOptions } from "./embeds.js";
 
 /** Anything that can be handed to {@link SpearClient.register}. */
 export type Registerable = SlashCommand | EventDef | ComponentDef | ScheduledTask | PrefixCommand;
@@ -61,6 +62,8 @@ export interface SpearOptions {
   prefix?: string | readonly string[] | PrefixOptions;
   /** Track command/component/prefix usage to a store and/or a Discord channel. */
   usage?: UsageOptions;
+  /** Default {@link Embeds} factory for preset replies. Pass an instance or options. */
+  embeds?: Embeds | EmbedsOptions;
 }
 
 /** Options for {@link SpearClient}: discord.js options plus {@link SpearOptions}. `intents` may be omitted. */
@@ -95,11 +98,14 @@ export class SpearClient extends Client {
   readonly prefix = new PrefixRegistry();
   /** Usage tracker: records who used what to a store and/or a Discord channel. */
   readonly usage = new UsageTracker();
+  /** Preset embed factory used by `ctx.error/success/info/warn` and available to your code. */
+  readonly embeds: Embeds;
   private readonly envConfig: false | LoadEnvOptions;
 
   constructor(options: SpearClientOptions = {}) {
-    const { intents, logger, dotenv, cooldown, prefix, usage, ...rest } = options;
+    const { intents, logger, dotenv, cooldown, prefix, usage, embeds, ...rest } = options;
     super({ ...rest, intents: intents ?? Intents.default });
+    this.embeds = embeds instanceof Embeds ? embeds : new Embeds(embeds);
     this.envConfig = dotenv === false ? false : dotenv === undefined || dotenv === true ? {} : dotenv;
     this.logger = logger instanceof Logger ? logger : new Logger(logger);
     this.commands.setLogger(this.logger.child("commands"));
