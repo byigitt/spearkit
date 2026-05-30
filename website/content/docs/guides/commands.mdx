@@ -1,0 +1,197 @@
+---
+title: "Commands"
+description: "Slash commands in spear are defined as a single object: the metadata, the typed options, and the handler all live together. spear serialises them for discord and routes incoming in"
+---
+
+## A first command
+
+```ts
+import { command } from "spear";
+
+export const ping = command({
+  name: "ping",
+  description: "Check latency",
+  run: (ctx) => ctx.reply(`Pong! ${ctx.client.ws.ping}ms`),
+});
+```
+
+Register it on a client (`client.register(ping)`) and deploy it (see
+[Deployment](#deployment)). That's the whole loop.
+
+## The command context
+
+The handler receives a `CommandContext`. It wraps the discord.js
+`ChatInputCommandInteraction` and adds ergonomic accessors and reply helpers.
+
+| Member | Description |
+| ------ | ----------- |
+| `ctx.options` | Resolved, fully-typed option values (see [Options](/docs/guides/options)). |
+| `ctx.commandName` | The invoked command name. |
+| `ctx.subcommand` | The invoked subcommand name, or `null`. |
+| `ctx.showModal(modal)` | Present a modal in response. |
+| `ctx.user` / `ctx.member` / `ctx.guild` / `ctx.guildId` / `ctx.channel` / `ctx.channelId` / `ctx.locale` | Actor and location accessors. |
+| `ctx.reply` / `ctx.replyEphemeral` / `ctx.defer` / `ctx.editReply` / `ctx.followUp` / `ctx.send` / `ctx.error` | Reply helpers (see [Contexts](/docs/guides/context)). |
+| `ctx.interaction` | The raw discord.js interaction, for anything not wrapped. |
+
+```ts
+import { command, option } from "spear";
+
+export const echo = command({
+  name: "echo",
+  description: "Repeat a message",
+  options: {
+    text: option.string({ description: "What to say", required: true }),
+    times: option.integer({ description: "Repeat count", minValue: 1, maxValue: 5 }),
+  },
+  run: (ctx) => {
+    ctx.options.text;  // string
+    ctx.options.times; // number | undefined
+    return ctx.reply({
+      content: ctx.options.text.repeat(ctx.options.times ?? 1),
+      ephemeral: true,
+    });
+  },
+});
+```
+
+Options are covered in depth in [Options](/docs/guides/options).
+
+## Command metadata
+
+```ts
+import { command, PermissionFlagsBits } from "spear";
+
+export const purge = command({
+  name: "purge",
+  description: "Delete recent messages",
+  guildOnly: true,                                  // only usable in guilds
+  nsfw: false,                                      // age-restricted command
+  defaultMemberPermissions: PermissionFlagsBits.ManageMessages, // who sees it by default
+  nameLocalizations: { tr: "temizle" },             // localized name
+  descriptionLocalizations: { tr: "Mesajları sil" },
+  run: (ctx) => ctx.reply("…"),
+});
+```
+
+| Field | Type | Effect |
+| ----- | ---- | ------ |
+| `guildOnly` | `boolean` | Restricts the command to guild contexts. |
+| `nsfw` | `boolean` | Marks the command age-restricted. |
+| `defaultMemberPermissions` | `PermissionResolvable \| null` | Default permission gate (members without it don't see the command). |
+| `nameLocalizations` / `descriptionLocalizations` | `LocalizationMap` | Per-locale name/description. |
+
+## Subcommands and groups
+
+For commands with subcommands, use `commandGroup` together with `subcommand`
+and (optionally) `subcommandGroup`. Each subcommand has its own typed options
+and handler; spear routes to the right one automatically.
+
+```ts
+import { commandGroup, subcommand, subcommandGroup, option } from "spear";
+
+export const admin = commandGroup({
+  name: "admin",
+  description: "Administration",
+  guildOnly: true,
+  // Direct subcommands: /admin say
+  subcommands: {
+    say: subcommand({
+      description: "Make the bot say something",
+      options: { message: option.string({ description: "Message", required: true }) },
+      run: (ctx) => ctx.reply(ctx.options.message),
+    }),
+  },
+  // Grouped subcommands: /admin users ban
+  groups: {
+    users: subcommandGroup({
+      description: "Manage users",
+      subcommands: {
+        ban: subcommand({
+          description: "Ban a member",
+          options: {
+            target: option.user({ description: "Member", required: true }),
+            reason: option.string({ description: "Reason" }),
+          },
+          run: (ctx) =>
+            ctx.reply(`Banned ${ctx.options.target.tag}: ${ctx.options.reason ?? "no reason"}`),
+        }),
+      },
+    }),
+  },
+});
+```
+
+Inside a subcommand handler, `ctx.options` is typed from *that subcommand's*
+options. There is no `switch (subcommand)` to write — spear dispatches by the
+invoked subcommand group/name.
+
+## The command registry
+
+`client.commands` is a `CommandRegistry`. You usually feed it through
+`client.register(...)`, but you can use it directly:
+
+```ts
+import { CommandRegistry } from "spear";
+
+const registry = new CommandRegistry();
+registry.add(ping, echo, admin);
+
+registry.get("ping");   // SlashCommand | undefined
+registry.names;         // string[]
+registry.size;          // number
+registry.remove("ping"); // boolean
+registry.toJSON();      // REST payloads for all commands
+```
+
+`SpearClient` calls `registry.handle(interaction)` and
+`registry.handleAutocomplete(interaction)` for you on every interaction.
+
+### Error handling
+
+If a handler throws, spear catches it. By default it emits the client's `error`
+event and replies with an ephemeral "something went wrong" message. Override
+that:
+
+```ts
+client.commands.onError((error, interaction) => {
+  console.error(`/${interaction.commandName} failed`, error);
+  if (!interaction.replied && !interaction.deferred) {
+    return interaction.reply({ content: "Command failed.", ephemeral: true });
+  }
+});
+```
+
+## Deployment
+
+Commands must be registered with discord before they appear. spear gives you two
+ways.
+
+**From the client** (uses the client's authenticated REST; call after ready):
+
+```ts
+await client.start(process.env.DISCORD_TOKEN);
+await client.deployCommands({ guildId: process.env.GUILD_ID }); // omit guildId for global
+```
+
+**Standalone** (a separate deploy script, no running client needed):
+
+```ts
+import { CommandRegistry } from "spear";
+
+const registry = new CommandRegistry().add(ping, echo, admin);
+await registry.deploy({
+  token: process.env.DISCORD_TOKEN,
+  applicationId: process.env.DISCORD_APP_ID,
+  guildId: process.env.GUILD_ID, // optional
+});
+```
+
+Guild deploys apply **instantly** and are ideal during development. Global
+deploys (no `guildId`) can take up to an hour to propagate.
+
+## See also
+
+- [Options](/docs/guides/options) — typed option builders, choices, autocomplete.
+- [Components](/docs/guides/components) — buttons, selects, modals.
+- [Client](/docs/guides/client) — registering and deploying from the client.
+- [Contexts](/docs/guides/context) — the reply helpers every handler shares.

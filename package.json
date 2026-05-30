@@ -1,0 +1,50 @@
+{
+  "name": "spear",
+  "version": "0.1.0",
+  "description": "discord.js++ — a developer-experience-first Discord library. Drop-in compatible with discord.js, with ergonomic events, slash commands, and interactive components.",
+  "type": "module",
+  "license": "MIT",
+  "keywords": [
+    "discord",
+    "discord.js",
+    "bot",
+    "slash-commands",
+    "interactions",
+    "components"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "discord.js": "^14.16.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"]
+  }
+}

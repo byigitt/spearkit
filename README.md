@@ -1,0 +1,222 @@
+# spear
+
+**discord.js++** — a developer-experience-first layer over [discord.js](https://discord.js.org).
+
+spear re-exports the entire discord.js surface (so it's a drop-in replacement) and
+adds an ergonomic, **fully type-safe** API for the things that are tedious in raw
+discord.js: setting up events, defining slash commands, and wiring interactive
+components. No `any`, no `unknown` leaking into your handlers — option values,
+custom-id params and modal fields are all inferred.
+
+```bash
+npm install spear discord.js
+```
+
+## Documentation
+
+- **Docs site** ([`website/`](./website)) — a [Fumadocs](https://fumadocs.dev) site themed like the discord.js docs. Run it with `cd website && pnpm install && pnpm dev`.
+- **Guides & API reference** ([`docs/`](./docs)) — the Markdown the site is built from.
+- **Examples** ([`examples/`](./examples)) — one folder per topic (commands, options, components, events, loading, …).
+
+## Quick start
+
+```ts
+import { SpearClient, Intents, command, option, event } from "spear";
+
+const client = new SpearClient({ intents: Intents.default });
+
+const ping = command({
+  name: "ping",
+  description: "Check latency",
+  run: (ctx) => ctx.reply(`Pong! ${ctx.client.ws.ping}ms`),
+});
+
+const ready = event("clientReady", (c) => console.log(`Online as ${c.user.tag}`));
+
+client.register(ping, ready);
+await client.start(process.env.DISCORD_TOKEN);
+await client.deployCommands({ guildId: "YOUR_GUILD_ID" }); // instant in one guild
+```
+
+## Slash commands with inferred options
+
+Option values are typed from your declaration. Required options are non-nullable;
+optional ones are `T | undefined`; `choices` narrow to a literal union.
+
+```ts
+import { command, option } from "spear";
+
+export default command({
+  name: "echo",
+  description: "Repeat a message",
+  options: {
+    text: option.string({ description: "What to say", required: true }),
+    times: option.integer({ description: "Repeat count", minValue: 1, maxValue: 5 }),
+    visibility: option.string({
+      description: "Who sees it",
+      choices: [
+        { name: "Everyone", value: "public" },
+        { name: "Just me", value: "private" },
+      ],
+    }),
+  },
+  run: (ctx) => {
+    ctx.options.text;       // string
+    ctx.options.times;      // number | undefined
+    ctx.options.visibility; // "public" | "private" | undefined
+    return ctx.reply({
+      content: ctx.options.text.repeat(ctx.options.times ?? 1),
+      ephemeral: ctx.options.visibility === "private",
+    });
+  },
+});
+```
+
+Builders: `string`, `integer`, `number`, `boolean`, `user`, `channel`, `role`,
+`mentionable`, `attachment`.
+
+### Autocomplete
+
+Co-locate the suggestion provider with the option:
+
+```ts
+option.string({
+  description: "Fruit",
+  required: true,
+  autocomplete: (ctx) =>
+    fruits.filter((f) => f.startsWith(ctx.value)).map((f) => ({ name: f, value: f })),
+});
+```
+
+### Subcommands
+
+```ts
+import { commandGroup, subcommand, subcommandGroup, option } from "spear";
+
+commandGroup({
+  name: "admin",
+  description: "Admin tools",
+  guildOnly: true,
+  subcommands: {
+    say: subcommand({
+      description: "Make the bot speak",
+      options: { message: option.string({ description: "Message", required: true }) },
+      run: (ctx) => ctx.reply(ctx.options.message),
+    }),
+  },
+  groups: {
+    users: subcommandGroup({
+      description: "Manage users",
+      subcommands: {
+        ban: subcommand({
+          description: "Ban a user",
+          options: { target: option.user({ description: "Who", required: true }) },
+          run: (ctx) => ctx.reply(`Banned ${ctx.options.target.tag}`),
+        }),
+      },
+    }),
+  },
+});
+```
+
+## Interactive components
+
+Define the component, its custom-id pattern and its handler in one place. Params
+in the custom-id pattern (`{name}`) are typed everywhere — both in the handler's
+`ctx.params` and in the `build()` call.
+
+```ts
+import { button, stringSelect, modal, textInput, row } from "spear";
+
+const vote = button({
+  id: "vote:{choice}",            // {choice} becomes a typed param
+  label: "Yes",
+  style: "Success",
+  run: (ctx) => ctx.update(`You chose ${ctx.params.choice}`), // ctx.params.choice: string
+});
+
+const colour = stringSelect({
+  id: "colour",
+  placeholder: "Pick a colour",
+  options: [
+    { label: "Red", value: "red" },
+    { label: "Blue", value: "blue" },
+  ],
+  run: (ctx) => ctx.reply({ content: ctx.values.join(", "), ephemeral: true }),
+});
+
+const feedback = modal({
+  id: "feedback:{ticket}",
+  title: "Feedback",
+  fields: {
+    summary: textInput({ label: "Summary", required: true }),
+    detail: textInput({ label: "Details", style: "Paragraph" }),
+  },
+  run: (ctx) =>
+    // ctx.params.ticket: string, ctx.fields.summary / ctx.fields.detail: string
+    ctx.reply({ content: `#${ctx.params.ticket}: ${ctx.fields.summary}`, ephemeral: true }),
+});
+
+client.register(vote, colour, feedback);
+
+// Use them in a message — build() requires exactly the params the pattern declares:
+await channel.send({
+  content: "Choose:",
+  components: [row(vote.build({ choice: "yes" })), row(colour.build())],
+});
+```
+
+Component builders: `button`, `linkButton`, `stringSelect`, `userSelect`,
+`roleSelect`, `channelSelect`, `mentionableSelect`, `modal` (+ `textInput`), `row`.
+
+spear routes interactions automatically by the custom-id namespace and decodes
+the params for you — no `interactionCreate` switch statements.
+
+## File-based loading
+
+Drop commands, events and components in a folder (default or named exports) and
+load them all:
+
+```ts
+await client.load(new URL("./commands", import.meta.url).pathname);
+```
+
+## Plugins
+
+```ts
+import { definePlugin } from "spear";
+
+const moderation = definePlugin({
+  name: "moderation",
+  setup(client) {
+    client.register(/* commands, events, components */);
+  },
+});
+
+await client.use(moderation);
+```
+
+## Drop-in replacement
+
+Everything discord.js exports is available from spear, so you can migrate
+incrementally:
+
+```ts
+import { Client, EmbedBuilder, GatewayIntentBits } from "spear"; // all from discord.js
+```
+
+## Error handling
+
+Handler errors never crash the process. Customise the response:
+
+```ts
+client.commands.onError((error, interaction) => {
+  console.error(error);
+  return interaction.reply({ content: "Oops.", flags: 64 });
+});
+client.components.onError((error) => console.error(error));
+```
+
+## License
+
+MIT

@@ -1,0 +1,150 @@
+---
+title: "Events"
+description: "event() defines a reusable, loadable discord.js event listener with a fully-typed handler. The handler's arguments are inferred from discord.js' ClientEvents, so you never annotate"
+---
+
+```ts
+import { event } from "spear";
+
+export default event("messageCreate", (message) => {
+  if (message.author.bot) return;
+  // message is fully typed as Message
+});
+```
+
+## Defining an event
+
+`event` has two forms. The positional form takes the event name and handler:
+
+```ts
+import { event } from "spear";
+
+const onMessage = event("messageCreate", (message) => {
+  // message: Message
+  console.log(message.content);
+});
+
+const onReady = event("clientReady", (client) => {
+  // client: Client<true> — the ready client
+  console.log(`Logged in as ${client.user.tag}`);
+});
+```
+
+The object form (`EventConfig`) additionally accepts `once`, which runs the
+handler at most once and then auto-detaches:
+
+```ts
+import { event } from "spear";
+
+const onceReady = event({
+  name: "clientReady",
+  once: true,
+  run: (client) => {
+    // client: Client<true>
+    console.log(`Ready as ${client.user.tag}`);
+  },
+});
+```
+
+Both forms return an `EventDef` — a type-erased, ready-to-attach listener
+(`{ name, once, attach, detach }`). Register it like anything else:
+
+```ts
+import { SpearClient } from "spear";
+
+const client = new SpearClient();
+client.register(onMessage, onReady);
+```
+
+### Handlers are fully typed from `ClientEvents`
+
+The event name drives the parameter types. There is nothing to import or
+annotate — picking `"messageCreate"` types the argument as `Message`, picking
+`"guildMemberAdd"` types it as `GuildMember`, and so on. The handler type is
+exported as `EventHandler<E>` (`(...args: ClientEvents[E]) => Awaitable<void>`).
+
+```ts
+import { event } from "spear";
+
+const onJoin = event("guildMemberAdd", (member) => {
+  // member: GuildMember
+  void member.roles.add("123456789012345678");
+});
+
+const onReaction = event("messageReactionAdd", (reaction, user) => {
+  // reaction: MessageReaction | PartialMessageReaction
+  // user: User | PartialUser
+  console.log(`${user.id} reacted with ${reaction.emoji.name}`);
+});
+```
+
+### Intents are required
+
+An event only fires if the client connected with the matching gateway intents.
+For example, `messageCreate` with message content needs `Intents.messages` (or
+at least the `GuildMessages` / `MessageContent` bits); `guildMemberAdd` needs
+`GuildMembers`. See [Client](/docs/guides/client) for the intent presets.
+
+## Errors are routed, not fatal
+
+If a handler throws synchronously or rejects a returned promise, spear catches
+it and emits it on the client's `error` event instead of crashing the process.
+Listen for `error` to log or report failures centrally:
+
+```ts
+import { SpearClient } from "spear";
+
+const client = new SpearClient();
+
+client.on("error", (err) => {
+  console.error("A handler failed:", err);
+});
+```
+
+## Inline listeners still work
+
+Because spear re-exports discord.js, the plain `client.on(...)` / `client.once(...)`
+listeners work exactly as before — they are the same methods. Reach for them for
+quick, inline, client-local listeners:
+
+```ts
+import { SpearClient } from "spear";
+
+const client = new SpearClient();
+client.on("guildCreate", (guild) => console.log(`Joined ${guild.name}`));
+```
+
+Use `event()` when you want a listener that is **reusable and loadable** — a
+self-contained module you can export, register from anywhere, or pick up via
+`client.load(...)`. Note that inline `client.on` listeners do **not** get the
+automatic error-routing that `event()` handlers do.
+
+## The `EventRegistry`
+
+`client.events` is an `EventRegistry`. The client attaches it automatically at
+construction and again when you `register` an event, so you usually never call
+its methods directly. They are available for advanced control:
+
+| Member | Type | Description |
+| ------ | ---- | ----------- |
+| `add(...defs)` | `this` | Register one or more `EventDef`s (and attach them to already-attached clients). |
+| `size` | `number` | Number of registered listeners. |
+| `attachAll(client)` | `void` | Attach every registered listener to a client. |
+| `detachAll(client)` | `void` | Detach every registered listener from a client. |
+
+```ts
+import { SpearClient, event } from "spear";
+
+const client = new SpearClient();
+client.events.add(event("warn", (info) => console.warn(info)));
+
+console.log(client.events.size); // 1
+
+// Detach all spear-managed listeners (e.g. before a hot reload).
+client.events.detachAll(client);
+```
+
+## See also
+
+- [Client](/docs/guides/client) — registering events and the required intents.
+- [File-based loading](/docs/guides/loading) — one event per file, auto-registered.

@@ -1,0 +1,163 @@
+# Options
+
+Slash command options are declared as a map of name → builder. spear infers the
+exact value type each option resolves to, so your handler's `ctx.options` is
+fully typed — no casts, no `any`, no manual `getString` calls.
+
+```ts
+import { command, option } from "spear";
+
+command({
+  name: "profile",
+  description: "Show a profile",
+  options: {
+    user: option.user({ description: "Whose profile", required: true }),
+    detailed: option.boolean({ description: "Show extra detail" }),
+  },
+  run: (ctx) => {
+    ctx.options.user;     // User
+    ctx.options.detailed; // boolean | undefined
+  },
+});
+```
+
+## Builders and resolved types
+
+| Builder | Resolved type | Type-specific config |
+| ------- | ------------- | -------------------- |
+| `option.string(config)` | `string` | `choices`, `minLength`, `maxLength`, `autocomplete` |
+| `option.integer(config)` | `number` | `choices`, `minValue`, `maxValue`, `autocomplete` |
+| `option.number(config)` | `number` | `choices`, `minValue`, `maxValue`, `autocomplete` |
+| `option.boolean(config)` | `boolean` | — |
+| `option.user(config)` | `User` | — |
+| `option.channel(config)` | channel union | `channelTypes` |
+| `option.role(config)` | `Role \| APIRole` | — |
+| `option.mentionable(config)` | user / role / member | — |
+| `option.attachment(config)` | `Attachment` | — |
+
+Every builder accepts the common config:
+
+```ts
+{
+  description: string;                        // required
+  required?: boolean;                         // default: false
+  nameLocalizations?: LocalizationMap;
+  descriptionLocalizations?: LocalizationMap;
+}
+```
+
+## Inference rules
+
+spear narrows the resolved type from your declaration:
+
+```ts
+options: {
+  // required → the value type, never undefined
+  name: option.string({ description: "Name", required: true }),     // string
+
+  // optional (default) → value | undefined
+  age: option.integer({ description: "Age" }),                      // number | undefined
+
+  // choices → a literal union of the choice values
+  size: option.string({
+    description: "Size",
+    choices: [
+      { name: "Small", value: "sm" },
+      { name: "Large", value: "lg" },
+    ],
+  }),                                                               // "sm" | "lg" | undefined
+}
+```
+
+- **Required** options resolve to the value type.
+- **Optional** options resolve to `value | undefined` (spear converts discord's
+  absent value to `undefined`, never `null`).
+- **`choices`** narrow string/integer/number options to a literal union of the
+  declared `value`s.
+
+```ts
+run: (ctx) => {
+  const name: string = ctx.options.name;
+  const age: number | undefined = ctx.options.age;
+  const size: "sm" | "lg" | undefined = ctx.options.size;
+};
+```
+
+## Numeric and length constraints
+
+```ts
+options: {
+  count: option.integer({ description: "How many", minValue: 1, maxValue: 100 }),
+  code: option.string({ description: "Code", minLength: 4, maxLength: 8 }),
+}
+```
+
+## Channel options
+
+Restrict the selectable channel types with `channelTypes` (from discord.js
+`ChannelType`):
+
+```ts
+import { option, ChannelType } from "spear";
+
+options: {
+  target: option.channel({
+    description: "A text or announcement channel",
+    channelTypes: [ChannelType.GuildText, ChannelType.GuildAnnouncement],
+  }),
+}
+```
+
+## Choices
+
+`choices` are `{ name, value }` pairs. `name` is shown to the user; `value` is
+what your handler receives (and what spear narrows the type to).
+
+```ts
+option.integer({
+  description: "Priority",
+  choices: [
+    { name: "Low", value: 1 },
+    { name: "High", value: 2 },
+  ],
+  // optional per-choice localization:
+  // choices: [{ name: "Low", value: 1, nameLocalizations: { tr: "Düşük" } }],
+}); // 1 | 2 | undefined
+```
+
+## Autocomplete
+
+Provide an `autocomplete` handler instead of fixed `choices` to suggest values
+as the user types. spear marks the option as autocompletable, routes the
+autocomplete interaction, and (for subcommands) finds the right option.
+
+```ts
+const fruits = ["apple", "apricot", "banana", "cherry"];
+
+option.string({
+  description: "Fruit",
+  required: true,
+  autocomplete: (ctx) =>
+    fruits
+      .filter((f) => f.startsWith(ctx.value))
+      .map((f) => ({ name: f, value: f })),
+});
+```
+
+The autocomplete handler receives an `AutocompleteContext`:
+
+| Member | Description |
+| ------ | ----------- |
+| `ctx.value` | The current partial value typed by the user. |
+| `ctx.focusedName` | The name of the option being completed. |
+| `ctx.commandName` | The command being completed. |
+| `ctx.client` / `ctx.user` / `ctx.guild` / `ctx.guildId` | Accessors. |
+| `ctx.respond(choices)` | Send suggestions (capped at discord's 25). |
+
+Returning the choices array (as above) is enough — spear calls `respond` for
+you. Returning `[]` shows no suggestions.
+
+## See also
+
+- [Commands](./commands.md) — using options inside commands and subcommands.
+- [Components](./components.md) — buttons, selects and modals.

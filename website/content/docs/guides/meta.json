@@ -1,0 +1,13 @@
+{
+  "title": "Guides",
+  "pages": [
+    "commands",
+    "options",
+    "components",
+    "events",
+    "context",
+    "client",
+    "plugins",
+    "loading"
+  ]
+}

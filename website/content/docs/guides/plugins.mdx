@@ -1,0 +1,114 @@
+---
+title: "Plugins"
+description: "A plugin is a named, reusable bundle of commands, events and components. It lets you package a feature once and install it into any SpearClient with a single call — useful for shar"
+---
+
+## Defining a plugin
+
+`definePlugin` is an identity helper: it returns the object you pass it, but gives
+it the `SpearPlugin` type and editor hints.
+
+```ts
+interface SpearPlugin {
+  name: string;
+  setup(client: SpearClient): Awaitable<void>;
+}
+```
+
+A plugin has a `name` and a `setup` function. `setup` receives the client and
+registers whatever the feature needs — commands, events, components — typically
+via `client.register`.
+
+```ts
+import { definePlugin, button, command, event, option, row } from "spear";
+
+export const moderation = definePlugin({
+  name: "moderation",
+  setup(client) {
+    const confirmKick = button({
+      id: "kick:{userId}",
+      label: "Confirm kick",
+      style: "Danger",
+      run: (ctx) => ctx.update(`Kicked <@${ctx.params.userId}> (demo).`), // userId: string
+    });
+
+    const warn = command({
+      name: "warn",
+      description: "Warn a member",
+      options: {
+        member: option.user({ description: "Member", required: true }),
+        reason: option.string({ description: "Reason" }),
+      },
+      run: (ctx) =>
+        ctx.reply({
+          // member: User, reason: string | undefined
+          content: `Warning ${ctx.options.member.tag}: ${ctx.options.reason ?? "no reason given"}`,
+          components: [row(confirmKick.build({ userId: ctx.options.member.id }))],
+          ephemeral: true,
+        }),
+    });
+
+    const ready = event("clientReady", (c) => console.log(`[moderation] ready on ${c.user.tag}`));
+
+    client.register(warn, confirmKick, ready);
+  },
+});
+```
+
+Everything declared inside `setup` is local to the plugin; only what you pass to
+`client.register` becomes active on the client.
+
+## Installing a plugin
+
+Install one or more plugins with `client.use`. It runs each plugin's `setup` in
+order and resolves to the client, so you can chain it with the rest of startup.
+
+```ts
+import { SpearClient, Intents } from "spear";
+import { moderation } from "./plugins/moderation.js";
+
+const client = new SpearClient({ intents: Intents.default });
+
+await client.use(moderation);
+
+await client.start(process.env.DISCORD_TOKEN);
+await client.deployCommands({ guildId: process.env.GUILD_ID });
+```
+
+`use` accepts several plugins at once:
+
+```ts
+await client.use(moderation, welcome, tickets);
+```
+
+## Asynchronous setup
+
+`setup` may be async — `client.use` awaits each one before moving to the next. Use
+this to load data, connect to a database, or fetch remote config before
+registering handlers.
+
+```ts
+export const tags = definePlugin({
+  name: "tags",
+  async setup(client) {
+    const store = await openTagStore(); // await anything you need first
+
+    client.register(
+      command({
+        name: "tag",
+        description: "Show a saved tag",
+        options: { name: option.string({ description: "Tag name", required: true }) },
+        run: (ctx) => ctx.reply(store.get(ctx.options.name) ?? "No such tag."),
+      }),
+    );
+  },
+});
+```
+
+Because `use` awaits `setup`, every plugin is fully installed before
+`client.start` runs.
+
+## See also
+
+- [Client](/docs/guides/client) — `register`, `use`, `start`, and the registries plugins write to.
+- [File-based loading](/docs/guides/loading) — discover commands, events and components from a directory instead of bundling them by hand.
