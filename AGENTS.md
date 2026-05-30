@@ -32,6 +32,79 @@ logging, usage tracking and dotenv. Install: `npm install spearkit discord.js`.
    `T | undefined`, `choices` narrow to a literal union, custom-id `{param}`s and
    modal field keys are typed. Don't cast; don't annotate handler args.
 
+## Use cases — reach for
+
+Map the task to the API. Patterns and signatures are below and in `docs/`.
+
+**Bot setup & lifecycle**
+
+| Want to… | Reach for |
+| --- | --- |
+| Start a bot and connect | `new SpearClient({ intents })` + `await client.start(token)` |
+| Choose gateway intents | `Intents.none / default / guilds / messages / all` |
+| Wire up handlers | `client.register(...)`; one file per handler → `client.load(dir)` |
+| Push commands to Discord | `client.deployCommands({ guildId })`; slash + context menus, safe CI → `client.deployAllCommands({ strategy: "diff", dryRun })` |
+| Package a reusable feature | `definePlugin(...)` + `client.use(...)` |
+| Migrate an existing discord.js bot | import from `"spearkit"`, swap `Client` → `SpearClient` |
+
+**Commands & input**
+
+| Want to… | Reach for |
+| --- | --- |
+| A slash command | `command({ name, description, run })` |
+| Typed inputs to a command | `options: { x: option.string/integer/number/boolean/user/channel/role/mentionable/attachment(...) }` |
+| Group many commands under one name | `commandGroup` + `subcommand` / `subcommandGroup` |
+| Suggest values while the user types | `option.string({ autocomplete })` |
+| A right-click "Apps" action on a user/message | `userCommand` / `messageCommand` |
+| A classic `!text` command | `prefixCommand(...)` + `new SpearClient({ prefix })` |
+| Parse `!cmd` arguments into typed values | `args: (a) => a.snowflake().duration().rest()` → `ctx.options` |
+
+**Interactivity (components)**
+
+| Want to… | Reach for |
+| --- | --- |
+| A clickable button | `button({ id, run })` → `row(btn.build(...))` |
+| A URL button (no handler) | `linkButton` |
+| A dropdown of fixed options | `stringSelect` |
+| Pick users / roles / channels / mentionables | `userSelect` / `roleSelect` / `channelSelect` / `mentionableSelect` |
+| A form with text fields | `modal` + `textInput` |
+| Carry data through a component | custom-id params `id: "x:{id}"` → `ctx.params.id` |
+| A paged list with next/prev | `paginate(...)` |
+| An "Are you sure?" yes/no gate | `confirm(...)` |
+
+**Replies & UX**
+
+| Want to… | Reach for |
+| --- | --- |
+| Reply, public or hidden | `ctx.reply(...)` / `ctx.replyEphemeral(...)` |
+| Work that takes >3s | `ctx.defer()` then `ctx.editReply(...)` |
+| A styled success/error/info/warn embed | `ctx.success/error/info/warn(...)` |
+| "Reply, edit, or follow-up — whichever fits" | `ctx.send(...)` |
+
+**Cross-cutting concerns**
+
+| Want to… | Reach for |
+| --- | --- |
+| React to gateway events | `event(name, run)`; once on startup → `event("clientReady", ...)` |
+| Rate-limit a command/handler | `cooldown` (per-command or client-wide) |
+| Restrict by role / permission / owner / guild | guards: `requireAnyRole` / `requireUserPermissions` / `requireOwner` / `guildOnly` |
+| Run jobs on cron or interval | `task({ cron \| interval })` / `client.schedule(...)` |
+| Delay once / staged follow-ups / recover on restart | `client.scheduler.delay` / `followUp` / `reconcile` |
+| Structured logs to file/webhook | `client.logger` + `consoleSink` / `jsonlSink` / `webhookSink` |
+| Track who used what | `new SpearClient({ usage })` + `MemoryUsageStore` / `JsonFileUsageStore` |
+| Read typed env / load `.env` | `env.string/number/boolean/require` (auto-loaded on `start()`) |
+
+**Utilities (primitives)**
+
+| Want to… | Reach for |
+| --- | --- |
+| Stop concurrent runs per key (e.g. per user) | `KeyedLock` |
+| Fetch that returns `null` instead of throwing | `safeFetch.{member,channel,message,user,guild,role}` |
+| Format/parse `"1h30m"` durations | `formatDuration` / `parseDuration` |
+| Render `<t:…>` Discord timestamps | `discordTimestamp` / `relativeTimestamp` |
+| In-memory cache / counters / rate-limit window | `MemoryCache` |
+| Load JSON/JSON5/YAML config | `loadConfig` |
+
 ## Canonical patterns
 
 ### Client + lifecycle

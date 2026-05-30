@@ -62,6 +62,17 @@ await client.start(process.env.DISCORD_TOKEN);              // falls back to DIS
 await client.deployCommands({ guildId: process.env.GUILD_ID }); // omit guildId → global (slow)
 ```
 
+## Pick the right tool
+
+- **Slash command** → `command()`; **typed inputs** → `option.*`; **grouped** → `commandGroup` + `subcommand`; **type-ahead** → `option.string({ autocomplete })`.
+- **Right-click on a user/message** → `userCommand` / `messageCommand`; **`!text` command** → `prefixCommand` (+ typed `args`).
+- **Button** → `button`; **URL button** → `linkButton`; **dropdown** → `stringSelect`; **pick user/role/channel/mentionable** → `userSelect` / `roleSelect` / `channelSelect` / `mentionableSelect`; **form** → `modal` + `textInput`; **carry data** → custom-id `{param}`.
+- **Paged list** → `paginate`; **yes/no gate** → `confirm`.
+- **Reply** → `ctx.reply` / `replyEphemeral`; **>3s work** → `ctx.defer()` then `editReply`; **styled embed** → `ctx.success/error/info/warn`.
+- **Gateway events** → `event(...)`; **rate-limit** → `cooldown`; **role/permission/owner gate** → guards; **cron/interval** → `task` / `client.schedule`; **logs** → `client.logger` + sinks; **usage tracking** → `usage`; **typed env / `.env`** → `env.*`.
+- **Reusable bundle** → `definePlugin` + `client.use`; **file-per-handler** → `client.load`; **deploy** → `client.deployCommands` / `deployAllCommands`.
+- **Primitives** — per-key lock → `KeyedLock`; null-safe fetch → `safeFetch.*`; durations → `formatDuration` / `parseDuration`; timestamps → `discordTimestamp`; cache / rate-limit → `MemoryCache`; config files → `loadConfig`.
+
 ## Recipes
 
 ### Slash command with typed options

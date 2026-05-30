@@ -1,6 +1,6 @@
 {
   "name": "spearkit",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "discord.js++ — a developer-experience-first Discord library. Drop-in compatible with discord.js, with ergonomic events, slash commands, and interactive components.",
   "type": "module",
   "license": "PolyForm-Noncommercial-1.0.0",
