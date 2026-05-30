@@ -501,6 +501,16 @@ client.register(
   task({ name: "e2e-tick", interval: 250, runOnStart: true, run: () => { tickCount += 1; } }),
 );
 client.register(prefixCommand({ name: "ptest", run: (ctx) => ctx.reply("prefix-pong") }));
+client.register(
+  prefixCommand({
+    name: "echoargs",
+    args: (a) => a.string("first", { required: true }).integer("n").rest("rest"),
+    run: (ctx) =>
+      ctx.reply(
+        `echoargs:first=${ctx.options.first} n=${ctx.options.n ?? "none"} rest=${ctx.options.rest ?? "none"}`,
+      ),
+  }),
+);
 const reportUserCmd = userCommand({
   name: "Report user (e2e)",
   run: (ctx) => ctx.replyError(`Reporting ${ctx.targetUser.tag}`),
@@ -1295,6 +1305,31 @@ async function main() {
     msgMenu?.type === 3,
     `type=${msgMenu?.type}`,
   );
+
+  // Y. Prefix args -----------------------------------------------------------
+  group("Y. Prefix args");
+  // Live: bot sends "!echoargs hello 42 some extra text" to itself, registry parses, bot replies.
+  const ychannel = await findSendableTextChannel(await client.guilds.fetch(guildId));
+  if (ychannel == null) {
+    check("typed prefix args parsed live", false, "no sendable channel");
+  } else {
+    const trigger = await ychannel.send("!echoargs hello 42 some extra text");
+    let reply;
+    for (let i = 0; i < 24 && reply === undefined; i++) {
+      await sleep(250);
+      const recent = await ychannel.messages.fetch({ limit: 8 });
+      reply = recent.find(
+        (m) => m.content.startsWith("echoargs:first=") && m.author.id === client.user?.id,
+      );
+    }
+    check(
+      "typed prefix args parsed live",
+      reply?.content === "echoargs:first=hello n=42 rest=some extra text",
+      reply?.content,
+    );
+    await trigger.delete().catch(() => undefined);
+    await reply?.delete().catch(() => undefined);
+  }
   // --- report ---------------------------------------------------------------
   console.log(lines.join("\n"));
   console.log(`\n${passed} passed, ${failed} failed.`);

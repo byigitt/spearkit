@@ -19,6 +19,7 @@ import { toError } from "./logger.js";
 import type { UsageEvent } from "./usage.js";
 import { runGuards, type Guard, type GuardContext } from "./guards.js";
 import { defaultEmbeds, type Embeds } from "./embeds.js";
+import { PrefixArgsBuilder, prefixArgs, type PrefixArgsParser } from "./prefix-args.js";
 import {
   formatCooldownMessage,
   normalizeCooldown,
@@ -41,7 +42,10 @@ export interface PrefixOptions {
 }
 
 /** Configuration for a prefix command. */
-export interface PrefixCommandConfig<R = void> {
+export interface PrefixCommandConfig<
+  TArgs extends Record<string, unknown> = Record<string, never>,
+  R = void,
+> {
   /** Primary command name (the word after the prefix). */
   name: string;
   /** Alternative names that also trigger the command. */
@@ -52,8 +56,10 @@ export interface PrefixCommandConfig<R = void> {
   cooldown?: CooldownInput;
   /** Preconditions evaluated before the handler runs. */
   guards?: readonly Guard[];
-  /** Handler invoked with a {@link PrefixContext}. */
-  run: (ctx: PrefixContext) => Awaitable<R>;
+  /** Typed argument schema; `ctx.options` will be shaped from this. */
+  args?: (builder: PrefixArgsBuilder<{}>) => PrefixArgsBuilder<TArgs>;
+  /** Handler invoked with a {@link PrefixContext} typed by `args`. */
+  run: (ctx: PrefixContext<TArgs>) => Awaitable<R>;
 }
 
 /** A registrable prefix command. Build it with {@link prefixCommand}. */
@@ -64,11 +70,19 @@ export interface PrefixCommand {
   readonly description?: string;
   readonly cooldown?: CooldownConfig;
   readonly guards?: readonly Guard[];
+  readonly parser?: PrefixArgsParser<Record<string, unknown>>;
   readonly run: (ctx: PrefixContext) => Promise<void>;
 }
 
 /** Define a prefix command. */
-export function prefixCommand<R = void>(config: PrefixCommandConfig<R>): PrefixCommand {
+export function prefixCommand<
+  TArgs extends Record<string, unknown> = Record<string, never>,
+  R = void,
+>(config: PrefixCommandConfig<TArgs, R>): PrefixCommand {
+  const parser =
+    config.args !== undefined
+      ? (config.args(prefixArgs()).compile() as PrefixArgsParser<Record<string, unknown>>)
+      : undefined;
   return {
     kind: "prefixCommand",
     name: config.name,
@@ -76,14 +90,17 @@ export function prefixCommand<R = void>(config: PrefixCommandConfig<R>): PrefixC
     description: config.description,
     cooldown: config.cooldown !== undefined ? normalizeCooldown(config.cooldown) : undefined,
     guards: config.guards,
+    parser,
     run: async (ctx) => {
-      await config.run(ctx);
+      await config.run(ctx as PrefixContext<TArgs>);
     },
   };
 }
 
 /** The handler argument for a prefix command: the message plus parsed args. */
-export class PrefixContext {
+export class PrefixContext<
+  TArgs extends Record<string, unknown> = Record<string, never>,
+> {
   constructor(
     /** The triggering message. */
     readonly message: Message,
@@ -93,6 +110,8 @@ export class PrefixContext {
     readonly args: string[],
     /** The raw text after the command name. */
     readonly rest: string,
+    /** Typed parsed arguments from `args` schema, or `{}` if none. */
+    readonly options: TArgs = {} as TArgs,
   ) {}
 
   get client(): Message["client"] {
@@ -308,8 +327,21 @@ export class PrefixRegistry {
     }
 
     const args = rest.length > 0 ? rest.split(/\s+/) : [];
+    let options: Record<string, unknown> = {};
+    if (command.parser !== undefined) {
+      const parsed = command.parser.parse(args, rest);
+      if (!parsed.ok) {
+        this.logger?.debug("prefix arg error", {
+          data: { command: command.name, user: message.author.id, arg: parsed.arg, reason: parsed.reason },
+        });
+        const embeds = clientEmbeds(message.client);
+        await message.reply({ embeds: [embeds.error(`Argument \`${parsed.arg}\`: ${parsed.reason}`)] }).catch(() => undefined);
+        return true;
+      }
+      options = parsed.values as Record<string, unknown>;
+    }
     try {
-      await command.run(new PrefixContext(message, name, args, rest));
+      await command.run(new PrefixContext(message, name, args, rest, options) as PrefixContext);
       this.onUsage?.({
         type: "prefix",
         name: command.name,
