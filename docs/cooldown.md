@@ -1,0 +1,124 @@
+# Cooldowns
+
+Rate-limit commands per user, per role, per guild, per channel or globally.
+Cooldowns are enforced automatically by command dispatch: when an actor is
+still on cooldown, spearkit replies (ephemerally) with a message and the
+handler does not run.
+
+## Per-command
+
+Pass a number (milliseconds) or a full config to any command:
+
+```ts
+import { command } from "spearkit";
+
+export const daily = command({
+  name: "daily",
+  description: "Claim your daily reward",
+  cooldown: 86_400_000, // once per day, per user
+  run: (ctx) => ctx.reply("Reward claimed!"),
+});
+```
+
+## Client-wide default
+
+A default applies to every command; a command's own `cooldown` overrides it.
+
+```ts
+import { SpearClient } from "spearkit";
+
+const client = new SpearClient({ cooldown: { duration: 3000 } });
+```
+
+## Scope
+
+`scope` controls what the cooldown is keyed on. Default `"user"`.
+
+```ts
+command({
+  name: "announce",
+  description: "Post an announcement",
+  cooldown: { duration: 60_000, scope: "guild" }, // one per guild per minute
+  run: (ctx) => ctx.reply("Announced."),
+});
+```
+
+| Scope | Keyed on |
+| --- | --- |
+| `user` | the invoking user (default) |
+| `guild` | the guild |
+| `channel` | the channel |
+| `global` | everyone shares one bucket |
+
+## Exemptions — who waits and who doesn't
+
+`exempt` lists users and roles that bypass the cooldown entirely.
+
+```ts
+command({
+  name: "purge",
+  description: "Bulk delete",
+  cooldown: {
+    duration: 10_000,
+    exempt: { roles: ["111111111111111111"], users: ["222222222222222222"] },
+  },
+  run: (ctx) => ctx.reply("Purged."),
+});
+```
+
+## Per-role / per-user overrides
+
+`overrides` gives specific roles or users a different duration (milliseconds).
+A user override beats role overrides; among matching roles the most lenient
+(shortest) duration wins. Use `0` to effectively disable the wait for them.
+
+```ts
+command({
+  name: "search",
+  description: "Search the archive",
+  cooldown: {
+    duration: 10_000, // everyone else
+    overrides: {
+      roles: { "333333333333333333": 2_000 }, // VIP role: 2s
+      users: { "444444444444444444": 0 }, // this user: no wait
+    },
+  },
+  run: (ctx) => ctx.reply("Searching…"),
+});
+```
+
+## The message
+
+`message` customises what blocked users see — a string, or a function of the
+remaining milliseconds.
+
+```ts
+command({
+  name: "spin",
+  description: "Spin the wheel",
+  cooldown: {
+    duration: 5_000,
+    message: (ms) => `Hold on — ${Math.ceil(ms / 1000)}s to go.`,
+  },
+  run: (ctx) => ctx.reply("🎡"),
+});
+```
+
+## The manager
+
+`client.cooldowns` is the shared `CooldownManager` (also used by
+[prefix commands](./prefix.md)). Use it directly for custom flows:
+
+```ts
+const result = client.cooldowns.consume("vote", 5_000, {
+  userId: "1",
+  roleIds: [],
+  guildId: null,
+  channelId: null,
+});
+if (!result.allowed) console.log(`wait ${result.remaining}ms`);
+```
+
+`consume` records the use and returns `{ allowed: true }` or
+`{ allowed: false, remaining }`. `peek` checks without recording; `reset` and
+`clear` drop tracked cooldowns.

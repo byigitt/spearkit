@@ -23,6 +23,12 @@ const map = {
   client: { out: "guides/client.mdx", route: "/docs/guides/client" },
   plugins: { out: "guides/plugins.mdx", route: "/docs/guides/plugins" },
   loading: { out: "guides/loading.mdx", route: "/docs/guides/loading" },
+  cooldown: { out: "guides/cooldown.mdx", route: "/docs/guides/cooldown" },
+  scheduler: { out: "guides/scheduler.mdx", route: "/docs/guides/scheduler" },
+  prefix: { out: "guides/prefix.mdx", route: "/docs/guides/prefix" },
+  logging: { out: "guides/logging.mdx", route: "/docs/guides/logging" },
+  usage: { out: "guides/usage.mdx", route: "/docs/guides/usage" },
+  env: { out: "guides/env.mdx", route: "/docs/guides/env" },
 };
 
 function stripInline(md) {
@@ -134,7 +140,7 @@ async function main() {
     JSON.stringify(
       {
         title: "Guides",
-        pages: ["commands", "options", "components", "events", "context", "client", "plugins", "loading"],
+        pages: ["commands", "options", "components", "events", "context", "client", "cooldown", "scheduler", "prefix", "logging", "usage", "env", "plugins", "loading"],
       },
       null,
       2,

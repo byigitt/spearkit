@@ -1,0 +1,178 @@
+# Usage tracking
+
+Usage tracking records **who used what**: every successful command, component,
+and prefix-command invocation becomes a `UsageEvent` that spearkit can persist to a
+store and/or mirror into a Discord channel. Turn it on with the client's `usage`
+option.
+
+## Usage tracking vs the logger
+
+These look similar but answer different questions, and they are completely
+independent sinks:
+
+| | Logger | Usage tracking |
+| --- | --- | --- |
+| Question | *What is the bot doing?* (diagnostics) | *Who used which feature?* (audit) |
+| Content | Free-form messages, levels, errors, internals | Structured `UsageEvent`s for successful uses |
+| Sinks | Console / your log pipeline | A database store and/or a Discord channel |
+| Configured by | the `logger` option | the `usage` option |
+
+A failed or errored command shows up in your **logs**; it is not recorded as a
+usage event. Reach for the [logger](./logging.md) for debugging, and usage
+tracking for analytics, audit trails, and "top commands" dashboards.
+
+## Enabling it
+
+Set the `usage` option. Provide a `store` (a database), a `channel` (a Discord
+channel id to mirror events into), or both:
+
+```ts
+import { MemoryUsageStore, SpearClient } from "spearkit";
+
+const client = new SpearClient({
+  usage: {
+    store: new MemoryUsageStore(),
+    channel: "123456789012345678", // optional: also post each event here
+  },
+});
+```
+
+Once enabled, spearkit auto-tracks every successful command, component, and prefix
+command — you write no tracking code in your handlers.
+
+## The usage event
+
+Each tracked use is a `UsageEvent`:
+
+```ts
+interface UsageEvent {
+  type: "command" | "prefix" | "component" | "event";
+  name: string;            // command/component/event name
+  userId?: string;
+  userTag?: string;
+  guildId?: string | null;
+  channelId?: string | null;
+  detail?: string;         // free-form extra detail
+  timestamp: Date;
+}
+```
+
+## Stores (the database)
+
+A store is any object implementing `UsageStore`:
+
+```ts
+interface UsageStore {
+  record(event: UsageEvent): void | Promise<void>;
+  all(): UsageEvent[] | Promise<readonly UsageEvent[]>;
+}
+```
+
+spearkit ships two.
+
+### MemoryUsageStore
+
+In-memory and synchronous — ideal for tests, prototypes, and live dashboards.
+Pass an optional cap to keep only the most recent N events:
+
+```ts
+import { MemoryUsageStore } from "spearkit";
+
+const store = new MemoryUsageStore(1_000); // keep the last 1,000 events
+
+store.all();             // readonly UsageEvent[]
+store.size;              // number of events held
+store.byUser("123...");  // UsageEvent[] for one user id
+store.clear();           // forget everything
+```
+
+### JsonFileUsageStore
+
+Durable and dependency-free: appends one event per line as newline-delimited
+JSON (`.jsonl`). `all()` reads the file back and parses it, so it behaves like a
+small file-backed database:
+
+```ts
+import { JsonFileUsageStore } from "spearkit";
+
+const store = new JsonFileUsageStore("./usage.jsonl");
+
+await store.record({ type: "command", name: "ping", timestamp: new Date() });
+const events = await store.all(); // readonly UsageEvent[]
+```
+
+The directory is created on demand. Because `all()` is async here (it reads from
+disk), always `await` it.
+
+## Querying the store
+
+`client.usage.store` is the store you configured — query it directly. Note that
+`all()` may be synchronous (`MemoryUsageStore`) or asynchronous
+(`JsonFileUsageStore`); awaiting works for both:
+
+```ts
+const store = client.usage.store;
+if (store !== undefined) {
+  const events = await store.all();
+  const topCommand = events.filter((e) => e.type === "command").length;
+  console.log(`${topCommand} command uses recorded`);
+}
+```
+
+## The Discord channel reporter
+
+Besides (or instead of) a store, you can mirror each event into a Discord
+channel. Pass `channel` (a channel id) in the `usage` option; spearkit posts one
+line per event using `formatUsage`:
+
+```ts
+import { SpearClient } from "spearkit";
+
+new SpearClient({ usage: { channel: "123456789012345678" } });
+```
+
+`formatUsage(event)` is the default renderer (e.g. `` `command` **ping** by
+user#0001 in <#…> ``). Override it with `format` to control the line:
+
+```ts
+import { SpearClient, type UsageEvent } from "spearkit";
+
+new SpearClient({
+  usage: {
+    channel: "123456789012345678",
+    format: (event: UsageEvent) => `${event.userTag ?? "someone"} used ${event.name}`,
+  },
+});
+```
+
+## The usage tracker
+
+`client.usage` is a `UsageTracker`. The client configures it from the `usage`
+option, but you can drive it directly:
+
+| Member | Description |
+| ------ | ----------- |
+| `setStore(store)` | Set (or swap) the persistence store. |
+| `reportTo(channelId, format?)` | Mirror events into a channel, optionally with a custom formatter. |
+| `track(event)` | Record a use. Returns immediately; storing/reporting run in the background. |
+| `store` | The configured store, for querying. |
+| `enabled` | `true` if a store or channel is configured. |
+
+```ts
+import { JsonFileUsageStore } from "spearkit";
+
+client.usage.setStore(new JsonFileUsageStore("./usage.jsonl"));
+client.usage.reportTo("123456789012345678");
+
+// Record a custom event yourself (e.g. a non-command action).
+client.usage.track({ type: "event", name: "signup", timestamp: new Date() });
+```
+
+Tracking is fire-and-forget: a slow store or channel never blocks command
+handling, and any failure is logged rather than thrown.
+
+## See also
+
+- [Logging](./logging.md) — diagnostics, the other sink.
+- [Commands](./commands.md) / [Prefix commands](./prefix.md) / [Components](./components.md) — what gets tracked.
+- [Client](./client.md) — the `usage` option.

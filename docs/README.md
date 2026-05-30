@@ -14,10 +14,16 @@ components.
 5. [Components](./components.md) — buttons, selects, modals, custom-id routing.
 6. [Events](./events.md) — the `event()` helper and the event registry.
 7. [Contexts](./context.md) — reply helpers shared by every handler.
-8. [Plugins](./plugins.md) — bundling features into reusable units.
-9. [File-based loading](./loading.md) — one file per command/event/component.
-10. [Migrating from discord.js](./migration.md) — the drop-in path.
-11. [API reference](./api-reference.md) — every exported symbol.
+8. [Cooldowns](./cooldown.md) — per-user/role/guild rate limiting.
+9. [Scheduled tasks](./scheduler.md) — cron and interval jobs.
+10. [Prefix commands](./prefix.md) — classic `!text` commands.
+11. [Logging](./logging.md) — structured, leveled, scoped logging.
+12. [Usage tracking](./usage.md) — record who used what (store + Discord channel).
+13. [Environment & dotenv](./env.md) — load `.env` and read typed env vars.
+14. [Plugins](./plugins.md) — bundling features into reusable units.
+15. [File-based loading](./loading.md) — one file per command/event/component.
+16. [Migrating from discord.js](./migration.md) — the drop-in path.
+17. [API reference](./api-reference.md) — every exported symbol.
 
 ## Why spearkit
 

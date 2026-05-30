@@ -7,6 +7,12 @@
     "events",
     "context",
     "client",
+    "cooldown",
+    "scheduler",
+    "prefix",
+    "logging",
+    "usage",
+    "env",
     "plugins",
     "loading"
   ]

@@ -12,6 +12,17 @@ custom-id params and modal fields are all inferred.
 npm install spearkit discord.js
 ```
 
+## Batteries included
+
+- **Type-safe slash commands**, options, subcommands, autocomplete, buttons, selects and modals — no `interactionCreate` switch.
+- **Cooldowns** — per user/role/guild/channel, with exemptions and per-role/per-user overrides ([guide](./docs/cooldown.md)).
+- **Scheduled tasks** — cron and interval jobs, started on ready ([guide](./docs/scheduler.md)).
+- **Prefix commands** — classic `!text` commands that share cooldowns ([guide](./docs/prefix.md)).
+- **Structured logging** — leveled, scoped, pluggable; every error flows through it ([guide](./docs/logging.md)).
+- **Usage tracking** — record who used what to a database and/or a Discord channel ([guide](./docs/usage.md)).
+- **dotenv built in** — auto-load `.env` and read typed env vars ([guide](./docs/env.md)).
+- **Plugins & file-based loading** for organising larger bots.
+
 ## Documentation
 
 - **Docs site** ([`website/`](./website)) — a [Fumadocs](https://fumadocs.dev) site themed like the discord.js docs. Run it with `cd website && pnpm install && pnpm dev`.

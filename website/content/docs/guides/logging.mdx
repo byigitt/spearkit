@@ -1,0 +1,193 @@
+---
+title: "Logging"
+description: "spearkit ships a small, dependency-free structured logger. Every client owns one at client.logger, and spearkit routes its own command, component, event, and gateway errors…"
+---
+
+## A first logger
+
+```ts
+import { Logger } from "spearkit";
+
+const log = new Logger(); // level "info", logs to the console
+log.info("bot starting");
+log.error("connection lost", { error: new Error("ECONNRESET") });
+```
+
+A logger is constructed from `LoggerOptions`:
+
+```ts
+import { Logger } from "spearkit";
+
+const log = new Logger({
+  level: "debug",   // minimum severity to emit; default "info"
+  scope: "worker",  // a prefix attached to every entry
+  // sink: consoleSink (the default)
+});
+```
+
+## Levels
+
+There are four levels, lowest to highest: `debug`, `info`, `warn`, `error`. The
+logger emits an entry only if its level is at or above the configured threshold.
+The default threshold is **`info`**, so `debug` entries are suppressed until you
+lower it. A fifth threshold, `"silent"`, suppresses everything.
+
+```ts
+import { Logger } from "spearkit";
+
+const log = new Logger(); // threshold "info"
+log.debug("only visible at debug"); // suppressed by default
+log.info("visible");
+
+log.setLevel("debug");        // now debug entries are emitted too
+log.enabled("debug");         // true
+log.setLevel("silent");       // suppress everything
+```
+
+| Method | Level | Use for |
+| ------ | ----- | ------- |
+| `log.debug(msg, opts?)` | `debug` | Verbose diagnostics, off by default. |
+| `log.info(msg, opts?)` | `info` | Normal operational messages. |
+| `log.warn(msg, opts?)` | `warn` | Recoverable problems worth attention. |
+| `log.error(msg, opts?)` | `error` | Failures; attach the cause via `{ error }`. |
+
+`log.level` reads the current threshold, `log.setLevel(level)` changes it, and
+`log.enabled(level)` reports whether an entry of that level would be emitted —
+handy to guard expensive message construction.
+
+## Scopes and child loggers
+
+`log.child("scope")` returns a child logger whose entries carry an extra scope
+segment. A child **shares its parent's threshold and sink**, so changing the
+level on any logger in the tree affects them all.
+
+```ts
+import { Logger } from "spearkit";
+
+const log = new Logger({ scope: "app" });
+const db = log.child("db");      // scope "app:db"
+const cache = db.child("cache"); // scope "app:db:cache"
+
+db.info("connected");
+log.setLevel("debug");           // affects log, db, and cache
+cache.debug("warm");             // now emitted
+```
+
+spearkit uses this internally: the client creates `commands`, `components`,
+`events`, `scheduler`, `prefix`, and `usage` children off `client.logger`, so
+every subsystem's output is scoped and a single `setLevel` controls them all.
+
+## Structured `data` and `error`
+
+Both arguments live in the optional second parameter (`LogOptions`):
+
+```ts
+import { Logger } from "spearkit";
+
+const log = new Logger();
+
+log.info("command finished", {
+  data: { command: "ping", ms: 12, cached: true },
+});
+
+try {
+  throw new Error("kaboom");
+} catch (cause) {
+  log.error("handler failed", {
+    error: cause instanceof Error ? cause : new Error(String(cause)),
+    data: { command: "purge", guildId: "123" },
+  });
+}
+```
+
+`data` is a flat record of primitives (`string | number | boolean | bigint |
+null | undefined`). `error` is an `Error`; the default sink renders its stack.
+
+### Coercing unknown throws
+
+A `catch` binding is `unknown`. `toError(value)` turns any thrown value into an
+`Error` so it fits `{ error }`:
+
+```ts
+import { Logger, toError } from "spearkit";
+
+const log = new Logger();
+try {
+  JSON.parse("{");
+} catch (cause) {
+  log.error("parse failed", { error: toError(cause) });
+}
+```
+
+## Custom sinks
+
+A sink is `(entry: LogEntry) => void`. The default is `consoleSink`, which writes
+human-readable lines to the console (stderr for `warn`/`error`). Pass your own to
+route entries anywhere — JSON lines, a file, an aggregator:
+
+```ts
+import { Logger, type LogEntry } from "spearkit";
+
+const log = new Logger({
+  level: "debug",
+  sink: (entry: LogEntry) => {
+    process.stdout.write(
+      JSON.stringify({
+        level: entry.level,
+        message: entry.message,
+        scope: entry.scope,
+        at: entry.timestamp.toISOString(),
+        data: entry.data,
+        error: entry.error?.message,
+      }) + "\n",
+    );
+  },
+});
+
+log.child("commands").info("dispatched", { data: { name: "ping" } });
+```
+
+A `LogEntry` is the fully-resolved record handed to the sink:
+
+| Field | Type | Notes |
+| ----- | ---- | ----- |
+| `level` | `LogLevel` | One of `debug`/`info`/`warn`/`error`. |
+| `message` | `string` | The log message. |
+| `scope` | `string \| undefined` | The accumulated scope, if any. |
+| `timestamp` | `Date` | When the entry was created. |
+| `error` | `Error \| undefined` | The attached error, if any. |
+| `data` | `Record<string, LogValue> \| undefined` | The structured metadata, if any. |
+
+## Configuring via the client
+
+Pass `logger` to `SpearClient`. Give it `LoggerOptions` to build one, or a
+`Logger` instance you already have:
+
+```ts
+import { SpearClient, Logger } from "spearkit";
+
+// Build from options:
+const a = new SpearClient({ logger: { level: "debug" } });
+
+// Or reuse an instance (e.g. one shared with non-Discord code):
+const shared = new Logger({ level: "info", scope: "svc" });
+const b = new SpearClient({ logger: shared });
+
+a.logger.info("ready");
+```
+
+The client logs all command, component, and event handler errors plus gateway
+errors through `client.logger`. Set `level: "debug"` to see dispatch traces from
+every subsystem:
+
+```ts
+import { SpearClient } from "spearkit";
+
+const client = new SpearClient({ logger: { level: "debug" } });
+// client.logger.child("commands"), ".child('events')", etc. all log at debug now
+```
+
+## See also
+
+- [Client](/docs/guides/client) — the `logger` and other construction options.
+- [Environment & dotenv](/docs/guides/env) — load configuration before you start.

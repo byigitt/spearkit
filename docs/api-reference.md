@@ -409,3 +409,67 @@ function loadInto(client: SpearClient, dir: string, options?: LoadOptions): Prom
 ```
 
 `SpearClient.load(dir, options?)` is the method form of `loadInto`.
+
+---
+
+## Added in 0.2
+
+New subsystems, each with a dedicated guide. The `SpearClient` options
+`{ logger?, dotenv?, cooldown?, prefix?, usage? }` configure them.
+
+### Logging — [guide](./logging.md)
+
+```ts
+class Logger { debug/info/warn/error(message: string, options?: { error?: Error; data?: Record<string, LogValue> }): void; child(scope: string): Logger; setLevel(level: LogThreshold): this; enabled(level: LogLevel): boolean; }
+type LogLevel = "debug" | "info" | "warn" | "error";
+type LogThreshold = LogLevel | "silent";
+function consoleSink(entry: LogEntry): void;
+function toError(value: unknown): Error;
+// client.logger is a Logger; new SpearClient({ logger: { level: "debug" } })
+```
+
+### Environment — [guide](./env.md)
+
+```ts
+function parseEnv(content: string): Record<string, string>;
+function loadEnv(options?: { path?: string; override?: boolean }): Record<string, string>;
+const env: { string(k, fallback?); number(k, fallback?); boolean(k, fallback?); require(k): string };
+// client auto-loads .env on start(); disable/configure via the dotenv option
+```
+
+### Cooldowns — [guide](./cooldown.md)
+
+```ts
+interface CooldownConfig { duration: number; scope?: "user" | "guild" | "channel" | "global"; exempt?: { users?: string[]; roles?: string[] }; overrides?: { users?: Record<string, number>; roles?: Record<string, number> }; message?: string | ((remainingMs: number) => string); }
+class CooldownManager { consume(bucket, input, actor, now?); peek(...); reset(...); clear(); }
+// command({ cooldown: number | CooldownConfig }); new SpearClient({ cooldown }); client.cooldowns
+```
+
+### Scheduled tasks — [guide](./scheduler.md)
+
+```ts
+function task(config: { name: string; cron?: string; interval?: number; runOnStart?: boolean; run: (client: SpearClient) => Awaitable<void> }): ScheduledTask;
+function cron(expression: string): CronExpression; // .next(from?: Date): Date
+class TaskScheduler { add/remove/list/size/active/start/stop }
+// client.register(task(...)); client.schedule(config); client.scheduler
+```
+
+### Prefix commands — [guide](./prefix.md)
+
+```ts
+function prefixCommand(config: { name: string; aliases?: string[]; description?: string; cooldown?: CooldownInput; run: (ctx: PrefixContext) => Awaitable<R> }): PrefixCommand;
+class PrefixContext { message; commandName; args: string[]; rest: string; reply(content); send(content); }
+// new SpearClient({ prefix: "!" | string[] | { prefix, mention?, ignoreBots?, caseInsensitive? } }); client.prefix
+// reading others' content needs the privileged MessageContent intent (Intents.messages)
+```
+
+### Usage tracking — [guide](./usage.md)
+
+```ts
+interface UsageEvent { type: "command" | "prefix" | "component" | "event"; name: string; userId?; userTag?; guildId?; channelId?; detail?; timestamp: Date; }
+interface UsageStore { record(event): Awaitable<void>; all(): Awaitable<readonly UsageEvent[]>; }
+class MemoryUsageStore { record; all; size; byUser(id); clear; }
+class JsonFileUsageStore { constructor(path: string); record; all; }
+class UsageTracker { setStore(store); reportTo(channelId, format?); track(event); store; enabled; }
+// new SpearClient({ usage: { store?, channel?, format? } }); client.usage
+```

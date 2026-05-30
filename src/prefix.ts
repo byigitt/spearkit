@@ -39,7 +39,7 @@ export interface PrefixOptions {
 }
 
 /** Configuration for a prefix command. */
-export interface PrefixCommandConfig {
+export interface PrefixCommandConfig<R = void> {
   /** Primary command name (the word after the prefix). */
   name: string;
   /** Alternative names that also trigger the command. */
@@ -49,7 +49,7 @@ export interface PrefixCommandConfig {
   /** Rate-limit this command. A number is a duration in ms. */
   cooldown?: CooldownInput;
   /** Handler invoked with a {@link PrefixContext}. */
-  run: (ctx: PrefixContext) => Awaitable<void>;
+  run: (ctx: PrefixContext) => Awaitable<R>;
 }
 
 /** A registrable prefix command. Build it with {@link prefixCommand}. */
@@ -59,18 +59,20 @@ export interface PrefixCommand {
   readonly aliases: readonly string[];
   readonly description?: string;
   readonly cooldown?: CooldownConfig;
-  readonly run: (ctx: PrefixContext) => Awaitable<void>;
+  readonly run: (ctx: PrefixContext) => Promise<void>;
 }
 
 /** Define a prefix command. */
-export function prefixCommand(config: PrefixCommandConfig): PrefixCommand {
+export function prefixCommand<R = void>(config: PrefixCommandConfig<R>): PrefixCommand {
   return {
     kind: "prefixCommand",
     name: config.name,
     aliases: config.aliases ?? [],
     description: config.description,
     cooldown: config.cooldown !== undefined ? normalizeCooldown(config.cooldown) : undefined,
-    run: config.run,
+    run: async (ctx) => {
+      await config.run(ctx);
+    },
   };
 }
 

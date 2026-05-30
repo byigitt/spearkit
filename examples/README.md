@@ -21,6 +21,12 @@ spearkit discord.js` and the same imports work unchanged.
 | [`deploy/`](./deploy) | Registering commands (standalone and from the client). |
 | [`plugins/`](./plugins) | Bundling features into reusable plugins. |
 | [`file-based-loading/`](./file-based-loading) | One file per handler, loaded with `client.load()`. |
+| [`cooldown/`](./cooldown) | Per-user/role/guild rate limiting. |
+| [`scheduler/`](./scheduler) | Cron and interval scheduled tasks. |
+| [`prefix/`](./prefix) | Classic `!text` prefix commands. |
+| [`logging/`](./logging) | Structured, leveled, scoped logging. |
+| [`usage/`](./usage) | Record who used what (store + Discord channel). |
+| [`env/`](./env) | Load `.env` and read typed env vars. |
 | [`drop-in-replacement/`](./drop-in-replacement) | Classic discord.js, imported from spearkit. |
 | [`complete-bot/`](./complete-bot) | Everything wired into one client. |
 
