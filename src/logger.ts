@@ -86,6 +86,7 @@ export function consoleSink(entry: LogEntry): void {
 export function jsonlSink(path: string, options: { minLevel?: LogLevel } = {}): LogSink {
   const min = options.minLevel ?? "debug";
   let dirReady = false;
+  let chain: Promise<void> = Promise.resolve();
   return (entry) => {
     if (RANK[entry.level] < RANK[min]) return;
     const record = {
@@ -96,7 +97,7 @@ export function jsonlSink(path: string, options: { minLevel?: LogLevel } = {}): 
         : undefined,
     };
     const line = `${JSON.stringify(record)}\n`;
-    void (async () => {
+    chain = chain.then(async () => {
       try {
         if (!dirReady) {
           await mkdir(dirname(path), { recursive: true });
@@ -106,9 +107,10 @@ export function jsonlSink(path: string, options: { minLevel?: LogLevel } = {}): 
       } catch {
         // Swallow — log file unwritable shouldn't kill the bot.
       }
-    })();
+    });
   };
 }
+
 
 /**
  * Discord-webhook sink: POSTs an embed to a webhook URL for entries at or

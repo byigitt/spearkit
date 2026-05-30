@@ -205,6 +205,7 @@ export class TaskScheduler {
   private running = false;
   private client?: SpearClient;
   private logger?: Logger;
+  private readonly reconcilers: { name: string; run: (client: SpearClient) => Awaitable<void> }[] = [];
 
   /** Number of registered tasks. */
   get size(): number {
@@ -242,12 +243,105 @@ export class TaskScheduler {
     return this.tasks.delete(name);
   }
 
+  /**
+   * Schedule a one-shot job: run `fn` once after `ms` milliseconds, then forget.
+   * Returns a cancel handle. Replaces hand-rolled `setTimeout` calls for things
+   * like "remind the moderator in 10 minutes if no claim happened".
+   */
+  delay(name: string, ms: number, fn: () => Awaitable<void>): { cancel: () => boolean } {
+    const key = `delay:${name}`;
+    this.cancel(key);
+    const timer = setTimeout(async () => {
+      this.timers.delete(key);
+      try {
+        await fn();
+      } catch (error) {
+        this.logger?.error(`delay "${name}" failed`, { error: toError(error) });
+      }
+    }, Math.max(0, ms));
+    if (typeof timer.unref === "function") timer.unref();
+    this.timers.set(key, timer);
+    return {
+      cancel: () => {
+        const had = this.timers.has(key);
+        this.cancel(key);
+        return had;
+      },
+    };
+  }
+
+  /**
+   * Schedule a series of follow-up fires from a single start point. Each
+   * delay is measured from "now"; the callback receives the index of the
+   * fire. Generalises the 10s/30s/60s retry pattern in real bots.
+   */
+  followUp(
+    name: string,
+    delays: readonly number[],
+    fn: (index: number) => Awaitable<void>,
+  ): { cancel: () => boolean } {
+    const keys = delays.map((_, i) => `followUp:${name}:${i}`);
+    for (const key of keys) this.cancel(key);
+    delays.forEach((delay, i) => {
+      const key = keys[i] as string;
+      const timer = setTimeout(async () => {
+        this.timers.delete(key);
+        try {
+          await fn(i);
+        } catch (error) {
+          this.logger?.error(`followUp "${name}" fire ${i} failed`, { error: toError(error) });
+        }
+      }, Math.max(0, delay));
+      if (typeof timer.unref === "function") timer.unref();
+      this.timers.set(key, timer);
+    });
+    return {
+      cancel: () => {
+        let any = false;
+        for (const key of keys) {
+          if (this.timers.has(key)) any = true;
+          this.cancel(key);
+        }
+        return any;
+      },
+    };
+  }
+
+  /**
+   * Register a once-on-ready reconciler — runs the first time the scheduler
+   * starts (typically when the client becomes ready) and never again. Use
+   * for restart-recovery work like closing orphaned voice sessions or
+   * reapplying cached channel state.
+   */
+  reconcile(name: string, fn: (client: SpearClient) => Awaitable<void>): void {
+    if (this.running && this.client !== undefined) {
+      void this.runReconciler(name, fn, this.client);
+    } else {
+      this.reconcilers.push({ name, run: fn });
+    }
+  }
+
+  private async runReconciler(
+    name: string,
+    run: (client: SpearClient) => Awaitable<void>,
+    client: SpearClient,
+  ): Promise<void> {
+    this.logger?.debug("reconcile", { data: { name } });
+    try {
+      await run(client);
+    } catch (error) {
+      this.logger?.error(`reconciler "${name}" failed`, { error: toError(error) });
+    }
+  }
+
   /** Start every task. Safe to call once; later calls are ignored. */
   start(client: SpearClient): void {
     if (this.running) return;
     this.client = client;
     this.running = true;
     for (const task of this.tasks.values()) this.begin(task);
+    const pending = this.reconcilers.splice(0);
+    for (const { name, run } of pending) void this.runReconciler(name, run, client);
   }
 
   /** Stop the scheduler and cancel every pending timer. */

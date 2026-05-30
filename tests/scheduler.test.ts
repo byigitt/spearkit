@@ -74,5 +74,60 @@ describe("TaskScheduler runtime", () => {
     const scheduled = client.schedule({ name: "later", interval: 1000, run: () => {} });
     expect(scheduled.kind).toBe("task");
     expect(client.scheduler.list().map((t) => t.name)).toContain("later");
+});
+
+describe("TaskScheduler.delay / followUp / reconcile", () => {
+  it("delay() fires once after the given ms; cancel prevents fire", async () => {
+    const client = new SpearClient({ intents: [], logger: { level: "silent" } });
+    let fired = 0;
+    client.scheduler.delay("once", 20, () => void fired++);
+    await sleep(40);
+    expect(fired).toBe(1);
+    const handle = client.scheduler.delay("later", 50, () => void fired++);
+    expect(handle.cancel()).toBe(true);
+    await sleep(70);
+    expect(fired).toBe(1);
   });
+
+  it("followUp() fires each delay independently with an index", async () => {
+    const client = new SpearClient({ intents: [], logger: { level: "silent" } });
+    const calls: number[] = [];
+    client.scheduler.followUp("ladder", [10, 30, 50], (i) => void calls.push(i));
+    await sleep(80);
+    expect(calls).toEqual([0, 1, 2]);
+  });
+
+  it("followUp().cancel() cancels every remaining fire", async () => {
+    const client = new SpearClient({ intents: [], logger: { level: "silent" } });
+    const calls: number[] = [];
+    const handle = client.scheduler.followUp("late", [10, 30, 50], (i) => void calls.push(i));
+    await sleep(15); // first fire happened
+    handle.cancel();
+    await sleep(60);
+    expect(calls).toEqual([0]);
+  });
+
+  it("reconcile() runs immediately when scheduler is already running", async () => {
+    const client = new SpearClient({ intents: [], logger: { level: "silent" } });
+    client.scheduler.start(client);
+    let ran = false;
+    client.scheduler.reconcile("now", () => {
+      ran = true;
+    });
+    await sleep(10);
+    expect(ran).toBe(true);
+  });
+
+  it("reconcile() defers until start() when registered before", async () => {
+    const client = new SpearClient({ intents: [], logger: { level: "silent" } });
+    let ran = false;
+    client.scheduler.reconcile("later", () => {
+      ran = true;
+    });
+    expect(ran).toBe(false);
+    client.scheduler.start(client);
+    await sleep(10);
+    expect(ran).toBe(true);
+  });
+});
 });

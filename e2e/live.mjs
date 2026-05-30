@@ -1427,6 +1427,30 @@ async function main() {
   );
 
   rmSync(logDir, { recursive: true, force: true });
+
+  // AC. Scheduler delay + followUp + reconcile -------------------------------
+  group("AC. Scheduler delay/followUp/reconcile");
+  let delayFired = 0;
+  client.scheduler.delay("e2e-delay", 80, () => {
+    delayFired += 1;
+  });
+  await sleep(150);
+  check("delay() fires once after timeout", delayFired === 1, `fired=${delayFired}`);
+  const fuCalls = [];
+  client.scheduler.followUp("e2e-followup", [40, 90], (i) => fuCalls.push(i));
+  await sleep(150);
+  check(
+    "followUp() fires each delay with an index",
+    fuCalls.length === 2 && fuCalls[0] === 0 && fuCalls[1] === 1,
+    `calls=${fuCalls.join(",")}`,
+  );
+  // reconcile() runs now since scheduler is already started.
+  let reconciled = false;
+  client.scheduler.reconcile("e2e-reconcile", () => {
+    reconciled = true;
+  });
+  await sleep(20);
+  check("reconcile() runs once when registered after start()", reconciled);
   // --- report ---------------------------------------------------------------
   console.log(lines.join("\n"));
   console.log(`\n${passed} passed, ${failed} failed.`);
