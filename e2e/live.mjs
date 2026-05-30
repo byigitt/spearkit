@@ -96,6 +96,7 @@ import {
   guildOnly,
   requireAnyRole,
   denied,
+  buildPaginatorPage,
   userCommand,
   messageCommand,
 } from "../dist/index.js";
@@ -1335,6 +1336,30 @@ async function main() {
     );
     await trigger.delete().catch(() => undefined);
     await reply?.delete().catch(() => undefined);
+  }
+
+  // Z. Pagination ------------------------------------------------------------
+  group("Z. Pagination");
+  const zChannel = await findSendableTextChannel(await client.guilds.fetch(guildId));
+  if (zChannel == null) {
+    check("paginator sent + read back with controls", false, "no sendable channel");
+  } else {
+    const items = ["a", "b", "c", "d", "e"];
+    const { payload, pages } = await buildPaginatorPage(items, 0, {
+      pageSize: 2,
+      render: (slice, { page }) =>
+        client.embeds.info({ title: `page ${page}`, description: slice.join(", ") }),
+    });
+    check("buildPaginatorPage produces 3 pages for 5 items at pageSize=2", pages === 3);
+    const sent = await zChannel.send(payload);
+    const back = await zChannel.messages.fetch(sent.id);
+    const buttonIds = back.components[0]?.components.map((c) => c.customId) ?? [];
+    check(
+      "paginator message has prev + next buttons on the wire",
+      buttonIds.includes("spk-page:prev") && buttonIds.includes("spk-page:next"),
+      buttonIds.join(","),
+    );
+    await sent.delete().catch(() => undefined);
   }
   // --- report ---------------------------------------------------------------
   console.log(lines.join("\n"));
