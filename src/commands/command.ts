@@ -22,6 +22,7 @@ import {
   type ResolvedOptions,
 } from "./options.js";
 import { normalizeCooldown, type CooldownConfig, type CooldownInput } from "../cooldown.js";
+import type { Guard } from "../guards.js";
 
 /** Metadata shared by every kind of command. */
 interface CommonMeta {
@@ -35,6 +36,8 @@ interface CommonMeta {
   descriptionLocalizations?: LocalizationMap;
   /** Rate-limit this command. A number is a duration in ms; see {@link CooldownConfig}. */
   cooldown?: CooldownInput;
+  /** Preconditions evaluated before the handler runs. */
+  guards?: readonly Guard[];
 }
 
 /** Configuration for a leaf (non-subcommand) slash command. */
@@ -95,6 +98,7 @@ interface SlashCommandSpec {
   executor: (interaction: ChatInputCommandInteraction) => Promise<void>;
   autocompleter: (interaction: AutocompleteInteraction) => Promise<void>;
   cooldown?: CooldownConfig;
+  guards?: readonly Guard[];
 }
 
 /**
@@ -112,6 +116,8 @@ export class SlashCommand {
   private readonly autocompleter: (interaction: AutocompleteInteraction) => Promise<void>;
   /** Resolved cooldown configuration for this command, if any. */
   readonly cooldown?: CooldownConfig;
+  /** Resolved guard list for this command, if any. */
+  readonly guards?: readonly Guard[];
 
   /** @internal */
   constructor(spec: SlashCommandSpec) {
@@ -121,6 +127,7 @@ export class SlashCommand {
     this.executor = spec.executor;
     this.autocompleter = spec.autocompleter;
     this.cooldown = spec.cooldown;
+    this.guards = spec.guards;
   }
 
   /** Serialise to the discord REST chat-input command payload. */
@@ -241,6 +248,7 @@ export function command<O extends OptionMap = Record<string, never>, R = void>(
     executor,
     autocompleter: makeAutocompleter(options),
     cooldown: config.cooldown !== undefined ? normalizeCooldown(config.cooldown) : undefined,
+    guards: config.guards,
   });
 }
 
@@ -329,5 +337,6 @@ export function commandGroup(config: CommandGroupConfig): SlashCommand {
     executor,
     autocompleter,
     cooldown: config.cooldown !== undefined ? normalizeCooldown(config.cooldown) : undefined,
+    guards: config.guards,
   });
 }

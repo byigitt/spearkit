@@ -17,6 +17,7 @@ import { TaskScheduler, task, type ScheduledTask, type TaskConfig } from "./sche
 import { PrefixRegistry, type PrefixCommand, type PrefixOptions } from "./prefix.js";
 import { UsageTracker, type UsageEvent, type UsageOptions } from "./usage.js";
 import { Embeds, type EmbedsOptions } from "./embeds.js";
+import type { Guard } from "./guards.js";
 
 /** Anything that can be handed to {@link SpearClient.register}. */
 export type Registerable = SlashCommand | EventDef | ComponentDef | ScheduledTask | PrefixCommand;
@@ -64,6 +65,8 @@ export interface SpearOptions {
   usage?: UsageOptions;
   /** Default {@link Embeds} factory for preset replies. Pass an instance or options. */
   embeds?: Embeds | EmbedsOptions;
+  /** Default guards (preconditions) applied before every command/component/prefix handler. */
+  guards?: readonly Guard[];
 }
 
 /** Options for {@link SpearClient}: discord.js options plus {@link SpearOptions}. `intents` may be omitted. */
@@ -103,7 +106,7 @@ export class SpearClient extends Client {
   private readonly envConfig: false | LoadEnvOptions;
 
   constructor(options: SpearClientOptions = {}) {
-    const { intents, logger, dotenv, cooldown, prefix, usage, embeds, ...rest } = options;
+    const { intents, logger, dotenv, cooldown, prefix, usage, embeds, guards, ...rest } = options;
     super({ ...rest, intents: intents ?? Intents.default });
     this.embeds = embeds instanceof Embeds ? embeds : new Embeds(embeds);
     this.envConfig = dotenv === false ? false : dotenv === undefined || dotenv === true ? {} : dotenv;
@@ -111,6 +114,11 @@ export class SpearClient extends Client {
     this.commands.setLogger(this.logger.child("commands"));
     const defaultCooldown = cooldown !== undefined ? normalizeCooldown(cooldown) : undefined;
     this.commands.setCooldowns(this.cooldowns, defaultCooldown);
+    if (guards !== undefined && guards.length > 0) {
+      this.commands.setDefaultGuards(guards);
+      this.components.setDefaultGuards(guards);
+      this.prefix.setDefaultGuards(guards);
+    }
     this.components.setLogger(this.logger.child("components"));
     this.events.attachAll(this);
     this.on("interactionCreate", (interaction) => this.route(interaction));

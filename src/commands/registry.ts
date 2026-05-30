@@ -11,6 +11,8 @@ import {
 } from "discord.js";
 import type { SlashCommand } from "./command.js";
 import type { Logger } from "../logger.js";
+import { runGuards, type Guard } from "../guards.js";
+import { defaultEmbeds, type Embeds } from "../embeds.js";
 import {
   CooldownManager,
   formatCooldownMessage,
@@ -49,6 +51,7 @@ export class CommandRegistry {
   private logger?: Logger;
   private cooldowns?: CooldownManager;
   private defaultCooldown?: CooldownConfig;
+  private defaultGuards: readonly Guard[] = [];
   private onUsage?: (event: UsageEvent) => void;
 
   /** Register one or more commands. Later registrations override by name. */
@@ -101,6 +104,12 @@ export class CommandRegistry {
     return this;
   }
 
+  /** Guards that run before every command's own guards. */
+  setDefaultGuards(guards: readonly Guard[]): this {
+    this.defaultGuards = guards;
+    return this;
+  }
+
   /** Attach a hook called after each successful command execution. */
   setUsageHook(hook: (event: UsageEvent) => void): this {
     this.onUsage = hook;
@@ -124,6 +133,21 @@ export class CommandRegistry {
       const result = this.cooldowns.consume(command.name, cooldown, actorOf(interaction));
       if (!result.allowed) {
         await this.replyCooldown(interaction, cooldown, result.remaining);
+        return;
+      }
+    }
+    const guards = combineGuards(this.defaultGuards, command.guards);
+    if (guards.length > 0) {
+      const guardResult = await runGuards(interaction, guards);
+      if (!guardResult.allowed) {
+        this.logger?.debug("command denied", {
+          data: {
+            command: command.name,
+            user: interaction.user.id,
+            reason: guardResult.reason ?? "",
+          },
+        });
+        await this.replyDenied(interaction, guardResult.reason);
         return;
       }
     }
@@ -217,6 +241,33 @@ export class CommandRegistry {
       // Interaction likely expired.
     }
   }
+
+  private async replyDenied(
+    interaction: ChatInputCommandInteraction,
+    reason: string | undefined,
+  ): Promise<void> {
+    const embeds = clientEmbeds(interaction.client);
+    const text = reason ?? "You don't have permission to use this.";
+    try {
+      const payload = { embeds: [embeds.error(text)], flags: MessageFlags.Ephemeral } as const;
+      if (interaction.deferred) await interaction.editReply({ embeds: payload.embeds });
+      else if (interaction.replied) await interaction.followUp(payload);
+      else await interaction.reply(payload);
+    } catch {
+      // Interaction likely expired.
+    }
+  }
+}
+
+function combineGuards(defaults: readonly Guard[], own: readonly Guard[] | undefined): readonly Guard[] {
+  if (own === undefined || own.length === 0) return defaults;
+  if (defaults.length === 0) return own;
+  return [...defaults, ...own];
+}
+
+function clientEmbeds(client: { embeds?: Embeds } | unknown): Embeds {
+  const host = client as { embeds?: Embeds };
+  return host.embeds ?? defaultEmbeds;
 }
 
 function actorOf(interaction: ChatInputCommandInteraction): CooldownActor {

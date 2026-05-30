@@ -14,11 +14,14 @@ import { MessageFlags } from "discord.js";
 import { parseCustomId, paramsFromValues } from "./customId.js";
 import type { Logger } from "../logger.js";
 import type { UsageEvent } from "../usage.js";
+import { runGuards, type Guard } from "../guards.js";
+import { defaultEmbeds, type Embeds } from "../embeds.js";
 
 /** Shared shape of every routed component. */
 interface RouteBase {
   readonly namespace: string;
   readonly paramNames: readonly string[];
+  readonly guards?: readonly Guard[];
 }
 
 /** Routing entry for a button. */
@@ -96,6 +99,7 @@ export class ComponentRegistry {
   private errorHandler?: ComponentErrorHandler;
   private logger?: Logger;
   private onUsage?: (event: UsageEvent) => void;
+  private defaultGuards: readonly Guard[] = [];
 
   /** Register one or more components. Later registrations override by namespace. */
   add(...defs: ComponentDef[]): this {
@@ -142,6 +146,12 @@ export class ComponentRegistry {
   /** Attach a hook called after each successful component handler run. */
   setUsageHook(hook: (event: UsageEvent) => void): this {
     this.onUsage = hook;
+    return this;
+  }
+
+  /** Guards that run before every component's own guards. */
+  setDefaultGuards(guards: readonly Guard[]): this {
+    this.defaultGuards = guards;
     return this;
   }
 
@@ -193,6 +203,17 @@ export class ComponentRegistry {
   ): Promise<boolean> {
     if (route === undefined) return false;
     this.logger?.debug("component", { data: { customId: interaction.customId } });
+    const guards = combineGuards(this.defaultGuards, route.guards);
+    if (guards.length > 0) {
+      const guardResult = await runGuards(interaction, guards);
+      if (!guardResult.allowed) {
+        this.logger?.debug("component denied", {
+          data: { customId: interaction.customId, reason: guardResult.reason ?? "" },
+        });
+        await replyDeniedComponent(interaction, guardResult.reason);
+        return true;
+      }
+    }
     const { values } = parseCustomId(interaction.customId);
     const params = paramsFromValues(route.paramNames, values);
     try {
@@ -225,4 +246,30 @@ export class ComponentRegistry {
 
 function namespaceOf(customId: string): string {
   return parseCustomId(customId).namespace;
+}
+
+function combineGuards(defaults: readonly Guard[], own: readonly Guard[] | undefined): readonly Guard[] {
+  if (own === undefined || own.length === 0) return defaults;
+  if (defaults.length === 0) return own;
+  return [...defaults, ...own];
+}
+
+function clientEmbeds(client: { embeds?: Embeds } | unknown): Embeds {
+  return ((client as { embeds?: Embeds }).embeds) ?? defaultEmbeds;
+}
+
+async function replyDeniedComponent(
+  interaction: RepliableInteraction,
+  reason: string | undefined,
+): Promise<void> {
+  const embeds = clientEmbeds(interaction.client);
+  const text = reason ?? "You don't have permission to use this.";
+  try {
+    const payload = { embeds: [embeds.error(text)], flags: MessageFlags.Ephemeral } as const;
+    if (interaction.deferred) await interaction.editReply({ embeds: payload.embeds });
+    else if (interaction.replied) await interaction.followUp(payload);
+    else await interaction.reply(payload);
+  } catch {
+    // Interaction likely expired.
+  }
 }

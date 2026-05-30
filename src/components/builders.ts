@@ -39,6 +39,7 @@ import type {
   StringSelectRoute,
   UserSelectRoute,
 } from "./registry.js";
+import type { Guard } from "../guards.js";
 
 // --- buttons ---------------------------------------------------------------
 
@@ -66,6 +67,8 @@ export interface ButtonConfig<P extends string, R> {
   style?: ButtonStyleInput;
   emoji?: ComponentEmojiResolvable;
   disabled?: boolean;
+  /** Preconditions evaluated before the handler runs. */
+  guards?: readonly Guard[];
   run: (ctx: ButtonContext<Params<P>>) => Awaitable<R>;
 }
 
@@ -92,24 +95,19 @@ export interface Button<P extends string> extends ButtonRoute {
 export function button<const P extends string, R = void>(config: ButtonConfig<P, R>): Button<P> {
   const compiled = compilePattern(config.id);
   const style = resolveButtonStyle(config.style);
-  return {
-    kind: "button",
-    namespace: compiled.namespace,
-    paramNames: compiled.paramNames,
-    async handle(interaction, params) {
-      await config.run(new ButtonContext(interaction, params as Params<P>));
-    },
-    build(...args: BuildArgs<P>): ButtonBuilder {
-      const params = (args[0] ?? {}) as Record<string, string>;
-      const builder = new ButtonBuilder()
-        .setCustomId(buildCustomId(compiled, params))
-        .setStyle(style);
-      if (config.label !== undefined) builder.setLabel(config.label);
-      if (config.emoji !== undefined) builder.setEmoji(config.emoji);
-      if (config.disabled !== undefined) builder.setDisabled(config.disabled);
-      return builder;
-    },
-  };
+  return { kind: "button", namespace: compiled.namespace, paramNames: compiled.paramNames, guards: config.guards, async handle(interaction, params) {
+    await config.run(new ButtonContext(interaction, params as Params<P>));
+  },
+  build(...args: BuildArgs<P>): ButtonBuilder {
+    const params = (args[0] ?? {}) as Record<string, string>;
+    const builder = new ButtonBuilder()
+      .setCustomId(buildCustomId(compiled, params))
+      .setStyle(style);
+    if (config.label !== undefined) builder.setLabel(config.label);
+    if (config.emoji !== undefined) builder.setEmoji(config.emoji);
+    if (config.disabled !== undefined) builder.setDisabled(config.disabled);
+    return builder;
+  }, };
 }
 
 /** Config for a link button (no handler — just opens a URL). */
@@ -136,6 +134,8 @@ interface SelectConfigBase {
   minValues?: number;
   maxValues?: number;
   disabled?: boolean;
+  /** Preconditions evaluated before the handler runs. */
+  guards?: readonly Guard[];
 }
 
 /** Any of the select-menu builders that share the base configuration setters. */
@@ -169,22 +169,17 @@ export function stringSelect<const P extends string, R = void>(
   config: StringSelectConfig<P, R>,
 ): StringSelect<P> {
   const compiled = compilePattern(config.id);
-  return {
-    kind: "stringSelect",
-    namespace: compiled.namespace,
-    paramNames: compiled.paramNames,
-    async handle(interaction, params) {
-      await config.run(new StringSelectContext(interaction, params as Params<P>));
-    },
-    build(...args: BuildArgs<P>): StringSelectMenuBuilder {
-      const params = (args[0] ?? {}) as Record<string, string>;
-      const builder = new StringSelectMenuBuilder()
-        .setCustomId(buildCustomId(compiled, params))
-        .addOptions(...config.options);
-      applySelectBase(builder, config);
-      return builder;
-    },
-  };
+  return { kind: "stringSelect", namespace: compiled.namespace, paramNames: compiled.paramNames, guards: config.guards, async handle(interaction, params) {
+    await config.run(new StringSelectContext(interaction, params as Params<P>));
+  },
+  build(...args: BuildArgs<P>): StringSelectMenuBuilder {
+    const params = (args[0] ?? {}) as Record<string, string>;
+    const builder = new StringSelectMenuBuilder()
+      .setCustomId(buildCustomId(compiled, params))
+      .addOptions(...config.options);
+    applySelectBase(builder, config);
+    return builder;
+  }, };
 }
 
 /** Config shared by the entity-select builders (user/role/channel/mentionable). */
@@ -202,20 +197,15 @@ export function userSelect<const P extends string, R = void>(
   config: EntitySelectConfig<P> & { run: (ctx: UserSelectContext<Params<P>>) => Awaitable<R> },
 ): UserSelect<P> {
   const compiled = compilePattern(config.id);
-  return {
-    kind: "userSelect",
-    namespace: compiled.namespace,
-    paramNames: compiled.paramNames,
-    async handle(interaction, params) {
-      await config.run(new UserSelectContext(interaction, params as Params<P>));
-    },
-    build(...args: BuildArgs<P>): UserSelectMenuBuilder {
-      const params = (args[0] ?? {}) as Record<string, string>;
-      const builder = new UserSelectMenuBuilder().setCustomId(buildCustomId(compiled, params));
-      applySelectBase(builder, config);
-      return builder;
-    },
-  };
+  return { kind: "userSelect", namespace: compiled.namespace, paramNames: compiled.paramNames, guards: config.guards, async handle(interaction, params) {
+    await config.run(new UserSelectContext(interaction, params as Params<P>));
+  },
+  build(...args: BuildArgs<P>): UserSelectMenuBuilder {
+    const params = (args[0] ?? {}) as Record<string, string>;
+    const builder = new UserSelectMenuBuilder().setCustomId(buildCustomId(compiled, params));
+    applySelectBase(builder, config);
+    return builder;
+  }, };
 }
 
 /** A registrable role select. */
@@ -228,20 +218,15 @@ export function roleSelect<const P extends string, R = void>(
   config: EntitySelectConfig<P> & { run: (ctx: RoleSelectContext<Params<P>>) => Awaitable<R> },
 ): RoleSelect<P> {
   const compiled = compilePattern(config.id);
-  return {
-    kind: "roleSelect",
-    namespace: compiled.namespace,
-    paramNames: compiled.paramNames,
-    async handle(interaction, params) {
-      await config.run(new RoleSelectContext(interaction, params as Params<P>));
-    },
-    build(...args: BuildArgs<P>): RoleSelectMenuBuilder {
-      const params = (args[0] ?? {}) as Record<string, string>;
-      const builder = new RoleSelectMenuBuilder().setCustomId(buildCustomId(compiled, params));
-      applySelectBase(builder, config);
-      return builder;
-    },
-  };
+  return { kind: "roleSelect", namespace: compiled.namespace, paramNames: compiled.paramNames, guards: config.guards, async handle(interaction, params) {
+    await config.run(new RoleSelectContext(interaction, params as Params<P>));
+  },
+  build(...args: BuildArgs<P>): RoleSelectMenuBuilder {
+    const params = (args[0] ?? {}) as Record<string, string>;
+    const builder = new RoleSelectMenuBuilder().setCustomId(buildCustomId(compiled, params));
+    applySelectBase(builder, config);
+    return builder;
+  }, };
 }
 
 /** A registrable channel select. */
@@ -257,21 +242,16 @@ export function channelSelect<const P extends string, R = void>(
   },
 ): ChannelSelect<P> {
   const compiled = compilePattern(config.id);
-  return {
-    kind: "channelSelect",
-    namespace: compiled.namespace,
-    paramNames: compiled.paramNames,
-    async handle(interaction, params) {
-      await config.run(new ChannelSelectContext(interaction, params as Params<P>));
-    },
-    build(...args: BuildArgs<P>): ChannelSelectMenuBuilder {
-      const params = (args[0] ?? {}) as Record<string, string>;
-      const builder = new ChannelSelectMenuBuilder().setCustomId(buildCustomId(compiled, params));
-      if (config.channelTypes !== undefined) builder.setChannelTypes(...config.channelTypes);
-      applySelectBase(builder, config);
-      return builder;
-    },
-  };
+  return { kind: "channelSelect", namespace: compiled.namespace, paramNames: compiled.paramNames, guards: config.guards, async handle(interaction, params) {
+    await config.run(new ChannelSelectContext(interaction, params as Params<P>));
+  },
+  build(...args: BuildArgs<P>): ChannelSelectMenuBuilder {
+    const params = (args[0] ?? {}) as Record<string, string>;
+    const builder = new ChannelSelectMenuBuilder().setCustomId(buildCustomId(compiled, params));
+    if (config.channelTypes !== undefined) builder.setChannelTypes(...config.channelTypes);
+    applySelectBase(builder, config);
+    return builder;
+  }, };
 }
 
 /** A registrable mentionable select. */
@@ -286,20 +266,15 @@ export function mentionableSelect<const P extends string, R = void>(
   },
 ): MentionableSelect<P> {
   const compiled = compilePattern(config.id);
-  return {
-    kind: "mentionableSelect",
-    namespace: compiled.namespace,
-    paramNames: compiled.paramNames,
-    async handle(interaction, params) {
-      await config.run(new MentionableSelectContext(interaction, params as Params<P>));
-    },
-    build(...args: BuildArgs<P>): MentionableSelectMenuBuilder {
-      const params = (args[0] ?? {}) as Record<string, string>;
-      const builder = new MentionableSelectMenuBuilder().setCustomId(buildCustomId(compiled, params));
-      applySelectBase(builder, config);
-      return builder;
-    },
-  };
+  return { kind: "mentionableSelect", namespace: compiled.namespace, paramNames: compiled.paramNames, guards: config.guards, async handle(interaction, params) {
+    await config.run(new MentionableSelectContext(interaction, params as Params<P>));
+  },
+  build(...args: BuildArgs<P>): MentionableSelectMenuBuilder {
+    const params = (args[0] ?? {}) as Record<string, string>;
+    const builder = new MentionableSelectMenuBuilder().setCustomId(buildCustomId(compiled, params));
+    applySelectBase(builder, config);
+    return builder;
+  }, };
 }
 
 // --- modals ----------------------------------------------------------------
@@ -349,6 +324,8 @@ export interface ModalConfig<P extends string, F extends Record<string, TextInpu
   id: P;
   title: string;
   fields: F;
+  /** Preconditions evaluated before the handler runs. */
+  guards?: readonly Guard[];
   run: (ctx: ModalContext<Params<P>, keyof F & string>) => Awaitable<R>;
 }
 
@@ -390,34 +367,29 @@ export function modal<const P extends string, F extends Record<string, TextInput
 ): Modal<P> {
   const compiled = compilePattern(config.id);
   const fieldKeys = Object.keys(config.fields);
-  return {
-    kind: "modal",
-    namespace: compiled.namespace,
-    paramNames: compiled.paramNames,
-    async handle(interaction, params) {
-      const fields: Record<string, string> = {};
-      for (const key of fieldKeys) {
-        try {
-          fields[key] = interaction.fields.getTextInputValue(key);
-        } catch {
-          fields[key] = "";
-        }
+  return { kind: "modal", namespace: compiled.namespace, paramNames: compiled.paramNames, guards: config.guards, async handle(interaction, params) {
+    const fields: Record<string, string> = {};
+    for (const key of fieldKeys) {
+      try {
+        fields[key] = interaction.fields.getTextInputValue(key);
+      } catch {
+        fields[key] = "";
       }
-      await config.run(
-        new ModalContext(interaction, params as Params<P>, fields as Record<keyof F & string, string>),
+    }
+    await config.run(
+      new ModalContext(interaction, params as Params<P>, fields as Record<keyof F & string, string>),
+    );
+  },
+  build(...args: BuildArgs<P>): ModalBuilder {
+    const params = (args[0] ?? {}) as Record<string, string>;
+    const builder = new ModalBuilder()
+      .setCustomId(buildCustomId(compiled, params))
+      .setTitle(config.title);
+    for (const [key, def] of Object.entries(config.fields)) {
+      builder.addComponents(
+        new ActionRowBuilder<TextInputBuilder>().addComponents(buildTextInput(key, def)),
       );
-    },
-    build(...args: BuildArgs<P>): ModalBuilder {
-      const params = (args[0] ?? {}) as Record<string, string>;
-      const builder = new ModalBuilder()
-        .setCustomId(buildCustomId(compiled, params))
-        .setTitle(config.title);
-      for (const [key, def] of Object.entries(config.fields)) {
-        builder.addComponents(
-          new ActionRowBuilder<TextInputBuilder>().addComponents(buildTextInput(key, def)),
-        );
-      }
-      return builder;
-    },
-  };
+    }
+    return builder;
+  }, };
 }

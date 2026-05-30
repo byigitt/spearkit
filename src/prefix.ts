@@ -17,6 +17,8 @@ import type {
 import type { Logger } from "./logger.js";
 import { toError } from "./logger.js";
 import type { UsageEvent } from "./usage.js";
+import { runGuards, type Guard, type GuardContext } from "./guards.js";
+import { defaultEmbeds, type Embeds } from "./embeds.js";
 import {
   formatCooldownMessage,
   normalizeCooldown,
@@ -48,6 +50,8 @@ export interface PrefixCommandConfig<R = void> {
   description?: string;
   /** Rate-limit this command. A number is a duration in ms. */
   cooldown?: CooldownInput;
+  /** Preconditions evaluated before the handler runs. */
+  guards?: readonly Guard[];
   /** Handler invoked with a {@link PrefixContext}. */
   run: (ctx: PrefixContext) => Awaitable<R>;
 }
@@ -59,6 +63,7 @@ export interface PrefixCommand {
   readonly aliases: readonly string[];
   readonly description?: string;
   readonly cooldown?: CooldownConfig;
+  readonly guards?: readonly Guard[];
   readonly run: (ctx: PrefixContext) => Promise<void>;
 }
 
@@ -70,6 +75,7 @@ export function prefixCommand<R = void>(config: PrefixCommandConfig<R>): PrefixC
     aliases: config.aliases ?? [],
     description: config.description,
     cooldown: config.cooldown !== undefined ? normalizeCooldown(config.cooldown) : undefined,
+    guards: config.guards,
     run: async (ctx) => {
       await config.run(ctx);
     },
@@ -174,6 +180,7 @@ export class PrefixRegistry {
   private cooldowns?: CooldownManager;
   private defaultCooldown?: CooldownConfig;
   private errorHandler?: PrefixErrorHandler;
+  private defaultGuards: readonly Guard[] = [];
   private onUsage?: (event: UsageEvent) => void;
 
   /** Configure prefixes and matching behaviour. */
@@ -198,6 +205,12 @@ export class PrefixRegistry {
   setCooldowns(manager: CooldownManager, defaultCooldown?: CooldownConfig): this {
     this.cooldowns = manager;
     this.defaultCooldown = defaultCooldown;
+    return this;
+  }
+
+  /** Guards that run before every prefix command's own guards. */
+  setDefaultGuards(guards: readonly Guard[]): this {
+    this.defaultGuards = guards;
     return this;
   }
 
@@ -277,6 +290,22 @@ export class PrefixRegistry {
         return true;
       }
     }
+    const guards = combineGuards(this.defaultGuards, command.guards);
+    if (guards.length > 0) {
+      const guardCtx = guardContextFromMessage(message);
+      const guardResult = await runGuards(guardCtx, guards);
+      if (!guardResult.allowed) {
+        this.logger?.debug("prefix denied", {
+          data: {
+            command: command.name,
+            user: message.author.id,
+            reason: guardResult.reason ?? "",
+          },
+        });
+        await replyDeniedMessage(message, guardResult.reason);
+        return true;
+      }
+    }
 
     const args = rest.length > 0 ? rest.split(/\s+/) : [];
     try {
@@ -299,3 +328,29 @@ export class PrefixRegistry {
   }
 }
 
+function combineGuards(defaults: readonly Guard[], own: readonly Guard[] | undefined): readonly Guard[] {
+  if (own === undefined || own.length === 0) return defaults;
+  if (defaults.length === 0) return own;
+  return [...defaults, ...own];
+}
+
+function guardContextFromMessage(message: Message): GuardContext {
+  return {
+    client: message.client,
+    user: message.author,
+    member: message.member,
+    guild: message.guild,
+    guildId: message.guildId,
+    channelId: message.channelId,
+  };
+}
+
+function clientEmbeds(client: { embeds?: Embeds } | unknown): Embeds {
+  return ((client as { embeds?: Embeds }).embeds) ?? defaultEmbeds;
+}
+
+async function replyDeniedMessage(message: Message, reason: string | undefined): Promise<void> {
+  const embeds = clientEmbeds(message.client);
+  const text = reason ?? "You don't have permission to use this.";
+  await message.reply({ embeds: [embeds.error(text)] }).catch(() => undefined);
+}

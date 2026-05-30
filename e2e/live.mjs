@@ -92,6 +92,10 @@ import {
   MemoryCache,
   loadConfig,
   lookup,
+  requireOwner,
+  guildOnly,
+  requireAnyRole,
+  denied,
 } from "../dist/index.js";
 
 // --- credentials -----------------------------------------------------------
@@ -1193,6 +1197,70 @@ async function main() {
   }
   check("lookup throws on missing keys", threw);
   rmSync(cfgDir, { recursive: true, force: true });
+
+  // W. Guards ----------------------------------------------------------------
+  group("W. Guards");
+  const guildOnlyGuard = guildOnly();
+  check(
+    "guildOnly passes when guildId is set",
+    (await guildOnlyGuard({ guildId: "g", user: { id: "u1" }, member: null, guild: null, channelId: null, client })) === true,
+  );
+  const dmCtx = { guildId: null, user: { id: "u1" }, member: null, guild: null, channelId: null, client };
+  const dmResult = await guildOnlyGuard(dmCtx);
+  check(
+    "guildOnly denies in DMs (no guildId)",
+    typeof dmResult === "object" && dmResult.allowed === false,
+  );
+  // Real CommandRegistry dispatch — owner-only guard denies non-owner.
+  const guardReg = new CommandRegistry().add(
+    command({
+      name: "owneronly",
+      description: "d",
+      guards: [requireOwner(["999999999999999999"])],
+      run: () => {},
+    }),
+  );
+  const denyChat = {
+    commandName: "owneronly",
+    user: { id: "u1", tag: "u#0001" },
+    member: null,
+    guild: null,
+    guildId: null,
+    channelId: null,
+    client,
+    replied: false,
+    deferred: false,
+    options: { getString: () => null, getInteger: () => null, getNumber: () => null, getBoolean: () => null, getUser: () => null, getChannel: () => null, getRole: () => null, getMentionable: () => null, getAttachment: () => null, getSubcommand: () => null, getSubcommandGroup: () => null, getFocused: () => "" },
+    replies: [],
+    async reply(p) {
+      this.replied = true;
+      this.replies.push(p);
+    },
+    async editReply(p) {
+      this.replies.push(p);
+    },
+    async followUp(p) {
+      this.replies.push(p);
+    },
+  };
+  await guardReg.handle(denyChat);
+  check(
+    "command guard denial emits an embed reply",
+    denyChat.replies.length === 1 && Array.isArray(denyChat.replies[0].embeds),
+    `replies=${denyChat.replies.length}`,
+  );
+  // Reason makes it into the embed description.
+  const passReg = new CommandRegistry().add(
+    command({
+      name: "owneronly2",
+      description: "d",
+      guards: [requireOwner(["u-pass"])],
+      run: (ctx) => ctx.reply("ok"),
+    }),
+  );
+  const passChat = { ...denyChat, commandName: "owneronly2", user: { id: "u-pass", tag: "u-pass#0001" }, replied: false, replies: [] };
+  await passReg.handle(passChat);
+  check("command guard pass runs handler", passChat.replies.some((r) => r.content === "ok" || r === "ok"));
   // --- report ---------------------------------------------------------------
   console.log(lines.join("\n"));
   console.log(`\n${passed} passed, ${failed} failed.`);
