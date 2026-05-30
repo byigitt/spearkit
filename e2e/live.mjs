@@ -98,6 +98,7 @@ import {
   denied,
   buildPaginatorPage,
   confirm,
+  jsonlSink,
   userCommand,
   messageCommand,
 } from "../dist/index.js";
@@ -1403,6 +1404,29 @@ async function main() {
   collectorEmitter.emit("end");
   const result = await promise;
   check("confirm resolves confirmed=true on yes click", result.confirmed === true && result.reason === "confirm");
+
+  // AB. Logger transports ----------------------------------------------------
+  group("AB. Logger transports");
+  const logDir = mkdtempSync(join(tmpdir(), "spearkit-e2e-logs-"));
+  const logPath = join(logDir, "out.jsonl");
+  client.logger.addTransport(jsonlSink(logPath, { minLevel: "info" }));
+  client.logger.info("e2e jsonl sink marker", { data: { phase: "AB" } });
+  await sleep(60);
+  const { readFileSync: rfs } = await import("node:fs");
+  const logLines = rfs(logPath, "utf8").trim().split("\n").filter(Boolean);
+  check(
+    "jsonlSink appended a structured line",
+    logLines.some((l) => {
+      try {
+        return JSON.parse(l).message === "e2e jsonl sink marker";
+      } catch {
+        return false;
+      }
+    }),
+    `${logLines.length} lines`,
+  );
+
+  rmSync(logDir, { recursive: true, force: true });
   // --- report ---------------------------------------------------------------
   console.log(lines.join("\n"));
   console.log(`\n${passed} passed, ${failed} failed.`);

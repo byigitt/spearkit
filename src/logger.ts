@@ -3,10 +3,13 @@
  * problem (command/component/event failures, gateway errors, your own code)
  * lands in one consistent, debuggable place.
  *
- * It is intentionally tiny: levels, scopes, structured data and a pluggable
- * sink. No `any`/`unknown` leaks into your code — log metadata is constrained
- * to primitive {@link LogValue}s and an optional {@link Error}.
+ * Pluggable transports — the default writes to the console, but you can also
+ * stream to a JSONL file ({@link jsonlSink}), POST high-severity entries to a
+ * Discord webhook ({@link webhookSink}), or write your own. Setting
+ * `transports: [...]` replaces the default; otherwise pass a single `sink`.
  */
+import { appendFile, mkdir } from "node:fs/promises";
+import { dirname } from "node:path";
 
 /** Severity of a log entry, lowest to highest. */
 export type LogLevel = "debug" | "info" | "warn" | "error";
@@ -42,8 +45,10 @@ export type LogSink = (entry: LogEntry) => void;
 export interface LoggerOptions {
   /** Minimum level to emit. Default `"info"`. */
   level?: LogThreshold;
-  /** Where entries go. Default {@link consoleSink}. */
+  /** Single transport — shorthand for `transports: [sink]`. */
   sink?: LogSink;
+  /** Multiple transports. If set, takes precedence over `sink`. */
+  transports?: readonly LogSink[];
   /** A scope prefix for every entry (e.g. `"commands"`). */
   scope?: string;
 }
@@ -74,19 +79,96 @@ export function consoleSink(entry: LogEntry): void {
   if (entry.error !== undefined) write(entry.error.stack ?? String(entry.error));
 }
 
+/**
+ * JSON-lines sink: appends one JSON object per entry to `path`. Fire-and-forget;
+ * filesystem errors are swallowed so logging never crashes the bot.
+ */
+export function jsonlSink(path: string, options: { minLevel?: LogLevel } = {}): LogSink {
+  const min = options.minLevel ?? "debug";
+  let dirReady = false;
+  return (entry) => {
+    if (RANK[entry.level] < RANK[min]) return;
+    const record = {
+      ...entry,
+      timestamp: entry.timestamp.toISOString(),
+      error: entry.error
+        ? { name: entry.error.name, message: entry.error.message, stack: entry.error.stack }
+        : undefined,
+    };
+    const line = `${JSON.stringify(record)}\n`;
+    void (async () => {
+      try {
+        if (!dirReady) {
+          await mkdir(dirname(path), { recursive: true });
+          dirReady = true;
+        }
+        await appendFile(path, line, "utf8");
+      } catch {
+        // Swallow — log file unwritable shouldn't kill the bot.
+      }
+    })();
+  };
+}
+
+/**
+ * Discord-webhook sink: POSTs an embed to a webhook URL for entries at or
+ * above `minLevel` (default `"warn"`). Useful for sending errors to a private
+ * `#bot-errors` channel.
+ */
+export function webhookSink(options: { url: string; minLevel?: LogLevel; username?: string }): LogSink {
+  const min = options.minLevel ?? "warn";
+  return (entry) => {
+    if (RANK[entry.level] < RANK[min]) return;
+    const color = entry.level === "error" ? 0xf04a47 : entry.level === "warn" ? 0xf9a825 : 0x3498db;
+    const fields: { name: string; value: string; inline?: boolean }[] = [];
+    if (entry.scope !== undefined) fields.push({ name: "Scope", value: entry.scope, inline: true });
+    if (entry.data !== undefined) {
+      for (const [k, v] of Object.entries(entry.data)) {
+        fields.push({ name: k, value: formatValue(v).slice(0, 1000), inline: true });
+      }
+    }
+    const desc = entry.error?.stack !== undefined
+      ? `${entry.message}\n\`\`\`\n${entry.error.stack.slice(0, 1800)}\n\`\`\``
+      : entry.message;
+    const body = {
+      username: options.username ?? "spearkit",
+      embeds: [
+        {
+          title: `[${entry.level.toUpperCase()}] ${entry.message.slice(0, 240)}`,
+          description: desc.slice(0, 4000),
+          color,
+          timestamp: entry.timestamp.toISOString(),
+          fields: fields.slice(0, 25),
+        },
+      ],
+    };
+    void fetch(options.url, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+    }).catch(() => undefined);
+  };
+}
+
 interface SharedState {
   threshold: LogThreshold;
-  sink: LogSink;
+  transports: readonly LogSink[];
+}
+
+function resolveTransports(options: LoggerOptions): readonly LogSink[] {
+  if (options.transports !== undefined && options.transports.length > 0) return options.transports;
+  if (options.sink !== undefined) return [options.sink];
+  return [consoleSink];
 }
 
 /**
  * A leveled, scoped logger. Create one directly or read `client.logger`.
- * {@link child} loggers share the parent's threshold and sink, so calling
+ * {@link child} loggers share the parent's threshold and transports, so calling
  * {@link setLevel} on any of them affects the whole tree.
  *
  * @example
  * ```ts
- * const log = new Logger({ level: "debug" });
+ * const log = new Logger({ level: "debug", transports: [consoleSink, jsonlSink("./logs/bot.jsonl")] });
  * log.info("ready", { data: { shard: 0 } });
  * log.child("commands").error("handler failed", { error });
  * ```
@@ -99,7 +181,7 @@ export class Logger {
   constructor(options: LoggerOptions = {}) {
     this.state = {
       threshold: options.level ?? "info",
-      sink: options.sink ?? consoleSink,
+      transports: resolveTransports(options),
     };
     this.scope = options.scope;
   }
@@ -112,6 +194,18 @@ export class Logger {
   /** Change the threshold for this logger and every child sharing its state. */
   setLevel(level: LogThreshold): this {
     this.state.threshold = level;
+    return this;
+  }
+
+  /** Replace the transport list for this logger and every child sharing its state. */
+  setTransports(transports: readonly LogSink[]): this {
+    this.state.transports = transports;
+    return this;
+  }
+
+  /** Append a transport to the existing list. */
+  addTransport(sink: LogSink): this {
+    this.state.transports = [...this.state.transports, sink];
     return this;
   }
 
@@ -131,14 +225,21 @@ export class Logger {
   /** Emit an entry at an explicit level. */
   log(level: LogLevel, message: string, options?: LogOptions): void {
     if (!this.enabled(level)) return;
-    this.state.sink({
+    const entry: LogEntry = {
       level,
       message,
       scope: this.scope,
       timestamp: new Date(),
       error: options?.error,
       data: options?.data,
-    });
+    };
+    for (const sink of this.state.transports) {
+      try {
+        sink(entry);
+      } catch {
+        // Never let a broken transport kill the dispatcher.
+      }
+    }
   }
 
   /** Verbose diagnostics, off by default. */
