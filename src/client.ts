@@ -11,6 +11,7 @@ import { ComponentRegistry, type ComponentDef } from "./components/registry.js";
 import type { SpearPlugin } from "./plugin.js";
 import { loadInto, type LoadOptions } from "./loader.js";
 import { Logger, type LoggerOptions, toError } from "./logger.js";
+import { loadEnv, type LoadEnvOptions } from "./env.js";
 
 /** Anything that can be handed to {@link SpearClient.register}. */
 export type Registerable = SlashCommand | EventDef | ComponentDef;
@@ -44,6 +45,12 @@ export const Intents = {
 export interface SpearOptions {
   /** A {@link Logger} instance, or options to build one. Exposed as `client.logger`. */
   logger?: Logger | LoggerOptions;
+  /**
+   * Auto-load a `.env` file into `process.env` on {@link SpearClient.start}.
+   * `true` (default) loads `.env` from the cwd; pass {@link LoadEnvOptions} for
+   * a custom path or override behaviour, or `false` to disable.
+   */
+  dotenv?: boolean | LoadEnvOptions;
 }
 
 /** Options for {@link SpearClient}: discord.js options plus {@link SpearOptions}. `intents` may be omitted. */
@@ -70,10 +77,12 @@ export class SpearClient extends Client {
   readonly components = new ComponentRegistry();
   /** Structured logger shared across spearkit and available to your code. */
   readonly logger: Logger;
+  private readonly envConfig: false | LoadEnvOptions;
 
   constructor(options: SpearClientOptions = {}) {
-    const { intents, logger, ...rest } = options;
+    const { intents, logger, dotenv, ...rest } = options;
     super({ ...rest, intents: intents ?? Intents.default });
+    this.envConfig = dotenv === false ? false : dotenv === undefined || dotenv === true ? {} : dotenv;
     this.logger = logger instanceof Logger ? logger : new Logger(logger);
     this.commands.setLogger(this.logger.child("commands"));
     this.components.setLogger(this.logger.child("components"));
@@ -120,6 +129,7 @@ export class SpearClient extends Client {
    * token is passed.
    */
   async start(token?: string): Promise<this> {
+    if (this.envConfig !== false) loadEnv(this.envConfig);
     const resolved = token ?? process.env.DISCORD_TOKEN;
     if (resolved === undefined || resolved.length === 0) {
       throw new Error("spearkit: start() needs a token (pass one or set DISCORD_TOKEN)");

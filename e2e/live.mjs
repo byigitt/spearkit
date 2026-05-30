@@ -71,6 +71,9 @@ import {
   paramsFromValues,
   MAX_CUSTOM_ID_LENGTH,
   Logger,
+  loadEnv,
+  parseEnv,
+  env,
 } from "../dist/index.js";
 
 // --- credentials -----------------------------------------------------------
@@ -904,6 +907,15 @@ async function main() {
     "child logger applies its scope",
     logEntries.some((entry) => entry.scope === "e2e" && entry.message === "e2e logger check"),
   );
+
+  // L. Env (dotenv) -----------------------------------------------------------
+  group("L. Env (dotenv)");
+  const envPath = join(ROOT, ".env");
+  const parsedEnv = parseEnv(readFileSync(envPath, "utf8"));
+  check("parseEnv reads the repo .env", parsedEnv.TEST_DISCORD_GUILD === guildId);
+  const loadedEnv = loadEnv({ path: envPath });
+  check("loadEnv returns the parsed pairs", loadedEnv.TEST_DISCORD_GUILD === guildId);
+  check("env.require reads the loaded value", env.require("TEST_DISCORD_GUILD") === guildId);
   // --- report ---------------------------------------------------------------
   console.log(lines.join("\n"));
   console.log(`\n${passed} passed, ${failed} failed.`);
