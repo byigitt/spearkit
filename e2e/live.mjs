@@ -84,6 +84,7 @@ import {
   JsonFileUsageStore,
   Embeds,
   DEFAULT_EMBED_COLORS,
+  KeyedLock,
 } from "../dist/index.js";
 
 // --- credentials -----------------------------------------------------------
@@ -1090,6 +1091,24 @@ async function main() {
     );
     await sent.delete().catch(() => undefined);
   }
+
+  // R. KeyedLock -------------------------------------------------------------
+  group("R. KeyedLock");
+  const klock = new KeyedLock({ sweep: 0 });
+  const release = klock.tryAcquire("ticket:1:claim");
+  check("lock acquired on first call", release !== null);
+  check("second acquire while held returns null", klock.tryAcquire("ticket:1:claim") === null);
+  let observed = false;
+  const out = await klock.run("ticket:1:claim", () => "ran", { onBusy: () => "busy" });
+  check("run() busies out while another lease is held", out === "busy");
+  release?.();
+  const out2 = await klock.run("ticket:1:claim", () => {
+    observed = klock.isHeld("ticket:1:claim");
+    return "ran";
+  });
+  check("run() runs after release and holds during fn", out2 === "ran" && observed);
+  check("released after run completes", !klock.isHeld("ticket:1:claim"));
+  klock.dispose();
   // --- report ---------------------------------------------------------------
   console.log(lines.join("\n"));
   console.log(`\n${passed} passed, ${failed} failed.`);

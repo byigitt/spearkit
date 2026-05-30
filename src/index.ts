@@ -11,6 +11,7 @@ export * from "discord.js";
 
 // --- spearkit additions -------------------------------------------------------
 export * from "./embeds.js";
+export * from "./lock.js";
 export * from "./logger.js";
 export * from "./env.js";
 export * from "./cooldown.js";
