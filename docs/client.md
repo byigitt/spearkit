@@ -6,7 +6,7 @@ same way you construct a discord.js client, register your handlers, log in, and
 (optionally) push your slash commands to Discord.
 
 ```ts
-import { SpearClient, Intents } from "spear";
+import { SpearClient, Intents } from "spearkit";
 
 const client = new SpearClient({ intents: Intents.default });
 ```
@@ -19,7 +19,7 @@ const client = new SpearClient({ intents: Intents.default });
 interactions).
 
 ```ts
-import { SpearClient, Intents } from "spear";
+import { SpearClient, Intents } from "spearkit";
 
 // Explicit preset.
 const a = new SpearClient({ intents: Intents.messages });
@@ -53,7 +53,7 @@ the connection. `Intents.all` includes every privileged intent for the same
 reason.
 
 ```ts
-import { SpearClient, GatewayIntentBits } from "spear";
+import { SpearClient, GatewayIntentBits } from "spearkit";
 
 // A custom intent set, mixing a preset idea with explicit bits.
 const client = new SpearClient({
@@ -83,7 +83,7 @@ call and routes each to its registry by kind. The accepted union is exported as
 for chaining.
 
 ```ts
-import { SpearClient, command, event, button, option } from "spear";
+import { SpearClient, command, event, button, option } from "spearkit";
 
 const client = new SpearClient();
 
@@ -114,7 +114,7 @@ client.register(greet, ready, ping);
 `setup`. It is async and returns the client.
 
 ```ts
-import { SpearClient } from "spear";
+import { SpearClient } from "spearkit";
 import { statsPlugin } from "./plugins/stats.js";
 
 const client = new SpearClient();
@@ -130,7 +130,7 @@ command, event and component it exports. It returns the number of items
 registered.
 
 ```ts
-import { SpearClient } from "spear";
+import { SpearClient } from "spearkit";
 
 const client = new SpearClient();
 const count = await client.load("./src/commands");
@@ -145,7 +145,7 @@ See [File-based loading](./loading.md) for the layout and `LoadOptions`.
 `DISCORD_TOKEN` environment variable, and throws if neither is present.
 
 ```ts
-import { SpearClient } from "spear";
+import { SpearClient } from "spearkit";
 
 const client = new SpearClient();
 
@@ -164,7 +164,7 @@ from the logged-in client, it **must run after the client is ready**. Pass a
 to deploy globally.
 
 ```ts
-import { SpearClient, Intents } from "spear";
+import { SpearClient, Intents } from "spearkit";
 
 const client = new SpearClient({ intents: Intents.default });
 // …register commands…
@@ -180,11 +180,11 @@ client.once("clientReady", async () => {
 ## Everything discord.js still works
 
 `SpearClient` extends discord.js `Client`, so the full client surface is
-available unchanged. spear adds registries on top — it never hides what is
+available unchanged. spearkit adds registries on top — it never hides what is
 underneath:
 
 ```ts
-import { SpearClient } from "spear";
+import { SpearClient } from "spearkit";
 
 const client = new SpearClient();
 

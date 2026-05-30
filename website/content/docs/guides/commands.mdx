@@ -1,12 +1,12 @@
 ---
 title: "Commands"
-description: "Slash commands in spear are defined as a single object: the metadata, the typed options, and the handler all live together. spear serialises them for discord and routes incoming in"
+description: "Slash commands in spearkit are defined as a single object: the metadata, the typed options, and the handler all live together. spearkit serialises them for discord and routes…"
 ---
 
 ## A first command
 
 ```ts
-import { command } from "spear";
+import { command } from "spearkit";
 
 export const ping = command({
   name: "ping",
@@ -34,7 +34,7 @@ The handler receives a `CommandContext`. It wraps the discord.js
 | `ctx.interaction` | The raw discord.js interaction, for anything not wrapped. |
 
 ```ts
-import { command, option } from "spear";
+import { command, option } from "spearkit";
 
 export const echo = command({
   name: "echo",
@@ -59,7 +59,7 @@ Options are covered in depth in [Options](/docs/guides/options).
 ## Command metadata
 
 ```ts
-import { command, PermissionFlagsBits } from "spear";
+import { command, PermissionFlagsBits } from "spearkit";
 
 export const purge = command({
   name: "purge",
@@ -84,10 +84,10 @@ export const purge = command({
 
 For commands with subcommands, use `commandGroup` together with `subcommand`
 and (optionally) `subcommandGroup`. Each subcommand has its own typed options
-and handler; spear routes to the right one automatically.
+and handler; spearkit routes to the right one automatically.
 
 ```ts
-import { commandGroup, subcommand, subcommandGroup, option } from "spear";
+import { commandGroup, subcommand, subcommandGroup, option } from "spearkit";
 
 export const admin = commandGroup({
   name: "admin",
@@ -122,7 +122,7 @@ export const admin = commandGroup({
 ```
 
 Inside a subcommand handler, `ctx.options` is typed from *that subcommand's*
-options. There is no `switch (subcommand)` to write — spear dispatches by the
+options. There is no `switch (subcommand)` to write — spearkit dispatches by the
 invoked subcommand group/name.
 
 ## The command registry
@@ -131,7 +131,7 @@ invoked subcommand group/name.
 `client.register(...)`, but you can use it directly:
 
 ```ts
-import { CommandRegistry } from "spear";
+import { CommandRegistry } from "spearkit";
 
 const registry = new CommandRegistry();
 registry.add(ping, echo, admin);
@@ -148,7 +148,7 @@ registry.toJSON();      // REST payloads for all commands
 
 ### Error handling
 
-If a handler throws, spear catches it. By default it emits the client's `error`
+If a handler throws, spearkit catches it. By default it emits the client's `error`
 event and replies with an ephemeral "something went wrong" message. Override
 that:
 
@@ -163,7 +163,7 @@ client.commands.onError((error, interaction) => {
 
 ## Deployment
 
-Commands must be registered with discord before they appear. spear gives you two
+Commands must be registered with discord before they appear. spearkit gives you two
 ways.
 
 **From the client** (uses the client's authenticated REST; call after ready):
@@ -176,7 +176,7 @@ await client.deployCommands({ guildId: process.env.GUILD_ID }); // omit guildId 
 **Standalone** (a separate deploy script, no running client needed):
 
 ```ts
-import { CommandRegistry } from "spear";
+import { CommandRegistry } from "spearkit";
 
 const registry = new CommandRegistry().add(ping, echo, admin);
 await registry.deploy({

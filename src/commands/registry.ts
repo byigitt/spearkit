@@ -118,7 +118,7 @@ export class CommandRegistry {
     let rest = options.rest;
     if (rest === undefined) {
       if (options.token === undefined) {
-        throw new Error("spear: deploy() requires a token or a pre-configured REST instance");
+        throw new Error("spearkit: deploy() requires a token or a pre-configured REST instance");
       }
       rest = new REST().setToken(options.token);
     }

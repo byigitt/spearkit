@@ -1,11 +1,11 @@
 /**
  * Autocomplete — suggest values as the user types.
  *
- * Provide an `autocomplete` handler on a string/integer/number option. spear
+ * Provide an `autocomplete` handler on a string/integer/number option. spearkit
  * marks the option autocompletable, routes the autocomplete interaction, and
  * sends whatever choices you return (capped at 25).
  */
-import { command, option } from "spear";
+import { command, option } from "spearkit";
 
 const FRUITS = ["apple", "apricot", "banana", "blueberry", "cherry", "date"];
 

@@ -1,20 +1,20 @@
 # Getting started
 
-spear is **discord.js++**: it re-exports the entire discord.js surface and adds a
+spearkit is **discord.js++**: it re-exports the entire discord.js surface and adds a
 fully type-safe layer for events, slash commands and interactive components. This
 page takes you from an empty folder to a running bot that responds to a slash
 command.
 
 ## Install
 
-spear sits alongside discord.js, so install both:
+spearkit sits alongside discord.js, so install both:
 
 ```bash
-npm install spear discord.js
+npm install spearkit discord.js
 ```
 
-Everything in your code imports from `"spear"` — including the plain discord.js
-symbols, which spear re-exports unchanged.
+Everything in your code imports from `"spearkit"` — including the plain discord.js
+symbols, which spearkit re-exports unchanged.
 
 ## Credentials you need
 
@@ -24,7 +24,7 @@ and collect three values:
 | Value | Where to find it | Used for |
 | ----- | ---------------- | -------- |
 | Bot token | Application → **Bot** → *Reset Token* | `client.start(token)` |
-| Application id | Application → **General Information** → *Application ID* | command deployment (spear reads it from the client once ready) |
+| Application id | Application → **General Information** → *Application ID* | command deployment (spearkit reads it from the client once ready) |
 | Test guild id | Right-click your server in Discord (with Developer Mode on) → *Copy Server ID* | guild-scoped deploy |
 
 Keep the token secret. The examples below read these from the environment
@@ -33,7 +33,7 @@ Keep the token secret. The examples below read these from the environment
 ## Your first bot
 
 ```ts
-import { SpearClient, Intents, command, option, event } from "spear";
+import { SpearClient, Intents, command, option, event } from "spearkit";
 
 const client = new SpearClient({ intents: Intents.default });
 
@@ -110,7 +110,7 @@ A module exports a command, event or component as a default or named export:
 
 ```ts
 // src/commands/ping.ts
-import { command } from "spear";
+import { command } from "spearkit";
 
 export default command({
   name: "ping",
@@ -119,7 +119,7 @@ export default command({
 });
 ```
 
-You can wire the pieces up explicitly with `register`, or let spear discover them
+You can wire the pieces up explicitly with `register`, or let spearkit discover them
 with `client.load` (see [File-based loading](./loading.md)).
 
 ## Running it

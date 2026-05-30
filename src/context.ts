@@ -24,7 +24,7 @@ function withEphemeralFlag(flags: Flags): Flags {
   return [flags, MessageFlags.Ephemeral] as Flags;
 }
 
-/** Normalises spear reply input into a discord.js reply payload. */
+/** Normalises spearkit reply input into a discord.js reply payload. */
 export function normalizeReply(input: ReplyInput): InteractionReplyOptions {
   if (typeof input === "string") return { content: input };
   const { ephemeral, ...rest } = input;

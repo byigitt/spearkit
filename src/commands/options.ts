@@ -13,7 +13,7 @@ import type { AutocompleteContext } from "./context.js";
 
 /**
  * Resolved runtime value types, derived directly from discord.js' option
- * resolver so spear stays exactly in lockstep with the underlying getters.
+ * resolver so spearkit stays exactly in lockstep with the underlying getters.
  */
 type Opt = CommandInteractionOption;
 type UserValue = NonNullable<Opt["user"]>;
@@ -25,7 +25,7 @@ type AttachmentValue = Attachment;
 /** The discord-allowed channel types for a channel option. */
 export type AllowedChannelType = NonNullable<APIApplicationCommandChannelOption["channel_types"]>[number];
 
-/** The reader surface spear needs off a chat-input interaction. */
+/** The reader surface spearkit needs off a chat-input interaction. */
 type OptionReader = ChatInputCommandInteraction["options"];
 
 /** The closed set of values a slash option can resolve to. */
@@ -192,7 +192,7 @@ function mapChoices<V extends string | number>(
   }));
 }
 
-/** Converts a spear option definition into the discord REST option payload. */
+/** Converts a spearkit option definition into the discord REST option payload. */
 export function toAPIOption(name: string, def: AnyOptionDef): APIApplicationCommandBasicOption {
   const shared = {
     name,

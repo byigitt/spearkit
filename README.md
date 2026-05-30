@@ -1,15 +1,15 @@
-# spear
+# spearkit
 
 **discord.js++** — a developer-experience-first layer over [discord.js](https://discord.js.org).
 
-spear re-exports the entire discord.js surface (so it's a drop-in replacement) and
+spearkit re-exports the entire discord.js surface (so it's a drop-in replacement) and
 adds an ergonomic, **fully type-safe** API for the things that are tedious in raw
 discord.js: setting up events, defining slash commands, and wiring interactive
 components. No `any`, no `unknown` leaking into your handlers — option values,
 custom-id params and modal fields are all inferred.
 
 ```bash
-npm install spear discord.js
+npm install spearkit discord.js
 ```
 
 ## Documentation
@@ -21,7 +21,7 @@ npm install spear discord.js
 ## Quick start
 
 ```ts
-import { SpearClient, Intents, command, option, event } from "spear";
+import { SpearClient, Intents, command, option, event } from "spearkit";
 
 const client = new SpearClient({ intents: Intents.default });
 
@@ -44,7 +44,7 @@ Option values are typed from your declaration. Required options are non-nullable
 optional ones are `T | undefined`; `choices` narrow to a literal union.
 
 ```ts
-import { command, option } from "spear";
+import { command, option } from "spearkit";
 
 export default command({
   name: "echo",
@@ -91,7 +91,7 @@ option.string({
 ### Subcommands
 
 ```ts
-import { commandGroup, subcommand, subcommandGroup, option } from "spear";
+import { commandGroup, subcommand, subcommandGroup, option } from "spearkit";
 
 commandGroup({
   name: "admin",
@@ -126,7 +126,7 @@ in the custom-id pattern (`{name}`) are typed everywhere — both in the handler
 `ctx.params` and in the `build()` call.
 
 ```ts
-import { button, stringSelect, modal, textInput, row } from "spear";
+import { button, stringSelect, modal, textInput, row } from "spearkit";
 
 const vote = button({
   id: "vote:{choice}",            // {choice} becomes a typed param
@@ -169,7 +169,7 @@ await channel.send({
 Component builders: `button`, `linkButton`, `stringSelect`, `userSelect`,
 `roleSelect`, `channelSelect`, `mentionableSelect`, `modal` (+ `textInput`), `row`.
 
-spear routes interactions automatically by the custom-id namespace and decodes
+spearkit routes interactions automatically by the custom-id namespace and decodes
 the params for you — no `interactionCreate` switch statements.
 
 ## File-based loading
@@ -184,7 +184,7 @@ await client.load(new URL("./commands", import.meta.url).pathname);
 ## Plugins
 
 ```ts
-import { definePlugin } from "spear";
+import { definePlugin } from "spearkit";
 
 const moderation = definePlugin({
   name: "moderation",
@@ -198,11 +198,11 @@ await client.use(moderation);
 
 ## Drop-in replacement
 
-Everything discord.js exports is available from spear, so you can migrate
+Everything discord.js exports is available from spearkit, so you can migrate
 incrementally:
 
 ```ts
-import { Client, EmbedBuilder, GatewayIntentBits } from "spear"; // all from discord.js
+import { Client, EmbedBuilder, GatewayIntentBits } from "spearkit"; // all from discord.js
 ```
 
 ## Error handling
@@ -219,4 +219,10 @@ client.components.onError((error) => console.error(error));
 
 ## License
 
-MIT
+[PolyForm Noncommercial License 1.0.0](./LICENSE).
+
+spearkit is **free for noncommercial use** — personal projects, learning,
+research, and use by nonprofit/educational/government organizations. You may
+**not** use it in software or projects you sell or that are built for
+commercial advantage without a separate commercial license. See [`LICENSE`](./LICENSE)
+for the full terms, or open an issue to discuss a commercial license.

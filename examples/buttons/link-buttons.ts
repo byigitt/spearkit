@@ -4,7 +4,7 @@
  * Link buttons open a URL; they have no custom-id and no handler. They can sit
  * in the same row as interactive buttons.
  */
-import { command, button, linkButton, row } from "spear";
+import { command, button, linkButton, row } from "spearkit";
 
 const docs = linkButton({ url: "https://discord.js.org", label: "Docs" });
 

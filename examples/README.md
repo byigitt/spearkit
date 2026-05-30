@@ -1,9 +1,9 @@
-# spear examples
+# spearkit examples
 
-Each folder demonstrates one topic. Every `.ts` file imports from `"spear"`; in
+Each folder demonstrates one topic. Every `.ts` file imports from `"spearkit"`; in
 this repo that resolves to the source (via the tsconfig path mapping), so all
 examples type-check against the real API. In your own project, `npm install
-spear discord.js` and the same imports work unchanged.
+spearkit discord.js` and the same imports work unchanged.
 
 ## Folders
 
@@ -21,7 +21,7 @@ spear discord.js` and the same imports work unchanged.
 | [`deploy/`](./deploy) | Registering commands (standalone and from the client). |
 | [`plugins/`](./plugins) | Bundling features into reusable plugins. |
 | [`file-based-loading/`](./file-based-loading) | One file per handler, loaded with `client.load()`. |
-| [`drop-in-replacement/`](./drop-in-replacement) | Classic discord.js, imported from spear. |
+| [`drop-in-replacement/`](./drop-in-replacement) | Classic discord.js, imported from spearkit. |
 | [`complete-bot/`](./complete-bot) | Everything wired into one client. |
 
 ## Running

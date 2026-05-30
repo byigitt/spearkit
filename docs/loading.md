@@ -1,7 +1,7 @@
 # File-based loading
 
 Instead of importing and registering every handler by hand, you can keep one
-command, event or component per file and let spear discover them. The loader
+command, event or component per file and let spearkit discover them. The loader
 imports a directory, inspects each module's exports, and registers everything that
 is a command, event or component.
 
@@ -11,12 +11,12 @@ is a command, event or component.
 load(dir: string, options?: LoadOptions): Promise<number>
 ```
 
-`client.load` imports `dir` and registers every spear-registrable export it finds,
+`client.load` imports `dir` and registers every spearkit-registrable export it finds,
 resolving to the number of items registered.
 
 ```ts
 import { fileURLToPath } from "node:url";
-import { SpearClient, Intents } from "spear";
+import { SpearClient, Intents } from "spearkit";
 
 const here = fileURLToPath(new URL(".", import.meta.url));
 
@@ -34,7 +34,7 @@ await client.deployCommands({ guildId: process.env.GUILD_ID });
 
 ### What gets registered
 
-For every imported file, spear walks **all** of its exports — default *and*
+For every imported file, spearkit walks **all** of its exports — default *and*
 named — and registers each value that is a command (`command`, `commandGroup`),
 an event (`event`), or a component (`button`, `stringSelect`, `modal`, …). Other
 exports (helpers, constants, types) are ignored. So both of these are picked up:
@@ -88,7 +88,7 @@ loadInto(client: SpearClient, dir: string, options?: LoadOptions): Promise<numbe
   returning the count.
 
 ```ts
-import { collectModules, loadInto } from "spear";
+import { collectModules, loadInto } from "spearkit";
 
 // Inspect before registering:
 const items = await collectModules(`${here}commands`);
@@ -119,7 +119,7 @@ A command file looks like this:
 
 ```ts
 // commands/echo.ts
-import { command, option } from "spear";
+import { command, option } from "spearkit";
 
 export default command({
   name: "echo",

@@ -1,4 +1,4 @@
-import { command } from "spear";
+import { command } from "spearkit";
 
 // Default export — picked up automatically by client.load().
 export default command({

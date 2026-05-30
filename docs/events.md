@@ -3,10 +3,10 @@
 `event()` defines a reusable, loadable discord.js event listener with a
 fully-typed handler. The handler's arguments are inferred from discord.js'
 `ClientEvents`, so you never annotate them by hand. Register an event with the
-client and spear attaches the listener for you.
+client and spearkit attaches the listener for you.
 
 ```ts
-import { event } from "spear";
+import { event } from "spearkit";
 
 export default event("messageCreate", (message) => {
   if (message.author.bot) return;
@@ -19,7 +19,7 @@ export default event("messageCreate", (message) => {
 `event` has two forms. The positional form takes the event name and handler:
 
 ```ts
-import { event } from "spear";
+import { event } from "spearkit";
 
 const onMessage = event("messageCreate", (message) => {
   // message: Message
@@ -36,7 +36,7 @@ The object form (`EventConfig`) additionally accepts `once`, which runs the
 handler at most once and then auto-detaches:
 
 ```ts
-import { event } from "spear";
+import { event } from "spearkit";
 
 const onceReady = event({
   name: "clientReady",
@@ -52,7 +52,7 @@ Both forms return an `EventDef` — a type-erased, ready-to-attach listener
 (`{ name, once, attach, detach }`). Register it like anything else:
 
 ```ts
-import { SpearClient } from "spear";
+import { SpearClient } from "spearkit";
 
 const client = new SpearClient();
 client.register(onMessage, onReady);
@@ -66,7 +66,7 @@ annotate — picking `"messageCreate"` types the argument as `Message`, picking
 exported as `EventHandler<E>` (`(...args: ClientEvents[E]) => Awaitable<void>`).
 
 ```ts
-import { event } from "spear";
+import { event } from "spearkit";
 
 const onJoin = event("guildMemberAdd", (member) => {
   // member: GuildMember
@@ -89,12 +89,12 @@ at least the `GuildMessages` / `MessageContent` bits); `guildMemberAdd` needs
 
 ## Errors are routed, not fatal
 
-If a handler throws synchronously or rejects a returned promise, spear catches
+If a handler throws synchronously or rejects a returned promise, spearkit catches
 it and emits it on the client's `error` event instead of crashing the process.
 Listen for `error` to log or report failures centrally:
 
 ```ts
-import { SpearClient } from "spear";
+import { SpearClient } from "spearkit";
 
 const client = new SpearClient();
 
@@ -105,12 +105,12 @@ client.on("error", (err) => {
 
 ## Inline listeners still work
 
-Because spear re-exports discord.js, the plain `client.on(...)` / `client.once(...)`
+Because spearkit re-exports discord.js, the plain `client.on(...)` / `client.once(...)`
 listeners work exactly as before — they are the same methods. Reach for them for
 quick, inline, client-local listeners:
 
 ```ts
-import { SpearClient } from "spear";
+import { SpearClient } from "spearkit";
 
 const client = new SpearClient();
 client.on("guildCreate", (guild) => console.log(`Joined ${guild.name}`));
@@ -135,14 +135,14 @@ its methods directly. They are available for advanced control:
 | `detachAll(client)` | `void` | Detach every registered listener from a client. |
 
 ```ts
-import { SpearClient, event } from "spear";
+import { SpearClient, event } from "spearkit";
 
 const client = new SpearClient();
 client.events.add(event("warn", (info) => console.warn(info)));
 
 console.log(client.events.size); // 1
 
-// Detach all spear-managed listeners (e.g. before a hot reload).
+// Detach all spearkit-managed listeners (e.g. before a hot reload).
 client.events.detachAll(client);
 ```
 

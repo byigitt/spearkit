@@ -4,7 +4,7 @@ import { GITHUB_URL } from "@/lib/layout.shared";
 const features = [
   {
     title: "Drop-in for discord.js",
-    body: "Every discord.js export is re-exported from spear. Change one import and your bot keeps working — then adopt the niceties at your own pace.",
+    body: "Every discord.js export is re-exported from spearkit. Change one import and your bot keeps working — then adopt the niceties at your own pace.",
   },
   {
     title: "Fully type-safe",
@@ -16,11 +16,11 @@ const features = [
   },
   {
     title: "Zero boilerplate routing",
-    body: "No interactionCreate switch. spear routes commands, autocomplete, buttons, selects and modals for you.",
+    body: "No interactionCreate switch. spearkit routes commands, autocomplete, buttons, selects and modals for you.",
   },
 ];
 
-const snippet = `import { SpearClient, Intents, command, option, button } from "spear";
+const snippet = `import { SpearClient, Intents, command, option, button } from "spearkit";
 
 const client = new SpearClient({ intents: Intents.default });
 
@@ -59,7 +59,7 @@ export default function HomePage() {
           </span>
           <h1 className="text-6xl font-bold tracking-tight sm:text-7xl">
             <span className="bg-gradient-to-r from-[#5865F2] via-[#7d8bff] to-[#5865F2] bg-clip-text text-transparent">
-              spear
+              spearkit
             </span>
           </h1>
           <p className="mt-6 max-w-2xl text-lg text-fd-muted-foreground">
@@ -87,7 +87,7 @@ export default function HomePage() {
             </a>
           </div>
           <code className="mt-8 rounded-md border border-fd-border bg-fd-card px-4 py-2 text-sm text-fd-muted-foreground">
-            npm install spear discord.js
+            npm install spearkit discord.js
           </code>
         </div>
       </section>

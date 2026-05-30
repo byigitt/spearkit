@@ -1,13 +1,13 @@
 # Components
 
-Buttons, select menus and modals in spear follow one pattern: define the
+Buttons, select menus and modals in spearkit follow one pattern: define the
 appearance, the **custom-id pattern**, and the handler in one place; register
-it; then `build()` the discord.js component to put in a message. spear decodes
+it; then `build()` the discord.js component to put in a message. spearkit decodes
 incoming interactions and routes them to your handler — no `interactionCreate`
 switch statements, no manual custom-id parsing.
 
 ```ts
-import { button, row } from "spear";
+import { button, row } from "spearkit";
 
 const vote = button({
   id: "vote:{choice}",
@@ -44,7 +44,7 @@ const page = button({
 page.build({ id: "42", dir: "next" }); // custom-id "page:42:next"
 ```
 
-spear percent-escapes param values, so they may safely contain `:`. Custom-ids
+spearkit percent-escapes param values, so they may safely contain `:`. Custom-ids
 are limited to 100 characters (`MAX_CUSTOM_ID_LENGTH`); `build()` throws if you
 exceed it.
 
@@ -54,7 +54,7 @@ For advanced use, the codec is exported directly: `compilePattern`,
 ## Buttons
 
 ```ts
-import { button, linkButton, ButtonStyle } from "spear";
+import { button, linkButton, ButtonStyle } from "spearkit";
 
 const confirm = button({
   id: "confirm:{action}",
@@ -90,7 +90,7 @@ There are five select builders. All share `placeholder`, `minValues`,
 and the channel select takes `channelTypes`.
 
 ```ts
-import { stringSelect, channelSelect, ChannelType } from "spear";
+import { stringSelect, channelSelect, ChannelType } from "spearkit";
 
 const colour = stringSelect({
   id: "colour",
@@ -132,7 +132,7 @@ receives the submitted values in `ctx.fields`, keyed (and typed) by those names,
 plus any custom-id params in `ctx.params`.
 
 ```ts
-import { modal, textInput } from "spear";
+import { modal, textInput } from "spearkit";
 
 const feedback = modal({
   id: "feedback:{ticket}",
@@ -159,7 +159,7 @@ cannot be the *response* to another modal, but they can follow a command or a
 button/select:
 
 ```ts
-import { command } from "spear";
+import { command } from "spearkit";
 
 const ask = command({
   name: "ask",
@@ -174,7 +174,7 @@ const ask = command({
 five buttons, or exactly one select menu.
 
 ```ts
-import { row } from "spear";
+import { row } from "spearkit";
 
 const components = [
   row(confirm.build({ action: "delete" }), docs),
@@ -226,7 +226,7 @@ import {
   modal,
   textInput,
   row,
-} from "spear";
+} from "spearkit";
 
 const client = new SpearClient({ intents: Intents.default });
 

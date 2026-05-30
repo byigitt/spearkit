@@ -10,7 +10,7 @@ import {
   mentionableSelect,
   roleSelect,
   userSelect,
-} from "spear";
+} from "spearkit";
 
 export const pickUsers = userSelect({
   id: "pick-users",

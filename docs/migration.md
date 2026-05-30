@@ -1,12 +1,12 @@
 # Migrating from discord.js
 
-spear re-exports the entire discord.js surface, so adopting it is not a rewrite —
+spearkit re-exports the entire discord.js surface, so adopting it is not a rewrite —
 it is a one-line import change followed by *optional*, incremental cleanup. You can
-move to spear today and start using its ergonomic helpers whenever you like.
+move to spearkit today and start using its ergonomic helpers whenever you like.
 
 ## The drop-in story
 
-Change `from "discord.js"` to `from "spear"`. Nothing else has to change: every
+Change `from "discord.js"` to `from "spearkit"`. Nothing else has to change: every
 discord.js export is available under the same name with the same types.
 
 ```ts
@@ -14,7 +14,7 @@ discord.js export is available under the same name with the same types.
 import { Client, EmbedBuilder, GatewayIntentBits } from "discord.js";
 
 // after — identical behaviour
-import { Client, EmbedBuilder, GatewayIntentBits } from "spear";
+import { Client, EmbedBuilder, GatewayIntentBits } from "spearkit";
 ```
 
 The full classic surface is there — builders, enums, the REST client, route
@@ -32,7 +32,7 @@ import {
   REST,
   Routes,
   SlashCommandBuilder,
-} from "spear";
+} from "spearkit";
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
@@ -66,16 +66,16 @@ working exactly as before.
 
 ## Incremental adoption
 
-Once your imports point at spear, you can convert pieces one at a time. There is no
+Once your imports point at spearkit, you can convert pieces one at a time. There is no
 big-bang migration; old and new styles coexist.
 
 1. **Swap the client.** Replace `new Client(...)` with `new SpearClient(...)`. It
    *is* a discord.js `Client` (it extends it), so your existing `client.on`,
    `client.once`, `client.ws`, `client.rest` code is unchanged — but now it also
-   routes interactions to spear's registries.
+   routes interactions to spearkit's registries.
 
    ```ts
-   import { SpearClient, Intents } from "spear";
+   import { SpearClient, Intents } from "spearkit";
 
    const client = new SpearClient({ intents: Intents.default });
    ```
@@ -85,8 +85,8 @@ big-bang migration; old and new styles coexist.
    definition. Option values become fully typed.
 3. **Move events to `event()`.** Replace `client.on(Events.X, ...)` listeners with
    `event("x", ...)` definitions and register them.
-4. **Move components to spear builders.** Replace manual `ButtonBuilder` +
-   custom-id parsing with `button()`, `stringSelect()`, `modal()`, etc. — spear
+4. **Move components to spearkit builders.** Replace manual `ButtonBuilder` +
+   custom-id parsing with `button()`, `stringSelect()`, `modal()`, etc. — spearkit
    routes them by custom-id namespace and decodes `{param}`s for you.
 
 Convert at whatever pace suits you; un-migrated handlers keep running through your
@@ -118,12 +118,12 @@ client.on(Events.InteractionCreate, async (interaction) => {
 });
 ```
 
-spear co-locates each command and component with its handler, and routes
+spearkit co-locates each command and component with its handler, and routes
 interactions for you — no switch, no manual id parsing:
 
 ```ts
-// spear: each handler owns its definition; routing is automatic
-import { SpearClient, Intents, command, option, button, row } from "spear";
+// spearkit: each handler owns its definition; routing is automatic
+import { SpearClient, Intents, command, option, button, row } from "spearkit";
 
 const client = new SpearClient({ intents: Intents.default });
 
@@ -155,6 +155,6 @@ switch to maintain.
 
 ## See also
 
-- [Getting started](./getting-started.md) — install spear and build a first bot.
+- [Getting started](./getting-started.md) — install spearkit and build a first bot.
 - [Commands](./commands.md) — define slash commands with typed options.
 - [Components](./components.md) — buttons, selects, modals and custom-id routing.

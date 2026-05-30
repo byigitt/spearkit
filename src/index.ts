@@ -1,15 +1,15 @@
 /**
- * spear — discord.js++
+ * spearkit — discord.js++
  *
  * A developer-experience-first layer over discord.js. Everything discord.js
- * exports is re-exported here, so `spear` is a drop-in replacement; the spear
+ * exports is re-exported here, so `spearkit` is a drop-in replacement; the spearkit
  * additions (commands, events, components, client) sit alongside it.
  */
 
 // Drop-in: re-export the entire discord.js surface.
 export * from "discord.js";
 
-// --- spear additions -------------------------------------------------------
+// --- spearkit additions -------------------------------------------------------
 export * from "./context.js";
 export * from "./commands/options.js";
 export * from "./commands/command.js";

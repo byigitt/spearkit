@@ -1,6 +1,6 @@
 # Getting started
 
-The smallest useful spear bot: a client, two commands, an event, login, and a
+The smallest useful spearkit bot: a client, two commands, an event, login, and a
 guild command deploy.
 
 - [`bot.ts`](./bot.ts) — construct `SpearClient`, register handlers, `start`, `deployCommands`.

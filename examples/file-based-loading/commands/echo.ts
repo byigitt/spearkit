@@ -1,4 +1,4 @@
-import { command, option } from "spear";
+import { command, option } from "spearkit";
 
 export default command({
   name: "echo",

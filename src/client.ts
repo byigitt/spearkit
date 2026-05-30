@@ -109,7 +109,7 @@ export class SpearClient extends Client {
   async start(token?: string): Promise<this> {
     const resolved = token ?? process.env.DISCORD_TOKEN;
     if (resolved === undefined || resolved.length === 0) {
-      throw new Error("spear: start() needs a token (pass one or set DISCORD_TOKEN)");
+      throw new Error("spearkit: start() needs a token (pass one or set DISCORD_TOKEN)");
     }
     await this.login(resolved);
     return this;
@@ -122,7 +122,7 @@ export class SpearClient extends Client {
   async deployCommands(options: { guildId?: string } = {}): Promise<DeployResult> {
     const applicationId = this.application?.id ?? this.user?.id;
     if (applicationId == null) {
-      throw new Error("spear: deployCommands() must run after the client is ready");
+      throw new Error("spearkit: deployCommands() must run after the client is ready");
     }
     return this.commands.deploy({ rest: this.rest, applicationId, guildId: options.guildId });
   }

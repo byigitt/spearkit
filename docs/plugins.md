@@ -22,7 +22,7 @@ registers whatever the feature needs — commands, events, components — typica
 via `client.register`.
 
 ```ts
-import { definePlugin, button, command, event, option, row } from "spear";
+import { definePlugin, button, command, event, option, row } from "spearkit";
 
 export const moderation = definePlugin({
   name: "moderation",
@@ -66,7 +66,7 @@ Install one or more plugins with `client.use`. It runs each plugin's `setup` in
 order and resolves to the client, so you can chain it with the rest of startup.
 
 ```ts
-import { SpearClient, Intents } from "spear";
+import { SpearClient, Intents } from "spearkit";
 import { moderation } from "./plugins/moderation.js";
 
 const client = new SpearClient({ intents: Intents.default });

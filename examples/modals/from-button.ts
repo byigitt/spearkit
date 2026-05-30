@@ -4,7 +4,7 @@
  * A button handler can call showModal. The button's param flows into the
  * modal's id, so the submit handler knows the context.
  */
-import { button, command, modal, row, textInput } from "spear";
+import { button, command, modal, row, textInput } from "spearkit";
 
 export const reportForm = modal({
   id: "report:{messageId}",

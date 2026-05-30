@@ -1,10 +1,10 @@
 # API reference
 
-Every symbol spear exports, in addition to the entire re-exported discord.js
-surface. Import any of these from `"spear"`.
+Every symbol spearkit exports, in addition to the entire re-exported discord.js
+surface. Import any of these from `"spearkit"`.
 
 ```ts
-import { SpearClient, command, option, event, button, modal, row /* … */ } from "spear";
+import { SpearClient, command, option, event, button, modal, row /* … */ } from "spearkit";
 ```
 
 ---

@@ -1,6 +1,6 @@
 # Complete bot
 
-Every spear feature wired into a single client: commands with options,
+Every spearkit feature wired into a single client: commands with options,
 autocomplete, subcommands, a button, a select menu, a modal, and an event.
 
 - [`bot.ts`](./bot.ts) — the whole thing in one file.

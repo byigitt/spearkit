@@ -4,7 +4,7 @@
  * `definePlugin` types the object; `setup(client)` registers the feature's
  * pieces and may be async.
  */
-import { button, command, definePlugin, event, option, row } from "spear";
+import { button, command, definePlugin, event, option, row } from "spearkit";
 
 export const moderation = definePlugin({
   name: "moderation",

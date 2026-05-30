@@ -1,7 +1,7 @@
 # Autocomplete
 
 Suggest option values as the user types. Add an `autocomplete` handler to a
-string/integer/number option; spear marks it autocompletable and routes the
+string/integer/number option; spearkit marks it autocompletable and routes the
 request.
 
 - [`basic.ts`](./basic.ts) — filter a static list (string and numeric).

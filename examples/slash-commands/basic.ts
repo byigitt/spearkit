@@ -4,7 +4,7 @@
  * A command bundles its metadata and handler. Export it, then register it with
  * `client.register(basic)` (see ../getting-started).
  */
-import { command } from "spear";
+import { command } from "spearkit";
 
 export const ping = command({
   name: "ping",

@@ -1,5 +1,5 @@
 /**
- * Complete bot — every spear feature wired into one client.
+ * Complete bot — every spearkit feature wired into one client.
  *
  * Use this as a map; the other example folders break each feature out on its
  * own. Run with: DISCORD_TOKEN=... GUILD_ID=... npx tsx examples/complete-bot/bot.ts
@@ -18,7 +18,7 @@ import {
   stringSelect,
   subcommand,
   textInput,
-} from "spear";
+} from "spearkit";
 
 const client = new SpearClient({ intents: Intents.default });
 

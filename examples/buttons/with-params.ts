@@ -2,9 +2,9 @@
  * Buttons — typed custom-id params.
  *
  * `{param}` segments in the id become a typed `ctx.params` object, and `build`
- * requires exactly those params. spear encodes/decodes them for you.
+ * requires exactly those params. spearkit encodes/decodes them for you.
  */
-import { command, button, row } from "spear";
+import { command, button, row } from "spearkit";
 
 // One handler serves every vote button; the choice rides in the custom-id.
 export const vote = button({

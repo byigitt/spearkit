@@ -4,7 +4,7 @@
  * Option values are inferred: required -> the value type, optional -> value |
  * undefined. See ../options for every option type.
  */
-import { command, option } from "spear";
+import { command, option } from "spearkit";
 
 export const echo = command({
   name: "echo",

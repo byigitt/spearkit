@@ -5,7 +5,7 @@
  * partial value, the focused option name, and the usual client/user/guild
  * accessors. Use them to produce context-aware suggestions.
  */
-import { command, option } from "spear";
+import { command, option } from "spearkit";
 
 export const member = command({
   name: "member",

@@ -1,8 +1,8 @@
 /**
  * Drop-in replacement.
  *
- * spear re-exports all of discord.js. To migrate an existing bot, change
- * `from "discord.js"` to `from "spear"` and nothing else. This file is 100%
+ * spearkit re-exports all of discord.js. To migrate an existing bot, change
+ * `from "discord.js"` to `from "spearkit"` and nothing else. This file is 100%
  * classic discord.js — only the import source changed.
  */
 import {
@@ -16,7 +16,7 @@ import {
   REST,
   Routes,
   SlashCommandBuilder,
-} from "spear";
+} from "spearkit";
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 

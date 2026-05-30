@@ -7,7 +7,7 @@
  * Guild deploys (with a guildId) are instant; global deploys (no guildId) can
  * take up to an hour to propagate.
  */
-import { CommandRegistry, command, option } from "spear";
+import { CommandRegistry, command, option } from "spearkit";
 
 const ping = command({ name: "ping", description: "Check latency", run: () => {} });
 const echo = command({

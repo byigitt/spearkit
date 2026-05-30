@@ -1,6 +1,6 @@
-# spear documentation site
+# spearkit documentation site
 
-The documentation website for spear, built with [Fumadocs](https://fumadocs.dev)
+The documentation website for spearkit, built with [Fumadocs](https://fumadocs.dev)
 (Next.js App Router) and themed to match the [discord.js docs](https://discord.js.org/docs):
 dark surfaces, blurple accent, Geist.
 

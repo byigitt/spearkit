@@ -7,7 +7,7 @@ import { collectModules } from "../src/loader.js";
 let dir: string;
 
 beforeAll(async () => {
-  dir = await mkdtemp(join(tmpdir(), "spear-loader-"));
+  dir = await mkdtemp(join(tmpdir(), "spearkit-loader-"));
   // A registerable: structurally a component def (kind + handle).
   await writeFile(
     join(dir, "vote.mjs"),

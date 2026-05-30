@@ -1,9 +1,9 @@
 /**
- * Getting started — the smallest useful spear bot.
+ * Getting started — the smallest useful spearkit bot.
  *
  * Run with: DISCORD_TOKEN=... GUILD_ID=... npx tsx examples/getting-started/bot.ts
  */
-import { Intents, SpearClient, command, event, option } from "spear";
+import { Intents, SpearClient, command, event, option } from "spearkit";
 
 const client = new SpearClient({ intents: Intents.default });
 

@@ -4,7 +4,7 @@
  * Each value is fully typed in the handler (shown in the inline comments).
  * Optional options resolve to `value | undefined`.
  */
-import { command, option } from "spear";
+import { command, option } from "spearkit";
 
 export const everything = command({
   name: "everything",

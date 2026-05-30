@@ -83,7 +83,7 @@ export function event<E extends keyof ClientEvents>(
     return build(nameOrConfig.name, nameOrConfig.once ?? false, nameOrConfig.run);
   }
   if (run === undefined) {
-    throw new Error("spear: event(name, run) requires a handler");
+    throw new Error("spearkit: event(name, run) requires a handler");
   }
   return build(nameOrConfig, false, run);
 }

@@ -1,14 +1,14 @@
 /**
  * Events — errors are routed, not fatal.
  *
- * If an event handler throws or rejects, spear emits the error on the client's
+ * If an event handler throws or rejects, spearkit emits the error on the client's
  * `error` event instead of crashing the process. Listen for `error` centrally.
  */
-import { Intents, SpearClient, event } from "spear";
+import { Intents, SpearClient, event } from "spearkit";
 
 const client = new SpearClient({ intents: Intents.default });
 
-// Central error logging for every spear-managed handler.
+// Central error logging for every spearkit-managed handler.
 client.on("error", (err) => {
   console.error("A handler failed:", err);
 });

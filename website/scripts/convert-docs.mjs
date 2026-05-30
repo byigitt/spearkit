@@ -88,7 +88,13 @@ async function convert(base) {
     descLines.push(lines[idx]);
     idx++;
   }
-  const description = stripInline(descLines.join(" ")).slice(0, 180);
+  const fullDescription = stripInline(descLines.join(" "));
+  let description = fullDescription;
+  if (fullDescription.length > 180) {
+    const cut = fullDescription.slice(0, 180);
+    const lastSpace = cut.lastIndexOf(" ");
+    description = (lastSpace > 0 ? cut.slice(0, lastSpace) : cut).replace(/[\s—,;:.]+$/u, "") + "…";
+  }
 
   let body = lines.slice(idx).join("\n").trim();
   body = rewriteLinks(body);

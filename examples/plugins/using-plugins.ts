@@ -4,7 +4,7 @@
  * `client.use(...plugins)` runs each plugin's setup in order (awaiting async
  * ones) before you start the client.
  */
-import { Intents, SpearClient } from "spear";
+import { Intents, SpearClient } from "spearkit";
 import { moderation, tags } from "./moderation.js";
 
 const client = new SpearClient({ intents: Intents.default });

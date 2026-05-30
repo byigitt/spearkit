@@ -4,7 +4,7 @@
  * reply / replyEphemeral / defer / editReply / followUp / send / error all live
  * on the context. `{ ephemeral: true }` works on any reply payload.
  */
-import { command, option } from "spear";
+import { command, option } from "spearkit";
 
 // Plain reply, and the ephemeral shortcut.
 export const hi = command({

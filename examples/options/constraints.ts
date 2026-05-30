@@ -1,7 +1,7 @@
 /**
  * Options — value/length constraints and channel-type filters.
  */
-import { ChannelType, command, option } from "spear";
+import { ChannelType, command, option } from "spearkit";
 
 export const configure = command({
   name: "configure",

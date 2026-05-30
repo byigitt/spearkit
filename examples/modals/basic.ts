@@ -4,7 +4,7 @@
  * `fields` keys become typed `ctx.fields`; id `{param}`s become typed
  * `ctx.params`. Open a modal from a command (or a component) with showModal.
  */
-import { command, modal, textInput } from "spear";
+import { command, modal, textInput } from "spearkit";
 
 export const feedback = modal({
   id: "feedback:{ticket}",

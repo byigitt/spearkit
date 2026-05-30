@@ -39,7 +39,7 @@ export function compilePattern(pattern: string): CompiledPattern {
   const namespace = segments[0] ?? "";
   if (namespace.length === 0 || /[{}]/.test(namespace)) {
     throw new Error(
-      `spear: invalid custom-id pattern "${pattern}". Expected "namespace" or "namespace:{param}".`,
+      `spearkit: invalid custom-id pattern "${pattern}". Expected "namespace" or "namespace:{param}".`,
     );
   }
   const paramNames: string[] = [];
@@ -47,7 +47,7 @@ export function compilePattern(pattern: string): CompiledPattern {
     const match = PARAM_SEGMENT.exec(segments[i] ?? "");
     if (match === null) {
       throw new Error(
-        `spear: invalid custom-id pattern "${pattern}". Segment "${segments[i]}" must be "{param}".`,
+        `spearkit: invalid custom-id pattern "${pattern}". Segment "${segments[i]}" must be "{param}".`,
       );
     }
     paramNames.push(match[1] as string);
@@ -72,14 +72,14 @@ export function buildCustomId(
   for (const name of compiled.paramNames) {
     const value = params[name];
     if (value === undefined) {
-      throw new Error(`spear: missing param "${name}" for custom-id "${compiled.pattern}"`);
+      throw new Error(`spearkit: missing param "${name}" for custom-id "${compiled.pattern}"`);
     }
     parts.push(encodeValue(value));
   }
   const id = parts.join(":");
   if (id.length > MAX_CUSTOM_ID_LENGTH) {
     throw new Error(
-      `spear: custom-id "${id}" exceeds the ${MAX_CUSTOM_ID_LENGTH}-character discord limit`,
+      `spearkit: custom-id "${id}" exceeds the ${MAX_CUSTOM_ID_LENGTH}-character discord limit`,
     );
   }
   return id;

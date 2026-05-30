@@ -1,6 +1,6 @@
-# spear documentation
+# spearkit documentation
 
-**discord.js++** — a developer-experience-first layer over discord.js. spear
+**discord.js++** — a developer-experience-first layer over discord.js. spearkit
 re-exports all of discord.js (so it's a drop-in replacement) and adds an
 ergonomic, fully type-safe API for events, slash commands and interactive
 components.
@@ -19,22 +19,22 @@ components.
 10. [Migrating from discord.js](./migration.md) — the drop-in path.
 11. [API reference](./api-reference.md) — every exported symbol.
 
-## Why spear
+## Why spearkit
 
-- **Drop-in.** `import { Client, EmbedBuilder } from "spear"` — every discord.js
+- **Drop-in.** `import { Client, EmbedBuilder } from "spearkit"` — every discord.js
   export is available, so you can migrate one file at a time.
 - **Fully type-safe.** No `any` or `unknown` leaks into your handlers. Option
   values, custom-id params and modal fields are all inferred from your
   definitions.
 - **Co-located.** A command's options and handler, a button's appearance and
   click logic, a modal's fields and submit logic — each lives in one place.
-- **No boilerplate.** No `interactionCreate` switch statements; spear routes
+- **No boilerplate.** No `interactionCreate` switch statements; spearkit routes
   commands, autocomplete, buttons, selects and modals for you.
 
 ## Thirty-second tour
 
 ```ts
-import { SpearClient, Intents, command, option, button, row, event } from "spear";
+import { SpearClient, Intents, command, option, button, row, event } from "spearkit";
 
 const client = new SpearClient({ intents: Intents.default });
 

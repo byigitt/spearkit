@@ -295,7 +295,7 @@ export function commandGroup(config: CommandGroupConfig): SlashCommand {
       groups,
     );
     if (target === undefined) {
-      throw new Error(`spear: no subcommand handler for /${config.name}`);
+      throw new Error(`spearkit: no subcommand handler for /${config.name}`);
     }
     await target.execute(interaction);
   };

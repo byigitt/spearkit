@@ -10,7 +10,7 @@
  * Blurple accent (#5865F2), near-black surfaces, like the discord.js docs.
  */
 :root {
-  --spear-blurple: 235 86% 65%;
+  --spearkit-blurple: 235 86% 65%;
   --color-fd-primary: hsl(235 86% 60%);
   --color-fd-ring: hsl(235 86% 60%);
 }

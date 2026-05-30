@@ -1,9 +1,21 @@
 {
-  "name": "spear",
+  "name": "spearkit",
   "version": "0.1.0",
   "description": "discord.js++ — a developer-experience-first Discord library. Drop-in compatible with discord.js, with ergonomic events, slash commands, and interactive components.",
   "type": "module",
-  "license": "MIT",
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "author": "byigitt",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/byigitt/spearkit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/byigitt/spearkit/issues"
+  },
+  "homepage": "https://github.com/byigitt/spearkit#readme",
+  "publishConfig": {
+    "access": "public"
+  },
   "keywords": [
     "discord",
     "discord.js",
@@ -30,7 +42,9 @@
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "e2e": "node e2e/live.mjs",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "discord.js": "^14.16.3"

@@ -1,7 +1,7 @@
 import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
 
 /** GitHub repository URL — update to your repository. */
-export const GITHUB_URL = "https://github.com/spear-dev/spear";
+export const GITHUB_URL = "https://github.com/byigitt/spearkit";
 
 /** Shared navbar/footer options for every layout. */
 export function baseOptions(): BaseLayoutProps {
@@ -10,7 +10,7 @@ export function baseOptions(): BaseLayoutProps {
       title: (
         <>
           <SpearMark />
-          <span className="font-semibold">spear</span>
+          <span className="font-semibold">spearkit</span>
         </>
       ),
     },

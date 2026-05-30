@@ -1,4 +1,4 @@
-import { button } from "spear";
+import { button } from "spearkit";
 
 // Named exports are registered too.
 export const vote = button({

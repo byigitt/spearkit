@@ -3,7 +3,7 @@
  *
  * `ctx.values` holds the chosen values; `ctx.value` is the first one.
  */
-import { command, row, stringSelect } from "spear";
+import { command, row, stringSelect } from "spearkit";
 
 export const colour = stringSelect({
   id: "colour",

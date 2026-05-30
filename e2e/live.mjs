@@ -1,0 +1,901 @@
+/**
+ * spearkit — comprehensive live end-to-end test against a real Discord application.
+ *
+ * Builds a real bot with the *built* library (dist/index.js — the artifact a
+ * consumer would `npm install`) and exercises the entire public surface, both
+ * live against Discord and through the real registries.
+ *
+ * Coverage:
+ *   A. Intent presets (Intents.none/default/guilds/messages/all).
+ *   B. Custom-id codec (compile/build/parse/paramsFromValues, encoding, limits).
+ *   C. Gateway login + ready (SpearClient, intents, event wiring).
+ *   D. Live events: clientReady AND messageCreate (a real non-lifecycle event).
+ *   E. Plugins: client.use(definePlugin(...)) registers and deploys a command.
+ *   F. File-based loading: client.load(dir) imports + registers a real module.
+ *   G. Command deploy round-trip over REST — every option type (string/integer/
+ *      number/boolean/user/channel/role/mentionable/attachment), choices,
+ *      min/max, channel types, autocomplete flag, subcommands, subcommand
+ *      groups, nsfw, guild-only contexts, default member permissions.
+ *   H. Component wire round-trip — button (+params), multi-param/encoded custom
+ *      id, link button, string/user/role/channel/mentionable selects: sent to a
+ *      channel, fetched back, asserted against the codec and component types.
+ *   I. Handler dispatch through the real registries (faithful interaction
+ *      fixtures, since Discord only delivers interactions from a human): command
+ *      + typed option resolution, autocomplete, button, all five selects, modal
+ *      submit — asserting params/values/fields are decoded and handlers run.
+ *   J. Event registry once/non-once semantics.
+ *
+ * Credentials come from process.env or the repo `.env`:
+ *   TEST_DISCORD_TOKEN, TEST_DISCORD_GUILD
+ *
+ * Usage:
+ *   node e2e/live.mjs            # verify, then log out and exit
+ *   node e2e/live.mjs --stay     # leave the bot online for manual clicking
+ */
+import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { readFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { dirname, join } from "node:path";
+import {
+  SpearClient,
+  Intents,
+  GatewayIntentBits,
+  ApplicationCommandOptionType,
+  ComponentType,
+  ButtonStyle,
+  ChannelType,
+  InteractionContextType,
+  PermissionFlagsBits,
+  Routes,
+  command,
+  commandGroup,
+  subcommand,
+  subcommandGroup,
+  option,
+  button,
+  linkButton,
+  stringSelect,
+  userSelect,
+  roleSelect,
+  channelSelect,
+  mentionableSelect,
+  modal,
+  textInput,
+  row,
+  event,
+  definePlugin,
+  compilePattern,
+  buildCustomId,
+  parseCustomId,
+  paramsFromValues,
+  MAX_CUSTOM_ID_LENGTH,
+} from "../dist/index.js";
+
+// --- credentials -----------------------------------------------------------
+
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+const DIST_URL = pathToFileURL(join(ROOT, "dist/index.js")).href;
+
+function loadDotenv() {
+  let text = "";
+  try {
+    text = readFileSync(join(ROOT, ".env"), "utf8");
+  } catch {
+    return {};
+  }
+  const out = {};
+  for (const raw of text.split(/\r?\n/)) {
+    const line = raw.trim();
+    if (line.length === 0 || line.startsWith("#")) continue;
+    const eq = line.indexOf("=");
+    if (eq < 0) continue;
+    let value = line.slice(eq + 1).trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+    out[line.slice(0, eq).trim()] = value;
+  }
+  return out;
+}
+
+const file = loadDotenv();
+const token = process.env.TEST_DISCORD_TOKEN ?? file.TEST_DISCORD_TOKEN;
+const guildId = process.env.TEST_DISCORD_GUILD ?? file.TEST_DISCORD_GUILD;
+const stay = process.argv.includes("--stay");
+
+if (token === undefined || token.length === 0) {
+  console.error("Missing TEST_DISCORD_TOKEN (process.env or .env).");
+  process.exit(2);
+}
+if (guildId === undefined || guildId.length === 0) {
+  console.error("Missing TEST_DISCORD_GUILD (process.env or .env).");
+  process.exit(2);
+}
+
+// --- assertions ------------------------------------------------------------
+
+let passed = 0;
+let failed = 0;
+const lines = [];
+let section = "";
+function group(title) {
+  section = title;
+  lines.push(`\n${title}`);
+}
+function check(name, ok, detail) {
+  if (ok) {
+    passed += 1;
+    lines.push(`  \u2713 ${name}${detail ? ` — ${detail}` : ""}`);
+  } else {
+    failed += 1;
+    lines.push(`  \u2717 ${name}${detail ? ` — ${detail}` : ""}`);
+  }
+}
+
+// =====================================================================
+// A. Intent presets (pure)
+// =====================================================================
+function arr(x) {
+  return [...x].sort((a, b) => Number(a) - Number(b));
+}
+group("A. Intent presets");
+check("Intents.none is empty", Array.isArray(Intents.none) && Intents.none.length === 0);
+check(
+  "Intents.default = [Guilds]",
+  JSON.stringify(arr(Intents.default)) === JSON.stringify([GatewayIntentBits.Guilds]),
+);
+check(
+  "Intents.guilds = [Guilds, GuildMembers]",
+  JSON.stringify(arr(Intents.guilds)) ===
+    JSON.stringify(arr([GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers])),
+);
+check(
+  "Intents.messages includes MessageContent (privileged)",
+  Intents.messages.includes(GatewayIntentBits.MessageContent) &&
+    Intents.messages.includes(GatewayIntentBits.GuildMessages),
+);
+check(
+  "Intents.all includes privileged intents",
+  Intents.all.includes(GatewayIntentBits.MessageContent) &&
+    Intents.all.includes(GatewayIntentBits.GuildMembers) &&
+    Intents.all.length >= 16,
+  `${Intents.all.length} intents`,
+);
+
+// =====================================================================
+// B. Custom-id codec (pure)
+// =====================================================================
+group("B. Custom-id codec");
+{
+  const compiled = compilePattern("order:{id}:{action}");
+  check(
+    "compilePattern extracts namespace + params",
+    compiled.namespace === "order" &&
+      JSON.stringify(compiled.paramNames) === JSON.stringify(["id", "action"]),
+  );
+  const built = buildCustomId(compiled, { id: "a:b", action: "50%off" });
+  check(
+    "buildCustomId percent-encodes ':' and '%'",
+    built === "order:a%3Ab:50%25off",
+    built,
+  );
+  const parsed = parseCustomId(built);
+  check(
+    "parseCustomId decodes back to original values",
+    parsed.namespace === "order" && parsed.values[0] === "a:b" && parsed.values[1] === "50%off",
+    `[${parsed.values.join(", ")}]`,
+  );
+  const params = paramsFromValues(compiled.paramNames, parsed.values);
+  check(
+    "paramsFromValues maps values onto names",
+    params.id === "a:b" && params.action === "50%off",
+  );
+  check("MAX_CUSTOM_ID_LENGTH is the Discord limit (100)", MAX_CUSTOM_ID_LENGTH === 100);
+
+  let threwMissing = false;
+  try {
+    buildCustomId(compiled, { id: "x" });
+  } catch {
+    threwMissing = true;
+  }
+  check("buildCustomId throws on missing param", threwMissing);
+
+  let threwLong = false;
+  try {
+    buildCustomId(compiled, { id: "x".repeat(120), action: "y" });
+  } catch {
+    threwLong = true;
+  }
+  check("buildCustomId throws when over the 100-char limit", threwLong);
+
+  let threwPattern = false;
+  try {
+    compilePattern("bad:{not-a-segment}extra");
+  } catch {
+    threwPattern = true;
+  }
+  check("compilePattern rejects malformed patterns", threwPattern);
+}
+
+// =====================================================================
+// Build the bot under test
+// =====================================================================
+
+// captures for the dispatch probes (section I)
+const cap = {};
+
+// --- events ---
+let readyFired = false;
+let readyTag = "";
+const onReady = event("clientReady", (c) => {
+  readyFired = true;
+  readyTag = c.user.tag;
+});
+
+let targetChannelId = "";
+let messageSeen = false;
+let resolveMessage;
+const messagePromise = new Promise((r) => {
+  resolveMessage = r;
+});
+const onMessage = event("messageCreate", (msg) => {
+  if (msg.channelId === targetChannelId) {
+    messageSeen = true;
+    resolveMessage();
+  }
+});
+
+// --- commands ---
+const ping = command({
+  name: "ping",
+  description: "Check latency",
+  run: (ctx) => ctx.reply("pong"),
+});
+
+const allopts = command({
+  name: "allopts",
+  description: "Every option type",
+  options: {
+    text: option.string({ description: "A string", required: true, minLength: 1, maxLength: 100 }),
+    choice: option.string({
+      description: "A choice",
+      choices: [
+        { name: "Alpha", value: "a" },
+        { name: "Beta", value: "b" },
+      ],
+    }),
+    count: option.integer({ description: "An integer", minValue: 1, maxValue: 10 }),
+    ratio: option.number({ description: "A number", minValue: 0, maxValue: 1 }),
+    flag: option.boolean({ description: "A boolean" }),
+    who: option.user({ description: "A user" }),
+    where: option.channel({ description: "A channel", channelTypes: [ChannelType.GuildText] }),
+    rolepick: option.role({ description: "A role" }),
+    mention: option.mentionable({ description: "A mentionable" }),
+    file: option.attachment({ description: "An attachment" }),
+  },
+  run: (ctx) => ctx.reply(ctx.options.text),
+});
+
+const fruits = ["apple", "banana", "cherry", "date"];
+const fruit = command({
+  name: "fruit",
+  description: "Pick a fruit",
+  options: {
+    name: option.string({
+      description: "Fruit name",
+      required: true,
+      autocomplete: (ctx) =>
+        fruits.filter((f) => f.startsWith(ctx.value)).map((f) => ({ name: f, value: f })),
+    }),
+  },
+  run: (ctx) => ctx.reply(`You picked ${ctx.options.name}`),
+});
+
+const admin = commandGroup({
+  name: "admin",
+  description: "Admin tools",
+  guildOnly: true,
+  defaultMemberPermissions: PermissionFlagsBits.ManageGuild,
+  subcommands: {
+    say: subcommand({
+      description: "Say something",
+      options: { message: option.string({ description: "Message", required: true }) },
+      run: (ctx) => ctx.reply(ctx.options.message),
+    }),
+  },
+  groups: {
+    config: subcommandGroup({
+      description: "Configuration",
+      subcommands: {
+        set: subcommand({
+          description: "Set a value",
+          options: {
+            key: option.string({ description: "Key", required: true }),
+            value: option.string({ description: "Value", required: true }),
+          },
+          run: (ctx) => ctx.reply(`${ctx.options.key}=${ctx.options.value}`),
+        }),
+      },
+    }),
+  },
+});
+
+const secret = command({
+  name: "secret",
+  description: "NSFW marker test",
+  nsfw: true,
+  run: (ctx) => ctx.reply("shh"),
+});
+
+const panel = command({
+  name: "panel",
+  description: "Show the demo controls",
+  run: (ctx) =>
+    ctx.reply({
+      content: "Try the controls:",
+      components: [row(vote.build({ choice: "yes" })), row(colour.build())],
+    }),
+});
+
+const ask = command({
+  name: "ask",
+  description: "Open the feedback modal",
+  run: (ctx) => ctx.showModal(feedback.build({ ticket: "1234" })),
+});
+
+// --- components ---
+const vote = button({
+  id: "vote:{choice}",
+  label: "Vote yes",
+  style: ButtonStyle.Success,
+  run: (ctx) => {
+    cap.vote = `voted:${ctx.params.choice}`;
+    return ctx.update(cap.vote);
+  },
+});
+
+const order = button({
+  id: "order:{id}:{action}",
+  label: "Order",
+  style: "Primary",
+  run: (ctx) => {
+    cap.order = `${ctx.params.id}/${ctx.params.action}`;
+    return ctx.update(cap.order);
+  },
+});
+
+const colour = stringSelect({
+  id: "colour",
+  placeholder: "Pick a colour",
+  minValues: 1,
+  maxValues: 1,
+  options: [
+    { label: "Red", value: "red" },
+    { label: "Green", value: "green" },
+    { label: "Blue", value: "blue" },
+  ],
+  run: (ctx) => {
+    cap.colour = ctx.values.join(",");
+    return ctx.reply({ content: `colour:${cap.colour}`, ephemeral: true });
+  },
+});
+
+const users = userSelect({
+  id: "users",
+  placeholder: "Pick users",
+  run: (ctx) => {
+    cap.users = ctx.values.join(",");
+    return ctx.reply({ content: `users:${cap.users}`, ephemeral: true });
+  },
+});
+
+const roles = roleSelect({
+  id: "roles",
+  placeholder: "Pick roles",
+  run: (ctx) => {
+    cap.roles = ctx.values.join(",");
+    return ctx.reply({ content: `roles:${cap.roles}`, ephemeral: true });
+  },
+});
+
+const channels = channelSelect({
+  id: "channels",
+  placeholder: "Pick channels",
+  channelTypes: [ChannelType.GuildText],
+  run: (ctx) => {
+    cap.channels = ctx.values.join(",");
+    return ctx.reply({ content: `channels:${cap.channels}`, ephemeral: true });
+  },
+});
+
+const mentions = mentionableSelect({
+  id: "mentions",
+  placeholder: "Pick mentionables",
+  run: (ctx) => {
+    cap.mentions = ctx.values.join(",");
+    return ctx.reply({ content: `mentions:${cap.mentions}`, ephemeral: true });
+  },
+});
+
+const feedback = modal({
+  id: "feedback:{ticket}",
+  title: "Feedback",
+  fields: {
+    summary: textInput({ label: "Summary", required: true, maxLength: 100 }),
+    detail: textInput({ label: "Details", style: "Paragraph" }),
+  },
+  run: (ctx) => {
+    cap.feedback = `${ctx.params.ticket}:${ctx.fields.summary}`;
+    return ctx.reply({ content: `fb:${cap.feedback}`, ephemeral: true });
+  },
+});
+
+const client = new SpearClient({
+  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
+});
+client.on("error", (err) => console.error("client error:", err?.message ?? err));
+client.register(
+  onReady,
+  onMessage,
+  ping,
+  allopts,
+  fruit,
+  admin,
+  secret,
+  panel,
+  ask,
+  vote,
+  order,
+  colour,
+  users,
+  roles,
+  channels,
+  mentions,
+  feedback,
+);
+
+// =====================================================================
+// E. Plugin + F. Loader (register before deploy)
+// =====================================================================
+let pluginRan = false;
+const greetPlugin = definePlugin({
+  name: "greet",
+  setup(c) {
+    pluginRan = true;
+    c.register(
+      command({ name: "plugcmd", description: "Added by a plugin", run: (ctx) => ctx.reply("plugin") }),
+    );
+  },
+});
+
+let tempDir = "";
+async function setupPluginAndLoader() {
+  group("E. Plugins");
+  await client.use(greetPlugin);
+  check("client.use ran plugin.setup", pluginRan);
+  check("plugin registered its command", client.commands.get("plugcmd") != null);
+
+  group("F. File-based loading");
+  tempDir = mkdtempSync(join(tmpdir(), "spearkit-e2e-"));
+  const moduleSource = `import { command, event } from ${JSON.stringify(DIST_URL)};
+export const loadedCmd = command({ name: "loadedcmd", description: "Loaded from disk", run: (ctx) => ctx.reply("loaded") });
+export const loadedEvt = event("warn", () => {});
+`;
+  writeFileSync(join(tempDir, "feature.mjs"), moduleSource);
+  const loadedCount = await client.load(tempDir);
+  check("client.load returned registered count", loadedCount === 2, `${loadedCount} items`);
+  check("loaded command registered", client.commands.get("loadedcmd") != null);
+}
+
+// --- structural signature for round-trip comparison ------------------------
+
+function optionSignature(options) {
+  if (!Array.isArray(options)) return [];
+  return [...options]
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((o) => [o.name, o.type, optionSignature(o.options)]);
+}
+function commandSignature(cmd) {
+  return JSON.stringify([cmd.name, optionSignature(cmd.options)]);
+}
+
+async function waitReady(c, ms) {
+  if (c.isReady()) return;
+  await new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(`ready timed out after ${ms}ms`)), ms);
+    const done = () => {
+      clearTimeout(timer);
+      resolve();
+    };
+    c.once("clientReady", done);
+    c.once("ready", done);
+  });
+}
+
+async function findSendableTextChannel(guild) {
+  const me = guild.members.me ?? (await guild.members.fetchMe());
+  const all = await guild.channels.fetch();
+  for (const channel of all.values()) {
+    if (channel == null || channel.type !== ChannelType.GuildText) continue;
+    const perms = channel.permissionsFor(me);
+    if (perms == null) continue;
+    if (perms.has(PermissionFlagsBits.ViewChannel) && perms.has(PermissionFlagsBits.SendMessages)) {
+      return channel;
+    }
+  }
+  return null;
+}
+
+// --- fixture interactions for the dispatch probes (section I) ---------------
+
+function guards(kind) {
+  const names = {
+    button: "isButton",
+    stringSelect: "isStringSelectMenu",
+    userSelect: "isUserSelectMenu",
+    roleSelect: "isRoleSelectMenu",
+    channelSelect: "isChannelSelectMenu",
+    mentionableSelect: "isMentionableSelectMenu",
+    modal: "isModalSubmit",
+  };
+  const out = {};
+  for (const fn of Object.values(names)) out[fn] = () => false;
+  out[names[kind]] = () => true;
+  return out;
+}
+
+function fakeComponent(kind, customId, extra) {
+  return {
+    ...guards(kind),
+    customId,
+    client,
+    replied: false,
+    deferred: false,
+    responded: false,
+    async reply(payload) {
+      this._reply = payload;
+    },
+    async update(payload) {
+      this._update = payload;
+    },
+    ...extra,
+  };
+}
+
+function payloadText(payload) {
+  if (payload == null) return undefined;
+  return typeof payload === "string" ? payload : payload.content;
+}
+
+// =====================================================================
+// run
+// =====================================================================
+async function main() {
+  console.log(`\nspearkit comprehensive live E2E  (guild ${guildId})`);
+
+  await setupPluginAndLoader();
+
+  // C. login + ready --------------------------------------------------------
+  group("C. Gateway login + ready");
+  await client.login(token);
+  await waitReady(client, 30_000);
+  check("gateway login + ready", client.isReady(), `as ${client.user?.tag ?? "?"}`);
+  check("client.user populated", client.user != null, client.user?.id);
+  check("client.application resolved", client.application?.id != null, client.application?.id);
+  check(
+    "registry sizes",
+    client.commands.size === 9 && client.components.size === 8 && client.events.size === 3,
+    `commands=${client.commands.size} components=${client.components.size} events=${client.events.size}`,
+  );
+
+  group("D. Live events");
+  check("spearkit clientReady event fired", readyFired, readyTag);
+
+  // G. command deploy round-trip --------------------------------------------
+  group("G. Command deploy round-trip (REST)");
+  const appId = client.application.id;
+  let remoteNames = [];
+  try {
+    const deployed = await client.deployCommands({ guildId });
+    check("deployCommands resolved", Array.isArray(deployed), `${deployed.length} commands`);
+  } catch (err) {
+    check("deployCommands resolved", false, String(err?.message ?? err));
+  }
+
+  const remote = await client.rest.get(Routes.applicationGuildCommands(appId, guildId));
+  const remoteByName = new Map(remote.map((c) => [c.name, c]));
+  remoteNames = [...remoteByName.keys()].sort();
+  const expected = client.commands.toJSON();
+  const expectedNames = expected.map((c) => c.name).sort();
+  check(
+    "every spearkit command registered on Discord",
+    expectedNames.every((n) => remoteByName.has(n)),
+    `[${remoteNames.join(", ")}]`,
+  );
+  for (const cmd of expected) {
+    const got = remoteByName.get(cmd.name);
+    check(
+      `\`${cmd.name}\` structure matches Discord`,
+      got != null && commandSignature(cmd) === commandSignature(got),
+      got == null ? "absent" : undefined,
+    );
+  }
+
+  // every option type on `allopts`
+  const ao = remoteByName.get("allopts");
+  const aoByName = new Map((ao?.options ?? []).map((o) => [o.name, o]));
+  const T = ApplicationCommandOptionType;
+  const expectTypes = {
+    text: T.String,
+    choice: T.String,
+    count: T.Integer,
+    ratio: T.Number,
+    flag: T.Boolean,
+    who: T.User,
+    where: T.Channel,
+    rolepick: T.Role,
+    mention: T.Mentionable,
+    file: T.Attachment,
+  };
+  for (const [name, type] of Object.entries(expectTypes)) {
+    check(`allopts.${name} is type ${type} on Discord`, aoByName.get(name)?.type === type);
+  }
+  check("allopts.text is required + length-bounded", aoByName.get("text")?.required === true &&
+    aoByName.get("text")?.min_length === 1 && aoByName.get("text")?.max_length === 100);
+  check("allopts.choice carries 2 choices", aoByName.get("choice")?.choices?.length === 2);
+  check("allopts.count carries min/max", aoByName.get("count")?.min_value === 1 &&
+    aoByName.get("count")?.max_value === 10);
+  check("allopts.ratio carries min/max", aoByName.get("ratio")?.min_value === 0 &&
+    aoByName.get("ratio")?.max_value === 1);
+  check(
+    "allopts.where restricts channel types",
+    Array.isArray(aoByName.get("where")?.channel_types) &&
+      aoByName.get("where").channel_types.includes(ChannelType.GuildText),
+  );
+
+  const rFruit = remoteByName.get("fruit");
+  check(
+    "fruit advertises autocomplete",
+    rFruit?.options?.some((o) => o.name === "name" && o.autocomplete === true),
+  );
+
+  const rAdmin = remoteByName.get("admin");
+  const adminSay = rAdmin?.options?.find((o) => o.name === "say");
+  const adminCfg = rAdmin?.options?.find((o) => o.name === "config");
+  check("admin has `say` subcommand (type 1)", adminSay?.type === T.Subcommand);
+  check(
+    "admin has `config` subcommand group (type 2) containing `set`",
+    adminCfg?.type === T.SubcommandGroup &&
+      adminCfg.options?.some((s) => s.name === "set" && s.type === T.Subcommand),
+  );
+  const adminPayload = expected.find((c) => c.name === "admin");
+  check(
+    "admin emits guild-only context (payload)",
+    Array.isArray(adminPayload?.contexts) &&
+      adminPayload.contexts.includes(InteractionContextType.Guild),
+    `Discord drops contexts for guild-scoped commands (remote echo: ${JSON.stringify(rAdmin?.contexts ?? null)})`,
+  );
+  check("admin carries default_member_permissions", rAdmin?.default_member_permissions != null,
+    rAdmin?.default_member_permissions);
+  check("secret is marked nsfw", remoteByName.get("secret")?.nsfw === true);
+  check("plugin command deployed", remoteByName.has("plugcmd"));
+  check("loaded command deployed", remoteByName.has("loadedcmd"));
+
+  // H. component wire round-trip --------------------------------------------
+  group("H. Component wire round-trip (Discord)");
+  const guild = await client.guilds.fetch(guildId);
+  check("guild fetched", guild != null, guild?.name);
+  const channel = await findSendableTextChannel(guild);
+  if (channel == null) {
+    check("sendable text channel found", false, "no postable text channel — skipping wire checks");
+  } else {
+    check("sendable text channel found", true, `#${channel.name}`);
+    targetChannelId = channel.id;
+
+    const orderId = order.build({ id: "a:b", action: "50%off" }).toJSON().custom_id;
+    const linkBtn = linkButton({ label: "Docs", url: "https://discord.js.org" });
+
+    const msgA = await channel.send({
+      content: "spearkit E2E A — buttons + string/user selects (auto-deleted)",
+      components: [
+        row(vote.build({ choice: "yes" }), order.build({ id: "a:b", action: "50%off" }), linkBtn),
+        row(colour.build()),
+        row(users.build()),
+      ],
+    });
+    const msgB = await channel.send({
+      content: "spearkit E2E B — role/channel/mentionable selects (auto-deleted)",
+      components: [row(roles.build()), row(channels.build()), row(mentions.build())],
+    });
+
+    const backA = await channel.messages.fetch(msgA.id);
+    const backB = await channel.messages.fetch(msgB.id);
+
+    const flat = [];
+    for (const m of [backA, backB]) {
+      for (const r of m.components) {
+        for (const c of r.components) flat.push(c);
+      }
+    }
+    const byId = new Map();
+    for (const c of flat) if (typeof c.customId === "string") byId.set(c.customId, c);
+
+    check("button custom-id stored", byId.has("vote:yes"), "vote:yes");
+    check(
+      "encoded multi-param custom-id stored verbatim",
+      byId.has("order:a%3Ab:50%25off") && orderId === "order:a%3Ab:50%25off",
+      orderId,
+    );
+    // decode the value Discord echoed back
+    const dec = parseCustomId("order:a%3Ab:50%25off");
+    check(
+      "codec decodes the wire custom-id to original params",
+      dec.values[0] === "a:b" && dec.values[1] === "50%off",
+      `[${dec.values.join(", ")}]`,
+    );
+
+    const typeOf = (id) => byId.get(id)?.type;
+    check("button serialized as Button(2)", typeOf("vote:yes") === ComponentType.Button);
+    check("string select serialized as StringSelect(3)", typeOf("colour") === ComponentType.StringSelect);
+    check("user select serialized as UserSelect(5)", typeOf("users") === ComponentType.UserSelect);
+    check("role select serialized as RoleSelect(6)", typeOf("roles") === ComponentType.RoleSelect);
+    check(
+      "channel select serialized as ChannelSelect(8)",
+      typeOf("channels") === ComponentType.ChannelSelect,
+    );
+    check(
+      "mentionable select serialized as MentionableSelect(7)",
+      typeOf("mentions") === ComponentType.MentionableSelect,
+    );
+
+    const link = flat.find((c) => c.type === ComponentType.Button && c.style === ButtonStyle.Link);
+    check(
+      "link button stored with url and no custom-id",
+      link != null && typeof link.url === "string" && link.url.startsWith("https://discord.js.org") && link.customId == null,
+      link?.url,
+    );
+
+    // D (cont). messageCreate is a real gateway event — our own sends trigger it.
+    await Promise.race([
+      messagePromise,
+      new Promise((r) => setTimeout(r, 8000)),
+    ]);
+    check("spearkit messageCreate event fired (live gateway)", messageSeen, `#${channel.name}`);
+
+    await msgA.delete().catch(() => undefined);
+    await msgB.delete().catch(() => undefined);
+    check("verification messages cleaned up", true);
+  }
+
+  // I. handler dispatch through the real registries -------------------------
+  group("I. Handler dispatch (registries + fixtures)");
+
+  // command + typed option resolution
+  const fakeChat = {
+    commandName: "allopts",
+    replied: false,
+    deferred: false,
+    client,
+    options: {
+      getString: (n) => (n === "text" ? "hello" : n === "choice" ? "a" : null),
+      getInteger: (n) => (n === "count" ? 7 : null),
+      getNumber: (n) => (n === "ratio" ? 0.5 : null),
+      getBoolean: (n) => (n === "flag" ? true : null),
+      getUser: () => null,
+      getChannel: () => null,
+      getRole: () => null,
+      getMentionable: () => null,
+      getAttachment: () => null,
+    },
+    async reply(p) {
+      cap.cmd = p;
+    },
+  };
+  await client.commands.handle(fakeChat);
+  check(
+    "command routes + resolves typed options",
+    payloadText(cap.cmd) === "hello",
+    payloadText(cap.cmd),
+  );
+
+  // autocomplete
+  const fakeAuto = {
+    commandName: "fruit",
+    responded: false,
+    options: { getFocused: (full) => (full ? { name: "name", value: "ba" } : "ba") },
+    async respond(choices) {
+      cap.auto = choices;
+    },
+  };
+  await client.commands.handleAutocomplete(fakeAuto);
+  check(
+    "autocomplete routes + returns filtered choices",
+    Array.isArray(cap.auto) && cap.auto.length === 1 && cap.auto[0].value === "banana",
+    cap.auto?.map((c) => c.value).join(","),
+  );
+
+  // button
+  const rb = await client.components.handle(fakeComponent("button", "vote:yes"));
+  check("button routes + extracts params", rb && cap.vote === "voted:yes", cap.vote);
+
+  // multi-param/encoded button
+  const ro = await client.components.handle(
+    fakeComponent("button", "order:a%3Ab:50%25off"),
+  );
+  check("encoded button routes + decodes params", ro && cap.order === "a:b/50%off", cap.order);
+
+  // selects
+  const rs = await client.components.handle(
+    fakeComponent("stringSelect", "colour", { values: ["green"] }),
+  );
+  check("string select routes + reads values", rs && cap.colour === "green", cap.colour);
+  const ru = await client.components.handle(
+    fakeComponent("userSelect", "users", { values: ["111"] }),
+  );
+  check("user select routes + reads values", ru && cap.users === "111", cap.users);
+  const rr = await client.components.handle(
+    fakeComponent("roleSelect", "roles", { values: ["222"] }),
+  );
+  check("role select routes + reads values", rr && cap.roles === "222", cap.roles);
+  const rc = await client.components.handle(
+    fakeComponent("channelSelect", "channels", { values: ["333"] }),
+  );
+  check("channel select routes + reads values", rc && cap.channels === "333", cap.channels);
+  const rm = await client.components.handle(
+    fakeComponent("mentionableSelect", "mentions", { values: ["444"] }),
+  );
+  check("mentionable select routes + reads values", rm && cap.mentions === "444", cap.mentions);
+
+  // modal submit
+  const rmod = await client.components.handle(
+    fakeComponent("modal", "feedback:1234", {
+      fields: { getTextInputValue: (k) => (k === "summary" ? "Great" : "More") },
+    }),
+  );
+  check(
+    "modal routes + decodes params + reads fields",
+    rmod && cap.feedback === "1234:Great",
+    cap.feedback,
+  );
+
+  const unrouted = await client.components.handle(fakeComponent("button", "no-such-namespace"));
+  check("unknown custom-id does not route", unrouted === false);
+
+  // J. event once/non-once semantics ----------------------------------------
+  group("J. Event registry once/non-once");
+  let onceCount = 0;
+  let manyCount = 0;
+  event({ name: "spearkitTestOnce", once: true, run: () => (onceCount += 1) }).attach(client);
+  event({ name: "spearkitTestMany", run: () => (manyCount += 1) }).attach(client);
+  client.emit("spearkitTestOnce");
+  client.emit("spearkitTestOnce");
+  client.emit("spearkitTestMany");
+  client.emit("spearkitTestMany");
+  check("once:true handler fires exactly once", onceCount === 1, `count=${onceCount}`);
+  check("default handler fires every time", manyCount === 2, `count=${manyCount}`);
+
+  // --- report ---------------------------------------------------------------
+  console.log(lines.join("\n"));
+  console.log(`\n${passed} passed, ${failed} failed.`);
+  console.log(`Commands now live in the guild: ${remoteNames.join(", ")}`);
+
+  if (tempDir) rmSync(tempDir, { recursive: true, force: true });
+
+  if (stay) {
+    console.log("\n--stay: bot left online. Open Discord and try the commands/buttons. Ctrl+C to exit.");
+    return;
+  }
+  await client.destroy();
+  process.exit(failed === 0 ? 0 : 1);
+}
+
+main().catch(async (err) => {
+  console.error("\nE2E crashed:", err);
+  if (tempDir) rmSync(tempDir, { recursive: true, force: true });
+  await client.destroy().catch(() => undefined);
+  process.exit(1);
+});

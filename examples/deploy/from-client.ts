@@ -5,7 +5,7 @@
  * so there is no separate token or application id to pass. It must run after
  * the client is ready.
  */
-import { Intents, SpearClient, command } from "spear";
+import { Intents, SpearClient, command } from "spearkit";
 
 const client = new SpearClient({ intents: Intents.default });
 

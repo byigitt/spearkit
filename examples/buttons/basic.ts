@@ -2,9 +2,9 @@
  * Buttons — appearance, custom-id and click handler in one place.
  *
  * Register the button (client.register(refresh)), build it into a row, and send
- * it on a message. spear routes the click to `run`.
+ * it on a message. spearkit routes the click to `run`.
  */
-import { command, button, row } from "spear";
+import { command, button, row } from "spearkit";
 
 export const refresh = button({
   id: "refresh",

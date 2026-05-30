@@ -8,7 +8,7 @@
  *   npx tsc && node dist/examples/file-based-loading/index.js
  */
 import { fileURLToPath } from "node:url";
-import { Intents, SpearClient } from "spear";
+import { Intents, SpearClient } from "spearkit";
 
 const here = fileURLToPath(new URL(".", import.meta.url));
 

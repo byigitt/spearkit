@@ -1,7 +1,7 @@
 /**
  * Slash commands — metadata: permissions, guild-only, NSFW, localization.
  */
-import { PermissionFlagsBits, command, option } from "spear";
+import { PermissionFlagsBits, command, option } from "spearkit";
 
 // Only members with Manage Messages see this command by default.
 export const purge = command({

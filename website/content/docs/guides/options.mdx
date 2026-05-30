@@ -1,10 +1,10 @@
 ---
 title: "Options"
-description: "Slash command options are declared as a map of name → builder. spear infers the exact value type each option resolves to, so your handler's ctx.options is fully typed — no casts, n"
+description: "Slash command options are declared as a map of name → builder. spearkit infers the exact value type each option resolves to, so your handler's ctx.options is fully typed — no…"
 ---
 
 ```ts
-import { command, option } from "spear";
+import { command, option } from "spearkit";
 
 command({
   name: "profile",
@@ -47,7 +47,7 @@ Every builder accepts the common config:
 
 ## Inference rules
 
-spear narrows the resolved type from your declaration:
+spearkit narrows the resolved type from your declaration:
 
 ```ts
 options: {
@@ -69,7 +69,7 @@ options: {
 ```
 
 - **Required** options resolve to the value type.
-- **Optional** options resolve to `value | undefined` (spear converts discord's
+- **Optional** options resolve to `value | undefined` (spearkit converts discord's
   absent value to `undefined`, never `null`).
 - **`choices`** narrow string/integer/number options to a literal union of the
   declared `value`s.
@@ -97,7 +97,7 @@ Restrict the selectable channel types with `channelTypes` (from discord.js
 `ChannelType`):
 
 ```ts
-import { option, ChannelType } from "spear";
+import { option, ChannelType } from "spearkit";
 
 options: {
   target: option.channel({
@@ -110,7 +110,7 @@ options: {
 ## Choices
 
 `choices` are `{ name, value }` pairs. `name` is shown to the user; `value` is
-what your handler receives (and what spear narrows the type to).
+what your handler receives (and what spearkit narrows the type to).
 
 ```ts
 option.integer({
@@ -127,7 +127,7 @@ option.integer({
 ## Autocomplete
 
 Provide an `autocomplete` handler instead of fixed `choices` to suggest values
-as the user types. spear marks the option as autocompletable, routes the
+as the user types. spearkit marks the option as autocompletable, routes the
 autocomplete interaction, and (for subcommands) finds the right option.
 
 ```ts
@@ -153,7 +153,7 @@ The autocomplete handler receives an `AutocompleteContext`:
 | `ctx.client` / `ctx.user` / `ctx.guild` / `ctx.guildId` | Accessors. |
 | `ctx.respond(choices)` | Send suggestions (capped at discord's 25). |
 
-Returning the choices array (as above) is enough — spear calls `respond` for
+Returning the choices array (as above) is enough — spearkit calls `respond` for
 you. Returning `[]` shows no suggestions.
 
 ## See also

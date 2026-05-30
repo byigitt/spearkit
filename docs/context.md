@@ -1,12 +1,12 @@
 # Contexts
 
-Every spear handler — command, button, select, modal — receives a context
+Every spearkit handler — command, button, select, modal — receives a context
 object. They all share `BaseContext`, which smooths over discord.js'
 reply/defer/edit/follow-up state machine and exposes the common
 actor/location accessors. Learn it once and it applies everywhere.
 
 ```ts
-import { command, option } from "spear";
+import { command, option } from "spearkit";
 
 export default command({
   name: "hello",
@@ -33,7 +33,7 @@ rest extend `BaseContext`, adding their own specifics (e.g. `ctx.options`,
 | `error(message)` | `Promise<void>` | State-aware ephemeral message. |
 
 ```ts
-import { command } from "spear";
+import { command } from "spearkit";
 
 export default command({
   name: "demo",
@@ -57,7 +57,7 @@ This means you can call `send` without tracking whether you deferred, which is
 ideal for shared helpers that may run before or after a `defer`.
 
 ```ts
-import { command } from "spear";
+import { command } from "spearkit";
 
 export default command({
   name: "report",
@@ -76,7 +76,7 @@ export default command({
 validation failures that only the invoking user should see.
 
 ```ts
-import { command, option } from "spear";
+import { command, option } from "spearkit";
 
 export default command({
   name: "kick",
@@ -92,13 +92,13 @@ export default command({
 ## The `{ ephemeral: true }` shortcut
 
 discord.js represents an ephemeral reply with `flags: MessageFlags.Ephemeral`.
-spear lets you write the more obvious `{ ephemeral: true }` on any reply payload
+spearkit lets you write the more obvious `{ ephemeral: true }` on any reply payload
 and maps it to that flag for you. The input type is `ReplyInput`
 (`string | ReplyData`), where `ReplyData` is discord.js'
 `InteractionReplyOptions` plus the optional `ephemeral` boolean.
 
 ```ts
-import { command, EmbedBuilder } from "spear";
+import { command, EmbedBuilder } from "spearkit";
 
 export default command({
   name: "secret",
@@ -119,12 +119,12 @@ await ctx.replyEphemeral("Saved.");
 await ctx.replyEphemeral({ embeds: [embed] });
 ```
 
-If you set `flags` yourself, spear preserves them and adds the ephemeral flag
+If you set `flags` yourself, spearkit preserves them and adds the ephemeral flag
 rather than overwriting it.
 
 ### Exported helpers
 
-spear exports the two functions it uses internally, so you can normalise reply
+spearkit exports the two functions it uses internally, so you can normalise reply
 input yourself (e.g. in a plugin or shared utility):
 
 - `normalizeReply(input: ReplyInput): InteractionReplyOptions` — converts a
@@ -134,7 +134,7 @@ input yourself (e.g. in a plugin or shared utility):
   regardless of how it was passed.
 
 ```ts
-import { normalizeReply, asEphemeral } from "spear";
+import { normalizeReply, asEphemeral } from "spearkit";
 
 normalizeReply("hi");
 // → { content: "hi" }
@@ -166,7 +166,7 @@ asEphemeral("hidden");
 | `replied` | Whether the interaction already received an initial response. |
 
 ```ts
-import { command } from "spear";
+import { command } from "spearkit";
 
 export default command({
   name: "whereami",
@@ -183,7 +183,7 @@ export default command({
 `deferred` and `replied` let you branch when you are not using `send`:
 
 ```ts
-import { button } from "spear";
+import { button } from "spearkit";
 
 export default button({
   id: "refresh",

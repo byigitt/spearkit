@@ -14,7 +14,7 @@ export interface LoadOptions {
 
 const DEFAULT_EXTENSIONS = [".js", ".mjs", ".cjs"] as const;
 
-/** Structural guard: is this exported value something spear can register? */
+/** Structural guard: is this exported value something spearkit can register? */
 function isRegisterable(value: unknown): value is Registerable {
   if (value instanceof SlashCommand) return true;
   if (typeof value !== "object" || value === null) return false;
@@ -29,7 +29,7 @@ function isRegisterable(value: unknown): value is Registerable {
 }
 
 /**
- * Recursively import a directory and collect every spear-registrable export
+ * Recursively import a directory and collect every spearkit-registrable export
  * (commands, events, components) found in default or named exports.
  */
 export async function collectModules(

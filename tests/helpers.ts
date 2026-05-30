@@ -1,5 +1,5 @@
 /**
- * Faithful interaction fixtures for exercising spear's dispatch and routing.
+ * Faithful interaction fixtures for exercising spearkit's dispatch and routing.
  *
  * These are not result-faking mocks: every method does the real thing a
  * discord.js interaction would do for the purposes of routing (records the

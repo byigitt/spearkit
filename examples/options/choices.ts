@@ -1,7 +1,7 @@
 /**
  * Options — choices narrow the value to a literal union.
  */
-import { command, option } from "spear";
+import { command, option } from "spearkit";
 
 export const order = command({
   name: "order",

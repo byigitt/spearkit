@@ -4,7 +4,7 @@
  * Handler arguments are inferred from discord.js ClientEvents. Register an
  * event like anything else, or load it from a file (see ../file-based-loading).
  */
-import { event } from "spear";
+import { event } from "spearkit";
 
 // Positional form: event(name, handler)
 export const onReady = event("clientReady", (client) => {

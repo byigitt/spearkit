@@ -2,7 +2,7 @@ import type { Awaitable } from "discord.js";
 import type { SpearClient } from "./client.js";
 
 /**
- * A spear plugin: a named, reusable bundle of commands, events and components.
+ * A spearkit plugin: a named, reusable bundle of commands, events and components.
  * Its {@link setup} runs once when added to a client via `client.use(plugin)`.
  */
 export interface SpearPlugin {

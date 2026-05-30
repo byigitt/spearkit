@@ -7,8 +7,8 @@ import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | spear",
-    default: "spear — discord.js++",
+    template: "%s | spearkit",
+    default: "spearkit — discord.js++",
   },
   description:
     "A developer-experience-first Discord library. Drop-in compatible with discord.js, with ergonomic, fully type-safe events, slash commands and components.",

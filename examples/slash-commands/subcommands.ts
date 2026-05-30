@@ -8,7 +8,7 @@
  *   /settings set
  *   /settings roles add
  */
-import { command, commandGroup, option, subcommand, subcommandGroup } from "spear";
+import { command, commandGroup, option, subcommand, subcommandGroup } from "spearkit";
 
 export const settings = commandGroup({
   name: "settings",

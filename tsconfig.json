@@ -19,7 +19,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "baseUrl": ".",
-    "paths": { "spear": ["./src/index.ts"] }
+    "paths": { "spearkit": ["./src/index.ts"] }
   },
   "include": ["src", "tests", "examples"],
   "exclude": ["node_modules", "dist"]

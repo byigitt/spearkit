@@ -1,6 +1,6 @@
 ---
 title: "Plugins"
-description: "A plugin is a named, reusable bundle of commands, events and components. It lets you package a feature once and install it into any SpearClient with a single call — useful for shar"
+description: "A plugin is a named, reusable bundle of commands, events and components. It lets you package a feature once and install it into any SpearClient with a single call — useful for…"
 ---
 
 ## Defining a plugin
@@ -20,7 +20,7 @@ registers whatever the feature needs — commands, events, components — typica
 via `client.register`.
 
 ```ts
-import { definePlugin, button, command, event, option, row } from "spear";
+import { definePlugin, button, command, event, option, row } from "spearkit";
 
 export const moderation = definePlugin({
   name: "moderation",
@@ -64,7 +64,7 @@ Install one or more plugins with `client.use`. It runs each plugin's `setup` in
 order and resolves to the client, so you can chain it with the rest of startup.
 
 ```ts
-import { SpearClient, Intents } from "spear";
+import { SpearClient, Intents } from "spearkit";
 import { moderation } from "./plugins/moderation.js";
 
 const client = new SpearClient({ intents: Intents.default });
