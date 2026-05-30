@@ -13,9 +13,10 @@ import { loadInto, type LoadOptions } from "./loader.js";
 import { Logger, type LoggerOptions, toError } from "./logger.js";
 import { loadEnv, type LoadEnvOptions } from "./env.js";
 import { CooldownManager, normalizeCooldown, type CooldownInput } from "./cooldown.js";
+import { TaskScheduler, task, type ScheduledTask, type TaskConfig } from "./scheduler.js";
 
 /** Anything that can be handed to {@link SpearClient.register}. */
-export type Registerable = SlashCommand | EventDef | ComponentDef;
+export type Registerable = SlashCommand | EventDef | ComponentDef | ScheduledTask;
 
 const allIntents = Object.values(GatewayIntentBits).filter(
   (value): value is GatewayIntentBits => typeof value === "number",
@@ -82,6 +83,8 @@ export class SpearClient extends Client {
   readonly logger: Logger;
   /** Shared cooldown manager used by command dispatch; also usable directly. */
   readonly cooldowns = new CooldownManager();
+  /** Cron/interval task scheduler; started on ready and stopped on destroy. */
+  readonly scheduler = new TaskScheduler();
   private readonly envConfig: false | LoadEnvOptions;
 
   constructor(options: SpearClientOptions = {}) {
@@ -98,6 +101,8 @@ export class SpearClient extends Client {
     this.events.attachAll(this);
     this.on("interactionCreate", (interaction) => this.route(interaction));
     this.on("error", (error) => this.logger.error("client error", { error: toError(error) }));
+    this.scheduler.setLogger(this.logger.child("scheduler"));
+    this.once("clientReady", () => this.scheduler.start(this));
   }
 
   /**
@@ -110,6 +115,8 @@ export class SpearClient extends Client {
         this.commands.add(item);
       } else if ("attach" in item) {
         this.events.add(item);
+      } else if (item.kind === "task") {
+        this.scheduler.add(item);
       } else {
         this.components.add(item);
       }
@@ -167,5 +174,18 @@ export class SpearClient extends Client {
     } else {
       await this.components.handle(interaction);
     }
+  }
+
+  /** Define and register a scheduled task in one call. */
+  schedule(config: TaskConfig): ScheduledTask {
+    const scheduled = task(config);
+    this.scheduler.add(scheduled);
+    return scheduled;
+  }
+
+  /** Stop the scheduler, then tear down the discord.js client. */
+  override async destroy(): Promise<void> {
+    this.scheduler.stop();
+    await super.destroy();
   }
 }

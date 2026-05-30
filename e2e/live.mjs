@@ -77,6 +77,8 @@ import {
   CommandRegistry,
   CooldownManager,
   effectiveDuration,
+  task,
+  cron,
 } from "../dist/index.js";
 
 // --- credentials -----------------------------------------------------------
@@ -471,6 +473,10 @@ client.register(
   channels,
   mentions,
   feedback,
+);
+let tickCount = 0;
+client.register(
+  task({ name: "e2e-tick", interval: 250, runOnStart: true, run: () => { tickCount += 1; } }),
 );
 
 // =====================================================================
@@ -971,6 +977,17 @@ async function main() {
     "command dispatch blocks the second call",
     typeof payloadText(cdReplies2[0]) === "string" && /cooldown/i.test(payloadText(cdReplies2[0])),
   );
+
+  // N. Scheduler --------------------------------------------------------------
+  group("N. Scheduler");
+  const cronAt = new Date(2026, 0, 1, 0, 3, 0);
+  check(
+    "cron computes the next matching time",
+    cron("*/15 * * * *").next(cronAt).getTime() === new Date(2026, 0, 1, 0, 15, 0).getTime(),
+  );
+  check("scheduler is active after ready", client.scheduler.active === true);
+  check("tick task is registered", client.scheduler.list().some((t) => t.name === "e2e-tick"));
+  check("interval task fired live", tickCount >= 2, `ticks=${tickCount}`);
   // --- report ---------------------------------------------------------------
   console.log(lines.join("\n"));
   console.log(`\n${passed} passed, ${failed} failed.`);

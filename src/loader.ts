@@ -25,6 +25,9 @@ function isRegisterable(value: unknown): value is Registerable {
   if (typeof record["kind"] === "string" && typeof record["handle"] === "function") {
     return true;
   }
+  if (record["kind"] === "task" && typeof record["run"] === "function") {
+    return true;
+  }
   return false;
 }
 

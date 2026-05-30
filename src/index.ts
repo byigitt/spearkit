@@ -13,6 +13,7 @@ export * from "discord.js";
 export * from "./logger.js";
 export * from "./env.js";
 export * from "./cooldown.js";
+export * from "./scheduler.js";
 export * from "./context.js";
 export * from "./commands/options.js";
 export * from "./commands/command.js";
