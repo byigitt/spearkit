@@ -11,7 +11,7 @@ describe("buildPaginatorPage", () => {
         new EmbedBuilder().setTitle(`page ${page}`).setDescription(slice.join(",")),
     });
     expect(pages).toBe(3);
-    expect(payload.embeds?.[0]?.toJSON().description).toBe("0,1,2,3,4,5,6,7,8,9");
+    expect((payload.embeds?.[0] as EmbedBuilder | undefined)?.toJSON().description).toBe("0,1,2,3,4,5,6,7,8,9");
     expect(payload.components).toHaveLength(1);
   });
 
@@ -21,7 +21,7 @@ describe("buildPaginatorPage", () => {
       pageSize: 1,
       render: () => new EmbedBuilder(),
     });
-    const row = middle.payload.components?.[0] as { components: { data: { disabled?: boolean; custom_id?: string } }[] };
+    const row = middle.payload.components?.[0] as unknown as { components: { data: { disabled?: boolean; custom_id?: string } }[] };
     const idMap = new Map(row.components.map((c) => [c.data.custom_id, c.data.disabled === true] as const));
     expect(idMap.get("spk-page:prev")).toBe(false);
     expect(idMap.get("spk-page:next")).toBe(false);
@@ -30,7 +30,7 @@ describe("buildPaginatorPage", () => {
       pageSize: 1,
       render: () => new EmbedBuilder(),
     });
-    const row2 = last.payload.components?.[0] as { components: { data: { disabled?: boolean; custom_id?: string } }[] };
+    const row2 = last.payload.components?.[0] as unknown as { components: { data: { disabled?: boolean; custom_id?: string } }[] };
     const idMap2 = new Map(row2.components.map((c) => [c.data.custom_id, c.data.disabled === true] as const));
     expect(idMap2.get("spk-page:next")).toBe(true);
   });
@@ -42,7 +42,7 @@ describe("buildPaginatorPage", () => {
       controls: "first-prev-next-last",
       render: () => new EmbedBuilder(),
     });
-    const row = payload.components?.[0] as { components: unknown[] };
+    const row = payload.components?.[0] as unknown as { components: unknown[] };
     expect(row.components).toHaveLength(4);
   });
 
@@ -63,7 +63,7 @@ describe("buildPaginatorPage", () => {
       namespace: "mod-list",
       render: () => new EmbedBuilder(),
     });
-    const row = payload.components?.[0] as { components: { data: { custom_id?: string } }[] };
+    const row = payload.components?.[0] as unknown as { components: { data: { custom_id?: string } }[] };
     expect(row.components.every((c) => (c.data.custom_id ?? "").startsWith("mod-list:"))).toBe(true);
   });
 
@@ -74,6 +74,6 @@ describe("buildPaginatorPage", () => {
       render: () => ({ content: "header", embeds: [new EmbedBuilder().setTitle("e")] }),
     });
     expect(payload.content).toBe("header");
-    expect(payload.embeds?.[0]?.toJSON().title).toBe("e");
+    expect((payload.embeds?.[0] as EmbedBuilder | undefined)?.toJSON().title).toBe("e");
   });
 });

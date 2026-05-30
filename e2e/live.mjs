@@ -97,6 +97,7 @@ import {
   requireAnyRole,
   denied,
   buildPaginatorPage,
+  confirm,
   userCommand,
   messageCommand,
 } from "../dist/index.js";
@@ -1361,6 +1362,47 @@ async function main() {
     );
     await sent.delete().catch(() => undefined);
   }
+
+  // AA. Confirm --------------------------------------------------------------
+  group("AA. Confirm");
+  const { EventEmitter: EE2 } = await import("node:events");
+  const collectorEmitter = new EE2();
+  const replies = [];
+  const fakeInter = {
+    user: { id: "u1" },
+    client,
+    replied: false,
+    deferred: false,
+    async reply(p) {
+      this.replied = true;
+      replies.push(p);
+    },
+    async editReply(p) {
+      replies.push(p);
+    },
+    async fetchReply() {
+      return { createMessageComponentCollector: () => collectorEmitter };
+    },
+  };
+  const promise = confirm(fakeInter, { body: "are you sure?" });
+  await sleep(20);
+  const payload = replies[0];
+  check(
+    "confirm sends an embed and two buttons",
+    Array.isArray(payload.components) &&
+      payload.components[0]?.components?.length === 2 &&
+      Array.isArray(payload.embeds),
+    `buttons=${payload.components[0]?.components?.length}`,
+  );
+  collectorEmitter.emit("collect", {
+    customId: "spk-confirm:yes",
+    user: { id: "u1" },
+    deferUpdate: () => Promise.resolve(),
+  });
+  await sleep(20);
+  collectorEmitter.emit("end");
+  const result = await promise;
+  check("confirm resolves confirmed=true on yes click", result.confirmed === true && result.reason === "confirm");
   // --- report ---------------------------------------------------------------
   console.log(lines.join("\n"));
   console.log(`\n${passed} passed, ${failed} failed.`);
