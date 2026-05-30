@@ -90,6 +90,8 @@ import {
   parseDuration,
   discordTimestamp,
   MemoryCache,
+  loadConfig,
+  lookup,
 } from "../dist/index.js";
 
 // --- credentials -----------------------------------------------------------
@@ -1163,6 +1165,34 @@ async function main() {
     "rateLimit allows up to limit then blocks",
     r1.allowed && r2.allowed && !r3.allowed && r3.remaining === 0,
   );
+
+  // V. Config ----------------------------------------------------------------
+  group("V. Config");
+  const cfgDir = mkdtempSync(join(tmpdir(), "spearkit-e2e-cfg-"));
+  const cfgPath = join(cfgDir, "config.json");
+  writeFileSync(
+    cfgPath,
+    JSON.stringify({ roles: { admin: "111", mod: "222" }, port: "3000" }),
+  );
+
+  const cfg = loadConfig({
+    file: cfgPath,
+    schema: (raw) => {
+      const r = raw;
+      return { roles: r.roles, port: Number(r.port) };
+    },
+  });
+  check("loadConfig parses + validates", cfg.port === 3000 && cfg.roles.admin === "111");
+  const role = lookup(cfg.roles, "role");
+  check("lookup returns the value when present", role("admin") === "111");
+  let threw = false;
+  try {
+    role("missing");
+  } catch {
+    threw = true;
+  }
+  check("lookup throws on missing keys", threw);
+  rmSync(cfgDir, { recursive: true, force: true });
   // --- report ---------------------------------------------------------------
   console.log(lines.join("\n"));
   console.log(`\n${passed} passed, ${failed} failed.`);
