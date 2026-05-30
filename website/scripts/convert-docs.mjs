@@ -1,6 +1,7 @@
 // Converts the repo's docs/*.md into Fumadocs MDX under content/docs.
 // Run from the website/ directory: node scripts/convert-docs.mjs
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -108,6 +109,12 @@ async function convert(base) {
 }
 
 async function main() {
+  // On a self-contained build (e.g. Vercel deploys the website/ dir without the
+  // repo's docs/), keep the committed content/docs and skip regeneration.
+  if (!existsSync(SRC)) {
+    console.log(`Source docs not found at ${SRC}; using committed content/docs.`);
+    return;
+  }
   await rm(OUT, { recursive: true, force: true });
   await mkdir(join(OUT, "guides"), { recursive: true });
 
