@@ -22,6 +22,15 @@ npm install spearkit discord.js
 - **Usage tracking** — record who used what to a database and/or a Discord channel ([guide](./docs/usage.md)).
 - **dotenv built in** — auto-load `.env` and read typed env vars ([guide](./docs/env.md)).
 - **Plugins & file-based loading** for organising larger bots.
+- **Guards** — declarative `requireAnyRole`/`requireUserPermissions`/`guildOnly`/`requireOwner` preconditions on commands, components and prefix commands ([API ref](./docs/api-reference.md#guards--declarative-preconditions)).
+- **Context-menu commands** — `userCommand` / `messageCommand` with typed `targetUser` / `targetMessage` ([API ref](./docs/api-reference.md#context-menu-commands)).
+- **Preset embeds** — `ctx.success/info/warn/error` and `client.embeds` factory with configurable colors/icons ([API ref](./docs/api-reference.md#embeds--preset-replies)).
+- **Pagination & confirmation** — `paginate(...)` and `confirm(...)` button flows with user-only filter and timeout.
+- **Typed prefix args** — `prefixCommand({ args: a => a.snowflake("target").duration("d").rest("reason"), run: ctx => ctx.options })`.
+- **Primitives** — `KeyedLock`, `safeFetch.{member,channel,...}`, `formatDuration`/`parseDuration`/`discordTimestamp`, `MemoryCache` (TTL + counters + rate limit), `loadConfig` (JSON/JSON5/YAML).
+- **Logger transports** — multi-sink (`consoleSink`, `jsonlSink`, `webhookSink`); per-level routing.
+- **Scheduler extras** — `scheduler.delay/followUp/reconcile` for one-shot jobs and on-ready recovery.
+- **Deploy strategy** — `deployAllCommands({ dryRun, strategy: "diff" })` for safe CI deploys.
 
 ## Documentation
 

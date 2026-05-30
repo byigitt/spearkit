@@ -27,6 +27,12 @@ spearkit discord.js` and the same imports work unchanged.
 | [`logging/`](./logging) | Structured, leveled, scoped logging. |
 | [`usage/`](./usage) | Record who used what (store + Discord channel). |
 | [`env/`](./env) | Load `.env` and read typed env vars. |
+| [`embeds/`](./embeds) | Preset `error/success/info/warn` reply embeds. |
+| [`guards/`](./guards) | Declarative role/permission/owner preconditions. |
+| [`context-menus/`](./context-menus) | User and message context-menu commands. |
+| [`prefix-args/`](./prefix-args) | Typed `ctx.options` for prefix commands. |
+| [`pagination/`](./pagination) | Buttoned paginated embed lists. |
+| [`confirm/`](./confirm) | Yes/no confirmation prompts. |
 | [`drop-in-replacement/`](./drop-in-replacement) | Classic discord.js, imported from spearkit. |
 | [`complete-bot/`](./complete-bot) | Everything wired into one client. |
 

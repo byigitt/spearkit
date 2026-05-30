@@ -473,3 +473,117 @@ class JsonFileUsageStore { constructor(path: string); record; all; }
 class UsageTracker { setStore(store); reportTo(channelId, format?); track(event); store; enabled; }
 // new SpearClient({ usage: { store?, channel?, format? } }); client.usage
 ```
+
+---
+
+## Added in 0.3
+
+Driven by patterns repeated across long-running production bots: the role/
+permission checks, `.catch(() => null)` fetches, embed factories, pagination
+/confirm flows, mention/duration parsing, locks, config loaders and pluggable
+log/usage transports a real Discord bot ends up writing.
+
+### Embeds — preset replies
+
+```ts
+class Embeds { error(input); success(input); info(input); warn(input); build(level, input); }
+function createEmbeds(opts?): Embeds; // alias for new Embeds(opts)
+// SpearClient owns one as `client.embeds`; configure via the `embeds` option.
+// BaseContext gains ctx.success/info/warn/error (state-aware send) + replySuccess/replyInfo/replyWarn/replyError.
+```
+
+### Guards — declarative preconditions
+
+```ts
+type Guard<TCtx extends GuardContext = GuardContext> = (ctx: TCtx) => Awaitable<GuardResult>;
+function denied(reason?: string): GuardResult;
+function guildOnly(reason?: string): Guard;
+function dmOnly(reason?: string): Guard;
+function requireAnyRole(roleIds: readonly string[], reason?: string): Guard;
+function requireAllRoles(roleIds: readonly string[], reason?: string): Guard;
+function requireOwner(ownerIds: readonly string[], reason?: string): Guard;
+function requireUserPermissions(permission: PermissionResolvable, reason?: string): Guard;
+function requireBotPermissions(permission: PermissionResolvable, reason?: string): Guard;
+function guard<TCtx>(predicate: Guard<TCtx>): Guard<TCtx>;
+// per-handler: command({ guards: [...] }), prefixCommand({ guards }), button({ guards }), userCommand({ guards }), ...
+// client-wide: new SpearClient({ guards: [...] })
+```
+
+### Context-menu commands
+
+```ts
+function userCommand({ name, run: (ctx: UserContextMenuContext) => Awaitable<R>, guards?, cooldown? }): UserContextMenu;
+function messageCommand({ name, run: (ctx: MessageContextMenuContext) => Awaitable<R>, guards?, cooldown? }): MessageContextMenu;
+// SpearClient.deployAllCommands deploys slash + context menus in one PUT.
+```
+
+### Prefix typed arguments
+
+```ts
+function prefixArgs(): PrefixArgsBuilder<{}>;
+// builder methods: .string/.integer/.number/.boolean/.snowflake/.duration/.rest
+// prefixCommand<TArgs>({ args: a => a.snowflake("target").duration("dur").rest("reason"), run: ctx => ctx.options }))
+```
+
+### Pagination + Confirmation
+
+```ts
+function paginate<T>(interaction, items, { pageSize, render, user?, timeoutMs?, controls?, ephemeral? }): Promise<void>;
+function buildPaginatorPage<T>(items, page, options): Promise<{ payload; pages }>;
+function confirm(interaction, { title?, body, confirm?, cancel?, user?, timeoutMs?, ephemeral? }): Promise<{ confirmed, reason, interaction? }>;
+```
+
+### Primitives
+
+```ts
+class KeyedLock { tryAcquire(key, ttl?); run(key, fn, { onBusy?, ttl? }); isHeld(key); forget(key); dispose(); }
+const safeFetch = { member, channel, message, user, guild, role, try }; // each returns T | null
+function withSafeTimeout<T>(p: Promise<T>, ms): Promise<T | null>;
+function formatDuration(ms, { locale?: "en" | "tr" | UnitLabels; largest?; units? }): string;
+function parseDuration(input: string): number | null;
+function discordTimestamp(date, style?: "t"|"T"|"d"|"D"|"f"|"F"|"R"): string;
+function relativeTimestamp(date): string;
+interface CacheStore { get; set; delete; has; increment; rateLimit; clear; }
+class MemoryCache implements CacheStore { /* TTL, counter, fixed-window rate limit */ }
+function loadConfig<T>({ file, parser?, schema?, encoding? }): T;
+function loadConfigAsync<T>(opts): Promise<T>;
+function lookup<K, V>(table, resourceName?): (key: K) => V;
+```
+
+### Logger transports
+
+```ts
+new Logger({ level, transports: [consoleSink, jsonlSink("./logs/bot.jsonl"), webhookSink({ url, minLevel: "error" })] });
+function jsonlSink(path: string, { minLevel? }?): LogSink;
+function webhookSink({ url, minLevel?, username? }): LogSink;
+// Logger.addTransport(sink), setTransports([sinks])
+```
+
+### Scheduler — one-shot + reconcile
+
+```ts
+client.scheduler.delay(name, ms, fn) -> { cancel(): boolean };
+client.scheduler.followUp(name, [10_000, 30_000, 60_000], (i) => ...) -> { cancel(): boolean };
+client.scheduler.reconcile("voice-sessions", async (client) => { /* once on ready */ });
+```
+
+### Deploy diff + dry run
+
+```ts
+client.deployAllCommands({ guildId, dryRun: true });            // returns { skipped, body, reason: "dry-run" }
+client.deployAllCommands({ guildId, strategy: "diff" });        // skips PUT when remote matches
+client.deployAllCommands({ applicationId: "...", strategy: "diff" }); // explicit app id, no ready required
+```
+
+### Usage outcome + duration
+
+```ts
+interface UsageEvent {
+  type; name; userId; userTag; guildId; channelId; detail?;
+  outcome?: "success" | "error";
+  durationMs?: number;
+  errorMessage?: string;
+  options?: Record<string, string | number | boolean | null>;
+  timestamp: Date;
+}
+```
