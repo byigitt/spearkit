@@ -2,7 +2,7 @@
  * Locale-aware duration formatter, duration parser and Discord timestamp
  * helpers. Replaces the dozens of inline `Math.floor(s/86400)`/`X gün Y saat`
  * and `<t:${secs}:R>` snippets in production bots, including the duplicate
- * `formatTimeInTurkish` helpers in saniye's prefix/slash temprole commands.
+ * `formatTimeInTurkish`-style helpers duplicated across many bot command files.
  */
 
 /** Discord timestamp style: `t/T/d/D/f/F/R`. */

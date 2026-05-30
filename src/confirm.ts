@@ -1,7 +1,7 @@
 /**
  * Yes/no confirmation prompts: a one-line API for the "are you sure?" flow
- * that bots reimplement every time (saniye-rewrite ships a reaction-based one
- * in commands/prefix/admin/rolereset.ts that this replaces).
+ * Yes/no confirmation prompts: a one-line API for the "are you sure?" flow
+ * that bots reimplement every time (reaction-based, button-based, or modal).
  *
  * @example
  * ```ts

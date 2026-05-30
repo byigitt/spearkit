@@ -2,9 +2,9 @@
  * Typed argument parsing for prefix commands.
  *
  * Real bots reimplement the same mention-or-snowflake / ms-duration /
- * "rest is the reason" parsing in every prefix command (saniye-rewrite has
- * 44+ hand-rolled sites). spearkit lets you declare what you want once and
- * receive a typed `ctx.options` shaped exactly like a slash command's.
+ * "rest is the reason" parsing in every prefix command (44+ hand-rolled sites
+ * is normal). spearkit lets you declare what you want once and receive a
+ * typed `ctx.options` shaped exactly like a slash command's.
  *
  * @example
  * ```ts
