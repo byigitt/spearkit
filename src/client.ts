@@ -233,8 +233,23 @@ export class SpearClient extends Client {
    * Deploy slash commands AND context menus together to Discord in a single
    * PUT. Use this once you mix `userCommand` / `messageCommand` with `command`.
    */
-  async deployAllCommands(options: { guildId?: string } = {}): Promise<DeployResult> {
-    const applicationId = this.application?.id ?? this.user?.id;
+  /**
+   * Deploy slash commands AND context menus together. Supports a `diff`
+   * strategy that fetches the remote set first and skips the PUT when
+   * nothing changed, and a `dryRun` flag that returns the body without
+   * touching Discord (perfect for CI deploy gates).
+   *
+   * @returns the API's DeployResult on PUT, or a skipped report when
+   * `dryRun: true` is set OR `strategy: "diff"` finds no changes.
+   */
+  async deployAllCommands(options: {
+    guildId?: string;
+    dryRun?: boolean;
+    strategy?: "always" | "diff";
+    /** Override the application id (default reads from the ready client). */
+    applicationId?: string;
+  } = {}): Promise<DeployResult | { skipped: true; reason: "dry-run" | "no-changes"; body: readonly unknown[] }> {
+    const applicationId = options.applicationId ?? this.application?.id ?? this.user?.id;
     if (applicationId == null) {
       throw new Error("spearkit: deployAllCommands() must run after the client is ready");
     }
@@ -243,6 +258,15 @@ export class SpearClient extends Client {
       options.guildId !== undefined
         ? Routes.applicationGuildCommands(applicationId, options.guildId)
         : Routes.applicationCommands(applicationId);
+    if (options.dryRun === true) {
+      return { skipped: true, reason: "dry-run", body };
+    }
+    if (options.strategy === "diff") {
+      const remote = (await this.rest.get(route)) as readonly unknown[];
+      if (commandsEqual(body, remote)) {
+        return { skipped: true, reason: "no-changes", body };
+      }
+    }
     return (await this.rest.put(route, { body })) as DeployResult;
   }
 
@@ -272,4 +296,56 @@ export class SpearClient extends Client {
       await this.components.handle(interaction);
     }
   }
+}
+
+/** Structural equality check used by deployAllCommands' diff strategy. */
+function commandsEqual(local: readonly unknown[], remote: readonly unknown[]): boolean {
+  if (local.length !== remote.length) return false;
+  const lset = new Set(local.map(commandHash));
+  for (const r of remote) {
+    if (!lset.has(commandHash(r))) return false;
+  }
+  return true;
+}
+
+function commandHash(cmd: unknown): string {
+  const c = cmd as Record<string, unknown>;
+  return JSON.stringify({
+    name: c.name,
+    type: c.type ?? 1,
+    description: c.description ?? "",
+    nsfw: c.nsfw === true,
+    default_member_permissions: c.default_member_permissions ?? null,
+    contexts: Array.isArray(c.contexts) ? [...(c.contexts as number[])].sort((a, b) => a - b) : null,
+    options: normaliseOptions(c.options),
+  });
+}
+
+function normaliseOptions(options: unknown): readonly unknown[] {
+  if (!Array.isArray(options)) return [];
+  return options
+    .map((o) => {
+      const opt = o as Record<string, unknown>;
+      return {
+        name: opt.name,
+        type: opt.type,
+        description: opt.description ?? "",
+        required: opt.required === true,
+        choices: Array.isArray(opt.choices)
+          ? [...(opt.choices as { name: string; value: unknown }[])]
+              .map((ch) => ({ name: ch.name, value: ch.value }))
+              .sort((a, b) => String(a.name).localeCompare(String(b.name)))
+          : null,
+        options: normaliseOptions(opt.options),
+        channel_types: Array.isArray(opt.channel_types)
+          ? [...(opt.channel_types as number[])].sort((a, b) => a - b)
+          : null,
+        min_value: opt.min_value ?? null,
+        max_value: opt.max_value ?? null,
+        min_length: opt.min_length ?? null,
+        max_length: opt.max_length ?? null,
+        autocomplete: opt.autocomplete === true,
+      };
+    })
+    .sort((a, b) => String(a.name).localeCompare(String(b.name)));
 }

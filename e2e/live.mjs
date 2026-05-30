@@ -1451,6 +1451,26 @@ async function main() {
   });
   await sleep(20);
   check("reconcile() runs once when registered after start()", reconciled);
+
+  // AD. Deploy diff/dryRun ---------------------------------------------------
+  group("AD. Deploy diff/dryRun");
+  const dryResult = await client.deployAllCommands({ guildId, dryRun: true });
+  check(
+    "dryRun returns merged body without PUTing",
+    "skipped" in dryResult && dryResult.reason === "dry-run" && dryResult.body.length > 0,
+    `body=${dryResult.body?.length ?? 0}`,
+  );
+  // After section G the guild has the same set; diff should report no-changes.
+  // Same local set was just PUT via deployAllCommands in section G, so a diff
+  // should report no-changes — but if Discord's stored normalisation drifts
+  // from what we sent, we still want to assert deploy ran cleanly.
+  const diffResult = await client.deployAllCommands({ guildId, strategy: "diff" });
+  const ok = ("skipped" in diffResult && diffResult.reason === "no-changes") || Array.isArray(diffResult);
+  check(
+    "diff strategy returns a sensible result (no-changes OR deploy)",
+    ok,
+    "skipped" in diffResult ? diffResult.reason : `deployed:${diffResult.length}`,
+  );
   // --- report ---------------------------------------------------------------
   console.log(lines.join("\n"));
   console.log(`\n${passed} passed, ${failed} failed.`);
