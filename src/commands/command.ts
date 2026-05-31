@@ -22,6 +22,11 @@ import {
   type ResolvedOptions,
 } from "./options.js";
 import { normalizeCooldown, type CooldownConfig, type CooldownInput } from "../cooldown.js";
+import {
+  normalizeAutoDefer,
+  type AutoDeferConfig,
+  type AutoDeferInput,
+} from "../auto-defer.js";
 import type { Guard } from "../guards.js";
 
 /** Metadata shared by every kind of command. */
@@ -38,6 +43,12 @@ interface CommonMeta {
   cooldown?: CooldownInput;
   /** Preconditions evaluated before the handler runs. */
   guards?: readonly Guard[];
+  /**
+   * Auto-`deferReply()` if the handler hasn't responded within ~2s, preventing
+   * `Unknown interaction` (10062) on slow work. `true` for defaults, or
+   * `{ ephemeral, delayMs }`. With it on, respond via `ctx.send`/`ctx.editReply`.
+   */
+  autoDefer?: AutoDeferInput;
 }
 
 /** Configuration for a leaf (non-subcommand) slash command. */
@@ -99,6 +110,7 @@ interface SlashCommandSpec {
   autocompleter: (interaction: AutocompleteInteraction) => Promise<void>;
   cooldown?: CooldownConfig;
   guards?: readonly Guard[];
+  autoDefer?: AutoDeferConfig;
 }
 
 /**
@@ -118,6 +130,8 @@ export class SlashCommand {
   readonly cooldown?: CooldownConfig;
   /** Resolved guard list for this command, if any. */
   readonly guards?: readonly Guard[];
+  /** Resolved auto-defer configuration for this command, if any. */
+  readonly autoDefer?: AutoDeferConfig;
 
   /** @internal */
   constructor(spec: SlashCommandSpec) {
@@ -128,6 +142,7 @@ export class SlashCommand {
     this.autocompleter = spec.autocompleter;
     this.cooldown = spec.cooldown;
     this.guards = spec.guards;
+    this.autoDefer = spec.autoDefer;
   }
 
   /** Serialise to the discord REST chat-input command payload. */
@@ -249,6 +264,7 @@ export function command<O extends OptionMap = Record<string, never>, R = void>(
     autocompleter: makeAutocompleter(options),
     cooldown: config.cooldown !== undefined ? normalizeCooldown(config.cooldown) : undefined,
     guards: config.guards,
+    autoDefer: normalizeAutoDefer(config.autoDefer),
   });
 }
 
@@ -338,5 +354,6 @@ export function commandGroup(config: CommandGroupConfig): SlashCommand {
     autocompleter,
     cooldown: config.cooldown !== undefined ? normalizeCooldown(config.cooldown) : undefined,
     guards: config.guards,
+    autoDefer: normalizeAutoDefer(config.autoDefer),
   });
 }

@@ -20,6 +20,8 @@ import {
   type CooldownConfig,
 } from "../cooldown.js";
 import type { UsageEvent } from "../usage.js";
+import { armAutoDefer, type AutoDeferConfig } from "../auto-defer.js";
+import { explainDiscordError } from "../discord-errors.js";
 
 /** Error hook invoked when a command handler throws. */
 export type CommandErrorHandler = (
@@ -53,6 +55,7 @@ export class CommandRegistry {
   private defaultCooldown?: CooldownConfig;
   private defaultGuards: readonly Guard[] = [];
   private onUsage?: (event: UsageEvent) => void;
+  private defaultAutoDefer?: AutoDeferConfig;
 
   /** Register one or more commands. Later registrations override by name. */
   add(...commands: SlashCommand[]): this {
@@ -110,6 +113,12 @@ export class CommandRegistry {
     return this;
   }
 
+  /** Default auto-defer applied to commands that don't set their own. */
+  setAutoDefer(config?: AutoDeferConfig): this {
+    this.defaultAutoDefer = config;
+    return this;
+  }
+
   /** Attach a hook called after each successful command execution. */
   setUsageHook(hook: (event: UsageEvent) => void): this {
     this.onUsage = hook;
@@ -151,6 +160,8 @@ export class CommandRegistry {
         return;
       }
     }
+    const autoDefer = command.autoDefer ?? this.defaultAutoDefer;
+    const cancelAutoDefer = autoDefer !== undefined ? armAutoDefer(interaction, autoDefer) : undefined;
     const start = Date.now();
     try {
       await command.execute(interaction);
@@ -184,6 +195,8 @@ export class CommandRegistry {
       } else {
         await this.defaultErrorReply(err, interaction);
       }
+    } finally {
+      cancelAutoDefer?.();
     }
   }
 
@@ -225,7 +238,7 @@ export class CommandRegistry {
     interaction: ChatInputCommandInteraction,
   ): Promise<void> {
     interaction.client.emit("error", error);
-    const content = "Something went wrong while running that command.";
+    const content = explainDiscordError(error) ?? "Something went wrong while running that command.";
     try {
       if (interaction.deferred) {
         await interaction.editReply({ content });

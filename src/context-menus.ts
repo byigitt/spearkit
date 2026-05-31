@@ -35,6 +35,13 @@ import { runGuards, type Guard } from "./guards.js";
 import { defaultEmbeds, type Embeds } from "./embeds.js";
 import type { Logger } from "./logger.js";
 import type { UsageEvent } from "./usage.js";
+import {
+  armAutoDefer,
+  normalizeAutoDefer,
+  type AutoDeferConfig,
+  type AutoDeferInput,
+} from "./auto-defer.js";
+import { explainDiscordError } from "./discord-errors.js";
 
 /** Metadata accepted by both context-menu kinds. */
 interface ContextMenuMeta {
@@ -44,6 +51,8 @@ interface ContextMenuMeta {
   nameLocalizations?: LocalizationMap;
   cooldown?: CooldownInput;
   guards?: readonly Guard[];
+  /** Auto-`deferReply()` if the handler is slow, preventing `Unknown interaction`. */
+  autoDefer?: AutoDeferInput;
 }
 
 /** Configuration for {@link userCommand}. */
@@ -62,6 +71,7 @@ export interface BaseContextMenuCommand {
   readonly name: string;
   readonly cooldown?: CooldownConfig;
   readonly guards?: readonly Guard[];
+  readonly autoDefer?: AutoDeferConfig;
   toJSON(): RESTPostAPIContextMenuApplicationCommandsJSONBody;
 }
 
@@ -126,6 +136,7 @@ export function userCommand<R = void>(config: UserCommandConfig<R>): UserContext
     name: config.name,
     cooldown,
     guards: config.guards,
+    autoDefer: normalizeAutoDefer(config.autoDefer),
     toJSON: () => baseJSON(config, ApplicationCommandType.User),
     execute: async (interaction) => {
       await config.run(new UserContextMenuContext(interaction));
@@ -141,6 +152,7 @@ export function messageCommand<R = void>(config: MessageCommandConfig<R>): Messa
     name: config.name,
     cooldown,
     guards: config.guards,
+    autoDefer: normalizeAutoDefer(config.autoDefer),
     toJSON: () => baseJSON(config, ApplicationCommandType.Message),
     execute: async (interaction) => {
       await config.run(new MessageContextMenuContext(interaction));
@@ -157,6 +169,7 @@ export class ContextMenuRegistry {
   private defaultCooldown?: CooldownConfig;
   private defaultGuards: readonly Guard[] = [];
   private onUsage?: (event: UsageEvent) => void;
+  private defaultAutoDefer?: AutoDeferConfig;
 
   /** Register one or more context-menu commands. */
   add(...commands: readonly ContextMenuCommand[]): this {
@@ -195,6 +208,12 @@ export class ContextMenuRegistry {
 
   setDefaultGuards(guards: readonly Guard[]): this {
     this.defaultGuards = guards;
+    return this;
+  }
+
+  /** Default auto-defer applied to menus that don't set their own. */
+  setAutoDefer(config?: AutoDeferConfig): this {
+    this.defaultAutoDefer = config;
     return this;
   }
 
@@ -247,6 +266,8 @@ export class ContextMenuRegistry {
         return;
       }
     }
+    const autoDefer = command.autoDefer ?? this.defaultAutoDefer;
+    const cancelAutoDefer = autoDefer !== undefined ? armAutoDefer(interaction, autoDefer) : undefined;
     const start = Date.now();
     try {
       if (command.kind === "userMenu") {
@@ -282,16 +303,20 @@ export class ContextMenuRegistry {
         timestamp: new Date(),
       });
       interaction.client.emit("error", err);
+      const content = explainDiscordError(err) ?? "Something went wrong.";
       try {
-        if (!interaction.replied && !interaction.deferred) {
-          await interaction.reply({
-            content: "Something went wrong.",
-            flags: MessageFlags.Ephemeral,
-          });
+        if (interaction.deferred) {
+          await interaction.editReply({ content });
+        } else if (interaction.replied) {
+          await interaction.followUp({ content, flags: MessageFlags.Ephemeral });
+        } else {
+          await interaction.reply({ content, flags: MessageFlags.Ephemeral });
         }
       } catch {
         // Interaction likely expired.
       }
+    } finally {
+      cancelAutoDefer?.();
     }
   }
 }

@@ -20,6 +20,8 @@ import { UsageTracker, type UsageEvent, type UsageOptions } from "./usage.js";
 import { Embeds, type EmbedsOptions } from "./embeds.js";
 import type { Guard } from "./guards.js";
 import { ContextMenuRegistry, type ContextMenuCommand } from "./context-menus.js";
+import { normalizeAutoDefer, type AutoDeferInput } from "./auto-defer.js";
+import { gracefulShutdown, type GracefulShutdownOptions } from "./shutdown.js";
 
 /** Anything that can be handed to {@link SpearClient.register}. */
 export type Registerable =
@@ -75,6 +77,12 @@ export interface SpearOptions {
   embeds?: Embeds | EmbedsOptions;
   /** Default guards (preconditions) applied before every command/component/prefix handler. */
   guards?: readonly Guard[];
+  /**
+   * Default auto-defer for every slash command and context menu (each handler
+   * may override). Prevents `Unknown interaction` (10062) on slow handlers by
+   * deferring automatically just before Discord's 3-second window closes.
+   */
+  autoDefer?: AutoDeferInput;
 }
 
 /** Options for {@link SpearClient}: discord.js options plus {@link SpearOptions}. `intents` may be omitted. */
@@ -117,18 +125,21 @@ export class SpearClient extends Client {
   private readonly envConfig: false | LoadEnvOptions;
 
   constructor(options: SpearClientOptions = {}) {
-    const { intents, logger, dotenv, cooldown, prefix, usage, embeds, guards, ...rest } = options;
+    const { intents, logger, dotenv, cooldown, prefix, usage, embeds, guards, autoDefer, ...rest } = options;
     super({ ...rest, intents: intents ?? Intents.default });
     this.embeds = embeds instanceof Embeds ? embeds : new Embeds(embeds);
     this.envConfig = dotenv === false ? false : dotenv === undefined || dotenv === true ? {} : dotenv;
     this.logger = logger instanceof Logger ? logger : new Logger(logger);
     const defaultCooldown = cooldown !== undefined ? normalizeCooldown(cooldown) : undefined;
+    const defaultAutoDefer = normalizeAutoDefer(autoDefer);
 
     this.commands.setLogger(this.logger.child("commands"));
     this.commands.setCooldowns(this.cooldowns, defaultCooldown);
+    this.commands.setAutoDefer(defaultAutoDefer);
     this.components.setLogger(this.logger.child("components"));
     this.contextMenus.setLogger(this.logger.child("contextMenus"));
     this.contextMenus.setCooldowns(this.cooldowns, defaultCooldown);
+    this.contextMenus.setAutoDefer(defaultAutoDefer);
     this.prefix.setLogger(this.logger.child("prefix"));
     this.prefix.setCooldowns(this.cooldowns, defaultCooldown);
     if (prefix !== undefined) this.prefix.setOptions(prefix);
@@ -281,6 +292,22 @@ export class SpearClient extends Client {
   override async destroy(): Promise<void> {
     this.scheduler.stop();
     await super.destroy();
+  }
+
+  /**
+   * Close the bot cleanly on `SIGINT`/`SIGTERM`: run an optional hook, then
+   * `destroy()` (stopping the scheduler and gateway), then exit. Returns a
+   * disposer that removes the signal handlers. Logs progress via `client.logger`.
+   */
+  enableGracefulShutdown(options: GracefulShutdownOptions = {}): () => void {
+    const log = this.logger.child("shutdown");
+    return gracefulShutdown(this, {
+      logger: {
+        info: (message) => log.info(message),
+        error: (message, meta) => log.error(message, { error: toError(meta) }),
+      },
+      ...options,
+    });
   }
 
   private async route(interaction: Interaction): Promise<void> {
