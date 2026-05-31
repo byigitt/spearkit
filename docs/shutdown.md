@@ -1,0 +1,42 @@
+# Graceful shutdown
+
+A `Ctrl-C` or a container stop sends your process a signal. If you don't handle
+it, the process dies mid-flight — the gateway connection, scheduler timers, and
+any open database handles are reaped abruptly. Graceful shutdown runs an optional
+cleanup hook, calls `client.destroy()` (which also stops spearkit's scheduler),
+then exits — with a hard timeout so a wedged shutdown can't hang forever.
+
+## On a SpearClient
+
+```ts
+client.enableGracefulShutdown({
+  onShutdown: () => db.close(), // flush state before we exit
+});
+await client.start();
+```
+
+Progress is logged through `client.logger`. The method returns a disposer that
+removes the signal handlers (useful for tests / hot-reload).
+
+## Standalone
+
+`gracefulShutdown(client, options)` works with any object that has a `destroy()`
+method:
+
+```ts
+import { gracefulShutdown } from "spearkit";
+
+gracefulShutdown(client, { onShutdown: () => db.close() });
+```
+
+## Options
+
+| Field | Default | Meaning |
+| --- | --- | --- |
+| `signals` | `["SIGINT", "SIGTERM"]` | Signals to listen for. |
+| `timeoutMs` | `10000` | Force-exit if shutdown exceeds this. |
+| `onShutdown` | — | Runs before `destroy()`; receives the signal. |
+| `exit` | `true` | Call `process.exit()` when done (set `false` in tests). |
+| `logger` | — | `{ info?, error? }` progress logger. |
+
+Shutdown runs **once** — repeated signals during teardown are ignored.
