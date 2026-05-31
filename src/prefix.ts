@@ -39,6 +39,13 @@ export interface PrefixOptions {
   ignoreBots?: boolean;
   /** Match command names case-insensitively. Default `true`. */
   caseInsensitive?: boolean;
+  /**
+   * Resolve extra prefix(es) per message — e.g. a custom per-guild prefix from a
+   * database or {@link createSettings}. Returned prefixes are tried in addition
+   * to any static `prefix`. Return `null`/`undefined` for none. Keep it fast
+   * (and cached): it runs on every candidate message.
+   */
+  dynamic?: (message: Message) => Awaitable<string | readonly string[] | null | undefined>;
 }
 
 /** Configuration for a prefix command. */
@@ -157,6 +164,7 @@ interface ResolvedPrefixOptions {
   mention: boolean;
   ignoreBots: boolean;
   caseInsensitive: boolean;
+  dynamic?: (message: Message) => Awaitable<string | readonly string[] | null | undefined>;
 }
 
 function resolveOptions(input: string | readonly string[] | PrefixOptions): ResolvedPrefixOptions {
@@ -171,6 +179,7 @@ function resolveOptions(input: string | readonly string[] | PrefixOptions): Reso
     mention: options.mention ?? true,
     ignoreBots: options.ignoreBots ?? true,
     caseInsensitive: options.caseInsensitive ?? true,
+    dynamic: options.dynamic,
   };
 }
 
@@ -269,8 +278,12 @@ export class PrefixRegistry {
   }
 
   /** Strip a matching prefix (or bot mention) from `content`, or return `null`. */
-  private stripPrefix(content: string, botId: string | undefined): string | null {
-    for (const prefix of this.options.prefixes) {
+  private stripPrefix(
+    content: string,
+    botId: string | undefined,
+    prefixes: readonly string[],
+  ): string | null {
+    for (const prefix of prefixes) {
       if (prefix.length > 0 && content.startsWith(prefix)) return content.slice(prefix.length);
     }
     if (this.options.mention && botId !== undefined) {
@@ -280,15 +293,27 @@ export class PrefixRegistry {
     return null;
   }
 
+  /** Resolve the effective prefixes for a message: static plus any dynamic ones. */
+  private async resolvePrefixes(message: Message): Promise<string[]> {
+    if (this.options.dynamic === undefined) return this.options.prefixes;
+    const extra = await this.options.dynamic(message);
+    if (extra === null || extra === undefined) return this.options.prefixes;
+    const list = typeof extra === "string" ? [extra] : extra;
+    return [...this.options.prefixes, ...list];
+  }
+
   /**
    * Parse and dispatch a message. Returns `true` when a command ran (or was
    * blocked by a cooldown), `false` when the message was not a prefix command.
    */
   async handle(message: Message): Promise<boolean> {
-    if (this.options.prefixes.length === 0 && !this.options.mention) return false;
+    const hasMatcher =
+      this.options.prefixes.length > 0 || this.options.mention || this.options.dynamic !== undefined;
+    if (!hasMatcher) return false;
     if (this.options.ignoreBots && message.author.bot) return false;
 
-    const stripped = this.stripPrefix(message.content, message.client.user?.id);
+    const prefixes = await this.resolvePrefixes(message);
+    const stripped = this.stripPrefix(message.content, message.client.user?.id, prefixes);
     if (stripped === null) return false;
 
     const trimmed = stripped.trimStart();
