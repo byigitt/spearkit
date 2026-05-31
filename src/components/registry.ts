@@ -16,6 +16,7 @@ import type { Logger } from "../logger.js";
 import type { UsageEvent } from "../usage.js";
 import { runGuards, type Guard } from "../guards.js";
 import { defaultEmbeds, type Embeds } from "../embeds.js";
+import { explainDiscordError } from "../discord-errors.js";
 
 /** Shared shape of every routed component. */
 interface RouteBase {
@@ -248,10 +249,13 @@ export class ComponentRegistry {
         await this.errorHandler(err, interaction);
       } else {
         interaction.client.emit("error", err);
-        if (!interaction.replied && !interaction.deferred) {
-          await interaction
-            .reply({ content: "Something went wrong.", flags: MessageFlags.Ephemeral })
-            .catch(() => undefined);
+        const content = explainDiscordError(err) ?? "Something went wrong.";
+        if (interaction.deferred) {
+          await interaction.editReply({ content }).catch(() => undefined);
+        } else if (interaction.replied) {
+          await interaction.followUp({ content, flags: MessageFlags.Ephemeral }).catch(() => undefined);
+        } else {
+          await interaction.reply({ content, flags: MessageFlags.Ephemeral }).catch(() => undefined);
         }
       }
     }
