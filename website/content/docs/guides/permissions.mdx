@@ -1,0 +1,66 @@
+---
+title: "Permissions & hierarchy"
+description: "Moderation commands fail in two predictable ways: the bot lacks a permission in the channel (Missing Permissions, 50013), or the target sits above the bot (or the moderator) in…"
+---
+
+## Did the bot/user get the permissions? (zero-fetch)
+
+Every interaction carries the bot's and the invoker's resolved permissions for
+the current channel. `ctx.botMissing(...)` / `ctx.userMissing(...)` read them
+with no API calls and return the **missing** flag names:
+
+```ts
+import { PermissionFlagsBits, command, formatPermissions } from "spearkit";
+
+export const slowmode = command({
+  name: "slowmode",
+  description: "Set channel slowmode",
+  run: async (ctx) => {
+    const missing = ctx.botMissing(PermissionFlagsBits.ManageChannels);
+    if (missing.length > 0) return ctx.error(`I need: ${formatPermissions(missing)}`);
+    // …
+  },
+});
+```
+
+`formatPermissions(...)` renders flag names as a friendly list
+(`"Manage Channels, Ban Members"`).
+
+## Permissions in another channel
+
+For a channel other than the current one, use the standalone helpers:
+
+```ts
+import { botMissingPermissions, hasPermissions, missingPermissions } from "spearkit";
+
+const missing = botMissingPermissions(targetChannel, [PermissionFlagsBits.SendMessages]);
+if (missing.length > 0) return ctx.error("I can't post there.");
+
+// or for a specific member/role:
+hasPermissions(targetChannel, member, PermissionFlagsBits.ViewChannel); // boolean
+missingPermissions(targetChannel, role, [PermissionFlagsBits.Connect]); // PermissionsString[]
+```
+
+## Role hierarchy
+
+`moderationCheck(...)` validates both the moderator and the bot against a target,
+returning a ready-to-show reason on the first failing rule (self, server owner,
+moderator hierarchy, bot hierarchy):
+
+```ts
+import { moderationCheck } from "spearkit";
+
+const moderator = await ctx.guild!.members.fetch(ctx.user.id);
+const check = moderationCheck({ moderator, target, action: "ban" });
+if (!check.ok) return ctx.error(check.reason);
+await target.ban();
+```
+
+The `me` (bot) member defaults to `target.guild.members.me`; pass `me: null` to
+skip the bot check. `action` is the verb used in messages (default `"moderate"`).
+
+Lower-level primitives are exported too:
+
+- `canActOn(actor, target)` — boolean: not self, target isn't the owner, actor is
+  the owner or outranks the target.
+- `compareRoles(a, b)` — highest-role position comparison (`>0`, `<0`, `0`).

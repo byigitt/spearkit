@@ -1,12 +1,16 @@
 import {
   MessageFlags,
+  PermissionsBitField,
   type InteractionEditReplyOptions,
   type InteractionReplyOptions,
   type InteractionResponse,
   type Message,
+  type PermissionResolvable,
+  type PermissionsString,
   type RepliableInteraction,
 } from "discord.js";
 import type { Client } from "discord.js";
+import { awaitMessage, type AwaitMessageOptions } from "./collectors.js";
 import { Embeds, defaultEmbeds, type EmbedLevel, type EmbedPresetInput } from "./embeds.js";
 
 /** A client (or anything client-shaped) that may expose a configured {@link Embeds}. */
@@ -132,6 +136,44 @@ export abstract class BaseContext<I extends RepliableInteraction = RepliableInte
     }
   }
 
+  /** The bot's resolved permissions in the current channel. */
+  get botPermissions(): Readonly<PermissionsBitField> {
+    return this.interaction.appPermissions;
+  }
+
+  /**
+   * Permission flag names the BOT is missing in the current channel — empty when
+   * it has them all. Zero-fetch: reads the permissions Discord attached to the
+   * interaction. Use before an action that needs elevated permissions.
+   */
+  botMissing(required: PermissionResolvable): PermissionsString[] {
+    return this.interaction.appPermissions.missing(required);
+  }
+
+  /** Permission flag names the invoking USER is missing in the current channel. */
+  userMissing(required: PermissionResolvable): PermissionsString[] {
+    const held = this.interaction.memberPermissions;
+    if (held === null) return new PermissionsBitField(required).toArray();
+    return held.missing(required);
+  }
+
+  /**
+   * Wait for the next message in this channel from `userId` (defaults to the
+   * invoking user), resolving to it or `null` on timeout. The "type your answer"
+   * flow without hand-rolling a collector.
+   */
+  awaitMessageFrom(
+    userId: string = this.user.id,
+    options: AwaitMessageOptions = {},
+  ): Promise<Message | null> {
+    const channel = this.interaction.channel;
+    if (channel === null || !("awaitMessages" in channel)) return Promise.resolve(null);
+    const extra = options.filter;
+    return awaitMessage(channel, {
+      time: options.time,
+      filter: (message) => message.author.id === userId && (extra?.(message) ?? true),
+    });
+  }
 
   /** Get the configured {@link Embeds} factory — `client.embeds` or the default. */
   protected getEmbeds(): Embeds {
