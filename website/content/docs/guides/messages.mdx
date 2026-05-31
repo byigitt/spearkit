@@ -1,0 +1,33 @@
+---
+title: "Messages & limits"
+description: "Discord caps a message's content at 2000 characters. Long output — a log dump, a list, an AI response — silently fails or throws unless you split it. spearkit ships two helpers…"
+---
+
+## Split long output
+
+`chunkMessage(text, options?)` breaks text into chunks that each fit the limit,
+preferring line boundaries (and word boundaries for an over-long single line) so
+you never lose the tail:
+
+```ts
+import { chunkMessage } from "spearkit";
+
+const parts = chunkMessage(hugeLog); // default max = 2000
+await ctx.reply(parts[0] ?? "(empty)");
+for (const part of parts.slice(1)) await ctx.followUp(part);
+```
+
+Pass `{ max }` to target a smaller budget (e.g. inside a code block or embed
+description). `MESSAGE_CHARACTER_LIMIT` (2000) is exported as the default.
+
+## Truncate
+
+`truncate(text, max, suffix?)` cuts text to `max` characters, appending the
+suffix (default `…`) — the result, suffix included, never exceeds `max`:
+
+```ts
+import { truncate } from "spearkit";
+
+embed.setFooter({ text: truncate(reason, 100) });
+truncate("a very long reason", 10); // → "a very lo…"
+```

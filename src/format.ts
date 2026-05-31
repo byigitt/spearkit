@@ -190,3 +190,85 @@ export function discordTimestamp(date: Date | number, style: DiscordTimestampSty
 export function relativeTimestamp(date: Date | number): string {
   return discordTimestamp(date, "R");
 }
+
+/** The hard cap Discord enforces on a single message's `content`. */
+export const MESSAGE_CHARACTER_LIMIT = 2000;
+
+/**
+ * Truncate `text` to at most `max` characters, appending `suffix` (default `…`)
+ * when it had to cut. The result — suffix included — never exceeds `max`.
+ *
+ * @example
+ * ```ts
+ * truncate("a very long reason", 10); // → "a very lo…"
+ * ```
+ */
+export function truncate(text: string, max: number, suffix = "…"): string {
+  if (max <= 0) return "";
+  if (text.length <= max) return text;
+  if (suffix.length >= max) return suffix.slice(0, max);
+  return text.slice(0, max - suffix.length) + suffix;
+}
+
+/** Options for {@link chunkMessage}. */
+export interface ChunkOptions {
+  /** Maximum characters per chunk. Default {@link MESSAGE_CHARACTER_LIMIT} (2000). */
+  max?: number;
+}
+
+function hardSplit(text: string, max: number): string[] {
+  const out: string[] = [];
+  let rest = text;
+  while (rest.length > max) {
+    const space = rest.lastIndexOf(" ", max);
+    const cut = space > Math.floor(max / 2) ? space : max;
+    out.push(rest.slice(0, cut));
+    rest = rest.slice(cut).replace(/^ /, "");
+  }
+  if (rest.length > 0) out.push(rest);
+  return out;
+}
+
+/**
+ * Split `text` into chunks that each fit within Discord's per-message limit,
+ * breaking on line boundaries (and word boundaries for over-long lines) so you
+ * never silently lose the tail of a long reply.
+ *
+ * @example
+ * ```ts
+ * for (const part of chunkMessage(hugeLog)) await ctx.followUp(part);
+ * ```
+ */
+export function chunkMessage(text: string, options: ChunkOptions = {}): string[] {
+  const max = options.max ?? MESSAGE_CHARACTER_LIMIT;
+  if (max <= 0) throw new RangeError("spearkit: chunkMessage max must be positive");
+  if (text.length === 0) return [];
+  if (text.length <= max) return [text];
+
+  const chunks: string[] = [];
+  let current = "";
+  const flush = (): void => {
+    if (current.length > 0) {
+      chunks.push(current);
+      current = "";
+    }
+  };
+  for (const line of text.split("\n")) {
+    if (line.length > max) {
+      flush();
+      const pieces = hardSplit(line, max);
+      for (let i = 0; i < pieces.length - 1; i++) chunks.push(pieces[i] as string);
+      current = pieces[pieces.length - 1] as string;
+      continue;
+    }
+    const candidate = current.length > 0 ? `${current}\n${line}` : line;
+    if (candidate.length > max) {
+      flush();
+      current = line;
+    } else {
+      current = candidate;
+    }
+  }
+  flush();
+  return chunks;
+}
