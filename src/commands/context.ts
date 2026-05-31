@@ -7,6 +7,12 @@ import type {
   APIModalInteractionResponseCallbackData,
 } from "discord.js";
 import { BaseContext } from "../context.js";
+import {
+  showAndAwaitModal,
+  type AwaitModalOptions,
+  type ModalLike,
+} from "../collectors.js";
+import type { ModalSubmitInteraction } from "discord.js";
 import type { OptionChoice, OptionMap, ResolvedOptions } from "./options.js";
 
 /**
@@ -36,6 +42,14 @@ export class CommandContext<O extends OptionMap = OptionMap> extends BaseContext
     modal: JSONEncodable<APIModalInteractionResponseCallbackData> | ModalComponentData | ModalBuilder,
   ): Promise<void> {
     await this.interaction.showModal(modal);
+  }
+
+  /**
+   * Show a modal and wait for the user to submit it, resolving to the submission
+   * or `null` if they dismiss it / it times out. Scoped to this user and modal.
+   */
+  awaitModal(modal: ModalLike, options?: AwaitModalOptions): Promise<ModalSubmitInteraction | null> {
+    return showAndAwaitModal(this.interaction, modal, options);
   }
 }
 
