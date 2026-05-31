@@ -79,6 +79,9 @@ export const purge = command({
 | `nsfw` | `boolean` | Marks the command age-restricted. |
 | `defaultMemberPermissions` | `PermissionResolvable \| null` | Default permission gate (members without it don't see the command). |
 | `nameLocalizations` / `descriptionLocalizations` | `LocalizationMap` | Per-locale name/description. |
+| `cooldown` | `number \| CooldownConfig` | Rate-limit the command (a number is milliseconds). See [Cooldowns](/docs/guides/cooldown). |
+| `guards` | `readonly Guard[]` | Preconditions run before the handler. See [Guards](/docs/guides/guards). |
+| `autoDefer` | `boolean \| { ephemeral?, delayMs? }` | Auto-`deferReply()` if the handler is slow (>~2s), preventing `Unknown interaction`. Respond via `ctx.send`/`ctx.editReply`. |
 
 ## Subcommands and groups
 
@@ -195,3 +198,5 @@ deploys (no `guildId`) can take up to an hour to propagate.
 - [Components](/docs/guides/components) — buttons, selects, modals.
 - [Client](/docs/guides/client) — registering and deploying from the client.
 - [Contexts](/docs/guides/context) — the reply helpers every handler shares.
+- [Cooldowns](/docs/guides/cooldown) — rate-limit a command with `cooldown`.
+- [Guards](/docs/guides/guards) — gate a command with `guards`.

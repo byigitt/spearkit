@@ -28,9 +28,10 @@ const a = new SpearClient({ intents: Intents.messages });
 const b = new SpearClient();
 ```
 
-The options type is exported as `SpearClientOptions` (`Partial<ClientOptions>`),
-so every other discord.js option (`partials`, `presence`, `sweepers`, …) is
-available.
+The options type is exported as `SpearClientOptions` — `Partial<ClientOptions> &
+SpearOptions`. Every discord.js option (`partials`, `presence`, `sweepers`, …) is
+available, plus spearkit's own: `logger`, `dotenv`, `cooldown`, `prefix`, `usage`,
+`embeds`, `guards` and `autoDefer` (each covered in its own guide).
 
 ### Intents presets
 
@@ -61,26 +62,38 @@ const client = new SpearClient({
 });
 ```
 
-## The three registries
+## Registries and subsystems
 
-Every client owns three registries, each populated by `register` (or `load`):
+Every client owns a set of registries and subsystems, each populated by
+`register` (or `load`) or configured by an option:
 
-| Registry | Property | Holds |
-| -------- | -------- | ----- |
-| `CommandRegistry` | `client.commands` | Slash commands; dispatches chat-input and autocomplete interactions. |
-| `EventRegistry` | `client.events` | Event listeners; attached to the client automatically. |
-| `ComponentRegistry` | `client.components` | Buttons, selects and modals; routes component interactions by custom id. |
+| Member | Type | Holds / does |
+| ------ | ---- | ------------ |
+| `client.commands` | `CommandRegistry` | Slash commands; dispatches chat-input and autocomplete interactions. |
+| `client.events` | `EventRegistry` | Event listeners; attached to the client automatically. |
+| `client.components` | `ComponentRegistry` | Buttons, selects and modals; routed by custom-id namespace. |
+| `client.contextMenus` | `ContextMenuRegistry` | User / message context-menu ("Apps") commands. |
+| `client.prefix` | `PrefixRegistry` | Prefix (text) commands, dispatched from `messageCreate`. |
+| `client.scheduler` | `TaskScheduler` | Cron / interval tasks; started on ready, stopped on `destroy`. |
+| `client.cooldowns` | `CooldownManager` | Shared rate-limit state across commands and prefix commands. |
+| `client.usage` | `UsageTracker` | Records who used what to a store and/or channel. |
+| `client.logger` | `Logger` | Structured, scoped logger used across spearkit. |
+| `client.embeds` | `Embeds` | Preset embed factory behind `ctx.success/error/...`. |
 
-You rarely touch them directly — `register` routes items into the right one —
-but they are public if you need to inspect or manipulate them (e.g.
-`client.commands.size`, `client.commands.toJSON()`).
+You rarely touch the registries directly — `register` routes items into the right
+one — but they are public for inspection and advanced control (e.g.
+`client.commands.size`, `client.commands.toJSON()`). Each subsystem has its own
+guide: [Cooldowns](./cooldown.md), [Scheduled tasks](./scheduler.md),
+[Prefix commands](./prefix.md), [Context menus](./context-menus.md),
+[Logging](./logging.md), [Usage tracking](./usage.md), [Guards](./guards.md).
 
 ## Registering handlers
 
-`client.register(...items)` accepts commands, events and components in a single
-call and routes each to its registry by kind. The accepted union is exported as
-`Registerable` (`SlashCommand | EventDef | ComponentDef`). It returns the client
-for chaining.
+`client.register(...items)` accepts commands, events, components, context-menu
+commands, prefix commands and scheduled tasks in a single call and routes each to
+its registry by kind. The accepted union is exported as `Registerable`
+(`SlashCommand | EventDef | ComponentDef | ScheduledTask | PrefixCommand |
+ContextMenuCommand`). It returns the client for chaining.
 
 ```ts
 import { SpearClient, command, event, button, option } from "spearkit";
@@ -126,8 +139,8 @@ See [Plugins](./plugins.md) for authoring `SpearPlugin`s.
 ## File-based loading
 
 `client.load(dir, options?)` recursively imports a directory and registers every
-command, event and component it exports. It returns the number of items
-registered.
+spearkit-registrable export it finds — commands, events, components, scheduled
+tasks and prefix commands. It returns the number of items registered.
 
 ```ts
 import { SpearClient } from "spearkit";
@@ -175,6 +188,31 @@ await client.start(); // uses DISCORD_TOKEN
 client.once("clientReady", async () => {
   await client.deployCommands({ guildId: process.env.GUILD_ID });
 });
+```
+
+## Reliability: auto-defer and graceful shutdown
+
+A slow handler that doesn't respond within Discord's 3-second window dies with
+`Unknown interaction` (10062). Set `autoDefer` to have spearkit `deferReply()`
+automatically just before that window closes — per handler (`command({ autoDefer:
+true })`, `userCommand`/`messageCommand`) or for every slash + context-menu
+handler at once:
+
+```ts
+const client = new SpearClient({ autoDefer: true });
+// or { ephemeral: true, delayMs: 1500 } for a hidden defer / earlier fire.
+```
+
+With auto-defer on, respond via `ctx.send(...)` or `ctx.editReply(...)` — the
+initial reply slot may already be taken by the safety defer.
+
+`client.enableGracefulShutdown(options?)` closes the bot cleanly on `SIGINT` /
+`SIGTERM`: it runs an optional `onShutdown` hook, calls `destroy()` (stopping the
+scheduler and gateway), and exits, with a hard timeout so a wedged shutdown can't
+hang. It returns a disposer that removes the signal handlers.
+
+```ts
+client.enableGracefulShutdown({ onShutdown: () => db.close() });
 ```
 
 ## Everything discord.js still works

@@ -33,6 +33,13 @@ spearkit discord.js` and the same imports work unchanged.
 | [`prefix-args/`](./prefix-args) | Typed `ctx.options` for prefix commands. |
 | [`pagination/`](./pagination) | Buttoned paginated embed lists. |
 | [`confirm/`](./confirm) | Yes/no confirmation prompts. |
+| [`auto-defer/`](./auto-defer) | Beat the 3-second `Unknown interaction` (10062) error. |
+| [`errors/`](./errors) | Recognise and recover from `DiscordAPIError`. |
+| [`permissions/`](./permissions) | Moderation permission + role-hierarchy preflight. |
+| [`store/`](./store) | Per-guild settings + dynamic prefix, persisted to JSON. |
+| [`collectors/`](./collectors) | Await a reply or a modal submission inline. |
+| [`text/`](./text) | Split long output to the 2000-char limit; truncate. |
+| [`shutdown/`](./shutdown) | Close cleanly on `SIGINT`/`SIGTERM`. |
 | [`drop-in-replacement/`](./drop-in-replacement) | Classic discord.js, imported from spearkit. |
 | [`complete-bot/`](./complete-bot) | Everything wired into one client. |
 

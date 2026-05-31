@@ -6,7 +6,7 @@ outlive your bot.
 
 ## Define a task
 
-Provide exactly one of `cron` or `interval`:
+Provide exactly one of `cron` or `interval` (if both are set, the interval is used):
 
 ```ts
 import { task } from "spearkit";
@@ -55,7 +55,7 @@ Each field supports `*`, ranges (`1-5`), lists (`1,3,5`) and steps (`*/15`).
 When both day-of-month and day-of-week are restricted, a date matches if
 **either** does (standard cron behaviour).
 
-Aliases: `@yearly`, `@monthly`, `@weekly`, `@daily`, `@hourly`.
+Aliases: `@yearly`/`@annually`, `@monthly`, `@weekly`, `@daily`/`@midnight`, `@hourly`.
 
 ```ts
 task({ name: "report", cron: "@daily", run: () => {} });
@@ -69,6 +69,30 @@ Compute the next run yourself with `cron`:
 import { cron } from "spearkit";
 
 const next = cron("*/15 * * * *").next(new Date());
+```
+
+## One-shot jobs, follow-ups and on-ready recovery
+
+Beyond recurring tasks, the scheduler runs one-shot timers (they `unref()`
+themselves, so they never keep the process alive) and a once-on-ready reconciler.
+
+```ts
+// Run once after a delay; returns a cancel handle.
+const handle = client.scheduler.delay("remind", 10 * 60_000, async () => {
+  // …remind the moderator if nothing happened…
+});
+handle.cancel(); // true if it was still pending
+
+// A series of fires measured from "now"; the callback gets the fire index.
+client.scheduler.followUp("escalate", [10_000, 30_000, 60_000], (i) => {
+  // i = 0, then 1, then 2
+});
+
+// Run once the first time the scheduler starts (typically on clientReady) and
+// never again — ideal for restart recovery.
+client.scheduler.reconcile("voice-sessions", async (client) => {
+  // …close orphaned voice sessions, reapply cached state…
+});
 ```
 
 ## The scheduler

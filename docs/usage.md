@@ -1,7 +1,8 @@
 # Usage tracking
 
-Usage tracking records **who used what**: every successful command, component,
-and prefix-command invocation becomes a `UsageEvent` that spearkit can persist to a
+Usage tracking records **who used what**: every command, component, context-menu
+and prefix-command invocation — successful or errored — becomes a `UsageEvent`
+that spearkit can persist to a
 store and/or mirror into a Discord channel. Turn it on with the client's `usage`
 option.
 
@@ -13,13 +14,14 @@ independent sinks:
 | | Logger | Usage tracking |
 | --- | --- | --- |
 | Question | *What is the bot doing?* (diagnostics) | *Who used which feature?* (audit) |
-| Content | Free-form messages, levels, errors, internals | Structured `UsageEvent`s for successful uses |
+| Content | Free-form messages, levels, errors, internals | Structured `UsageEvent`s for every completed use (with its `outcome`) |
 | Sinks | Console / your log pipeline | A database store and/or a Discord channel |
 | Configured by | the `logger` option | the `usage` option |
 
-A failed or errored command shows up in your **logs**; it is not recorded as a
-usage event. Reach for the [logger](./logging.md) for debugging, and usage
-tracking for analytics, audit trails, and "top commands" dashboards.
+Both successes and handler errors are recorded as usage events — an error carries
+`outcome: "error"` and an `errorMessage` — so usage is a complete audit trail.
+The [logger](./logging.md) is for debugging; usage tracking is for analytics,
+audit trails, and "top commands" dashboards.
 
 ## Enabling it
 
@@ -37,8 +39,9 @@ const client = new SpearClient({
 });
 ```
 
-Once enabled, spearkit auto-tracks every successful command, component, and prefix
-command — you write no tracking code in your handlers.
+Once enabled, spearkit auto-tracks every command, component, context-menu and
+prefix-command invocation — successes and errors alike — with no tracking code in
+your handlers.
 
 ## The usage event
 
@@ -46,15 +49,22 @@ Each tracked use is a `UsageEvent`:
 
 ```ts
 interface UsageEvent {
-  type: "command" | "prefix" | "component" | "event";
-  name: string;            // command/component/event name
+  type: UsageType;         // "command" | "prefix" | "component" | "event"
+  name: string;            // command / component / event name
   userId?: string;
   userTag?: string;
   guildId?: string | null;
   channelId?: string | null;
   detail?: string;         // free-form extra detail
+  outcome?: UsageOutcome;  // "success" | "error"
+  durationMs?: number;     // handler wall-clock time
+  options?: Readonly<Record<string, UsageMetaValue>>; // snapshot of typed options
+  errorMessage?: string;   // set when outcome === "error"
   timestamp: Date;
 }
+type UsageType = "command" | "prefix" | "component" | "event";
+type UsageOutcome = "success" | "error";
+type UsageMetaValue = string | number | boolean | null;
 ```
 
 ## Stores (the database)

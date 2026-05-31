@@ -69,6 +69,10 @@ const docs = linkButton({ url: "https://example.com", label: "Docs" });
 `style` accepts the string names `"Primary"`, `"Secondary"`, `"Success"`,
 `"Danger"`, or the `ButtonStyle` enum. It defaults to `"Secondary"`.
 
+All component builders (`button`, the five selects, and `modal`) also accept
+`guards?: readonly Guard[]` — preconditions evaluated before the handler runs.
+See [Guards](/docs/guides/guards).
+
 The `ButtonContext` adds, on top of the shared [reply helpers](/docs/guides/context):
 
 | Member | Description |
@@ -199,6 +203,9 @@ namespace automatically. The `ComponentRegistry` API:
 | `size` | Number registered. |
 | `onError(handler)` | Set the error handler. |
 | `handle(interaction)` | Route an interaction; returns `true` if matched. |
+| `setDefaultGuards(guards)` | Guards run before each component's own guards. |
+
+`setLogger` and `setUsageHook` also exist; the client wires all three for you.
 
 ### Error handling
 

@@ -29,6 +29,25 @@ new SpearClient({
 });
 ```
 
+### Dynamic (per-guild) prefixes
+
+Pass `dynamic` to resolve extra prefix(es) per message — for example a custom
+per-guild prefix from a database or [`createSettings`](/docs/api-reference#persistent-storage).
+Dynamic prefixes are tried in addition to any static `prefix`; return
+`null`/`undefined` for none. It runs on every candidate message, so keep it fast
+(and cached).
+
+```ts
+new SpearClient({
+  intents: Intents.messages,
+  prefix: {
+    prefix: "!", // static fallback
+    dynamic: async (message) =>
+      message.guildId ? await settings.get(message.guildId).then((s) => s.prefix) : null,
+  },
+});
+```
+
 ## You need the MessageContent intent
 
 Reading the text of other users' messages is a **privileged** gateway intent.
@@ -77,6 +96,8 @@ client.register(ping);
 | `aliases` | `string[]` | Extra names that also trigger it. |
 | `description` | `string` | Human description, for your own help command. |
 | `cooldown` | `number \| CooldownConfig` | Per-user rate limit (a number is milliseconds). |
+| `guards` | `readonly Guard[]` | Preconditions run before the handler. See [Guards](/docs/guides/guards). |
+| `args` | `(a) => PrefixArgsBuilder` | Typed argument schema; shapes `ctx.options`. See [Typed arguments](#typed-arguments). |
 | `run` | `(ctx: PrefixContext) => void \| Promise<void>` | The handler. |
 
 ## The prefix context
@@ -90,6 +111,7 @@ adds the parsed arguments plus reply helpers.
 | `ctx.commandName` | The matched name as the user typed it (an alias if they used one). |
 | `ctx.args` | Whitespace-split arguments after the command name (`string[]`). |
 | `ctx.rest` | The raw text after the command name (unsplit). |
+| `ctx.options` | Typed parsed arguments from the `args` schema (`{}` when none). |
 | `ctx.author` / `ctx.member` / `ctx.guild` / `ctx.guildId` / `ctx.channel` / `ctx.channelId` | Actor and location accessors. |
 | `ctx.reply(content)` | Reply to the triggering message. |
 | `ctx.send(content)` | Send a message to the same channel without a reply reference. |
@@ -110,6 +132,38 @@ export const echo = prefixCommand({
 
 `ctx.args` and `ctx.rest` are two views of the same input: `!say hello   world`
 gives `args === ["hello", "world"]` and `rest === "hello   world"`.
+
+## Typed arguments
+
+Pass an `args` schema to parse positional arguments into typed values. Chain
+builder methods — first token → first arg, second → second, and so on — and read
+the result from `ctx.options`. Each method requires a name and takes optional
+settings (`required`, `default`, and per-type bounds).
+
+```ts
+import { prefixCommand } from "spearkit";
+
+export const mute = prefixCommand({
+  name: "mute",
+  description: "Mute a member",
+  args: (a) =>
+    a
+      .snowflake("target", { required: true })       // raw id or <@mention> → string
+      .duration("duration", { required: true })      // "1h30m" → number (ms)
+      .rest("reason", { default: "No reason given" }), // remaining text → string
+  run: (ctx) => {
+    ctx.options.target;   // string
+    ctx.options.duration; // number
+    ctx.options.reason;   // string
+    return ctx.reply(`Muted <@${ctx.options.target}> for ${ctx.options.duration}ms.`);
+  },
+});
+```
+
+Builder methods: `.string`, `.integer`, `.number`, `.boolean`, `.snowflake`,
+`.duration`, `.rest`. A missing required argument — or a value that fails to
+parse — makes spearkit reply with an error and skip the handler. Without an `args`
+schema, `ctx.options` is `{}`; use `ctx.args` / `ctx.rest` for raw access.
 
 ## Aliases
 

@@ -58,6 +58,7 @@ Map the task to the API. Patterns and signatures are below and in `docs/`.
 | A right-click "Apps" action on a user/message | `userCommand` / `messageCommand` |
 | A classic `!text` command | `prefixCommand(...)` + `new SpearClient({ prefix })` |
 | Parse `!cmd` arguments into typed values | `args: (a) => a.snowflake().duration().rest()` → `ctx.options` |
+| Avoid `Unknown interaction` (10062) on slow work | `command({ autoDefer: true })` / `new SpearClient({ autoDefer: true })` |
 
 **Interactivity (components)**
 
@@ -93,6 +94,11 @@ Map the task to the API. Patterns and signatures are below and in `docs/`.
 | Structured logs to file/webhook | `client.logger` + `consoleSink` / `jsonlSink` / `webhookSink` |
 | Track who used what | `new SpearClient({ usage })` + `MemoryUsageStore` / `JsonFileUsageStore` |
 | Read typed env / load `.env` | `env.string/number/boolean/require` (auto-loaded on `start()`) |
+| Shut down cleanly on SIGINT/SIGTERM | `client.enableGracefulShutdown({ onShutdown })` |
+| Permission / role-hierarchy preflight | `moderationCheck(...)`, `missingPermissions(...)`, `canActOn(...)`, `ctx.botMissing(...)` |
+| Wait for a reply / click / modal submission | `ctx.awaitMessageFrom(...)` / `ctx.awaitModal(...)` / `awaitComponent(...)` |
+| Branch on a Discord API error | `isDiscordError(err, DiscordErrorCode.X)` / `explainDiscordError(err)` |
+| Per-guild prefix from a store | `prefix: { dynamic: (message) => ... }` |
 
 **Utilities (primitives)**
 
@@ -104,6 +110,8 @@ Map the task to the API. Patterns and signatures are below and in `docs/`.
 | Render `<t:…>` Discord timestamps | `discordTimestamp` / `relativeTimestamp` |
 | In-memory cache / counters / rate-limit window | `MemoryCache` |
 | Load JSON/JSON5/YAML config | `loadConfig` |
+| Persist key-value data / per-guild settings | `MemoryStore` / `JsonStore` + `createSettings({ store, defaults })` |
+| Split text to Discord's 2000-char limit | `chunkMessage(text)` / `truncate(text, max)` |
 
 ## Canonical patterns
 
@@ -187,7 +195,7 @@ modals add `ctx.fields`.
 `ctx.deferred/replied`. For hidden replies prefer `ctx.replyEphemeral(...)` or
 `ctx.reply({ content, ephemeral: true })` — spearkit normalizes it.
 
-## Subsystems (each has a guide in docs/)
+## Subsystems (most have a dedicated guide in docs/; all are in the API reference)
 
 - **Guards** — `guards: [...]` on `command`/`prefixCommand`/`button`/`userCommand`/
   `messageCommand`, or client-wide `new SpearClient({ guards })`. Helpers:
@@ -218,6 +226,22 @@ modals add `ctx.fields`.
 - **Primitives** — `KeyedLock`, `safeFetch.{member,channel,message,user,guild,role,try}`,
   `formatDuration`/`parseDuration`/`discordTimestamp`/`relativeTimestamp`,
   `MemoryCache`, `loadConfig`.
+- **Auto-defer** — `command({ autoDefer: true | { ephemeral?, delayMs? } })` or
+  `new SpearClient({ autoDefer: true })`; auto-`deferReply()` before Discord's 3s
+  window so slow handlers don't 10062. Respond via `ctx.send`/`ctx.editReply`.
+- **Graceful shutdown** — `client.enableGracefulShutdown({ onShutdown, timeoutMs? })`
+  (or `gracefulShutdown(client, ...)`); clean `SIGINT`/`SIGTERM` teardown.
+- **Permissions & moderation** — `missingPermissions`, `botMissingPermissions`,
+  `hasPermissions`, `compareRoles`, `canActOn`, `moderationCheck`, `formatPermissions`;
+  on context: `ctx.botPermissions`, `ctx.botMissing(...)`, `ctx.userMissing(...)`.
+- **Persistent storage** — `MemoryStore`/`JsonStore` (`KeyValueStore`), `namespaced(...)`,
+  and typed per-guild `createSettings({ store, defaults, namespace? })`.
+- **Collectors** — `ctx.awaitMessageFrom(...)`, `ctx.awaitModal(...)`, plus standalone
+  `awaitMessage`, `awaitComponent`, `showAndAwaitModal` (all resolve `null` on timeout).
+- **Discord errors** — `isDiscordError(err, DiscordErrorCode.X)`, `isHTTPError`,
+  `isRateLimitError`, `explainDiscordError`; named `DiscordErrorCode` map.
+- **Message formatting** — `chunkMessage(text)` (2000-char-safe split), `truncate(text, max)`,
+  `MESSAGE_CHARACTER_LIMIT`.
 
 ## Common mistakes to avoid
 

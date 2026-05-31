@@ -24,17 +24,39 @@ new SpearClient(options?: SpearClientOptions)
 | `commands` | `CommandRegistry` | Slash command registry + dispatcher. |
 | `events` | `EventRegistry` | Event listener registry. |
 | `components` | `ComponentRegistry` | Button/select/modal router. |
+| `logger` | `Logger` | Structured logger (`client.logger.child(scope)` for sub-scopes). |
+| `cooldowns` | `CooldownManager` | Shared cooldown manager (also used by prefix commands). |
+| `scheduler` | `TaskScheduler` | Cron / interval task scheduler. |
+| `prefix` | `PrefixRegistry` | Prefix (text) command registry. |
+| `usage` | `UsageTracker` | Usage tracker — records who used what. |
+| `embeds` | `Embeds` | Preset embed factory behind `ctx.success/error/...`. |
+| `contextMenus` | `ContextMenuRegistry` | User / message context-menu registry. |
 | `register(...items: Registerable[])` | `this` | Route each item to the matching registry. |
 | `use(...plugins: SpearPlugin[])` | `Promise<this>` | Run each plugin's `setup`. |
 | `load(dir: string, options?: LoadOptions)` | `Promise<number>` | Import a directory and register its exports. Returns count. |
 | `start(token?: string)` | `Promise<this>` | Log in (falls back to `DISCORD_TOKEN`). |
 | `deployCommands(options?: { guildId?: string })` | `Promise<DeployResult>` | Push commands using the client's REST. Call after ready. |
+| `deployAllCommands(options?)` | `Promise<DeployResult \| { skipped: true; reason; body }>` | Deploy slash + context menus together; supports `dryRun` and `strategy: "diff"`. |
+| `schedule(config: TaskConfig)` | `ScheduledTask` | Define and register a scheduled task in one call. |
+| `enableGracefulShutdown(options?: GracefulShutdownOptions)` | `() => void` | Tear down cleanly on `SIGINT`/`SIGTERM`; returns a disposer. |
 
 Inherits everything from discord.js `Client` (`on`, `once`, `login`, `ws`, `rest`, `application`, `user`, …).
 
-### `type SpearClientOptions = Partial<ClientOptions>`
+### `type SpearClientOptions = Partial<ClientOptions> & SpearOptions`
 
-Same as discord.js `ClientOptions`, but `intents` may be omitted (defaults to `Intents.default`).
+discord.js `ClientOptions` (with `intents` optional — it defaults to
+`Intents.default`) intersected with spearkit's own options (`SpearOptions`):
+
+| Option | Type | Configures |
+| ------ | ---- | ---------- |
+| `logger` | `Logger \| LoggerOptions` | The `client.logger`. |
+| `dotenv` | `boolean \| LoadEnvOptions` | Auto-load `.env` on `start()` (default `true`). |
+| `cooldown` | `CooldownInput` | Default cooldown applied to every command. |
+| `prefix` | `string \| readonly string[] \| PrefixOptions` | Enable prefix commands. |
+| `usage` | `UsageOptions` | Usage-tracking store and/or channel. |
+| `embeds` | `Embeds \| EmbedsOptions` | Preset embed factory. |
+| `guards` | `readonly Guard[]` | Default guards run before every handler. |
+| `autoDefer` | `AutoDeferInput` | Default auto-defer for slash + context-menu handlers. |
 
 ### `const Intents`
 
@@ -48,7 +70,7 @@ Ready-made intent presets (arrays of `GatewayIntentBits`).
 | `Intents.messages` | `[Guilds, GuildMessages, MessageContent]` |
 | `Intents.all` | Every intent (includes privileged). |
 
-### `type Registerable = SlashCommand | EventDef | ComponentDef`
+### `type Registerable = SlashCommand | EventDef | ComponentDef | ScheduledTask | PrefixCommand | ContextMenuCommand`
 
 The union accepted by `SpearClient.register`.
 
@@ -70,6 +92,9 @@ interface CommandConfig<O extends OptionMap, R> {
   guildOnly?: boolean;
   nameLocalizations?: LocalizationMap;
   descriptionLocalizations?: LocalizationMap;
+  cooldown?: CooldownInput;
+  guards?: readonly Guard[];
+  autoDefer?: AutoDeferInput;
   run: (ctx: CommandContext<O>) => Awaitable<R>;
 }
 ```
@@ -89,6 +114,9 @@ interface CommandGroupConfig {
   guildOnly?: boolean;
   nameLocalizations?: LocalizationMap;
   descriptionLocalizations?: LocalizationMap;
+  cooldown?: CooldownInput;
+  guards?: readonly Guard[];
+  autoDefer?: AutoDeferInput;
 }
 ```
 
@@ -124,6 +152,9 @@ interface SubcommandGroupConfig {
 | `toJSON()` | `RESTPostAPIChatInputApplicationCommandsJSONBody` | REST payload. |
 | `execute(interaction)` | `Promise<void>` | Run for a chat-input interaction. |
 | `autocomplete(interaction)` | `Promise<void>` | Run autocomplete for the focused option. |
+| `cooldown` | `CooldownConfig \| undefined` | Resolved cooldown, when set. |
+| `guards` | `readonly Guard[] \| undefined` | Guards run before `execute`. |
+| `autoDefer` | `AutoDeferConfig \| undefined` | Resolved auto-defer config, when set. |
 
 ### `class CommandContext<O> extends BaseContext<ChatInputCommandInteraction>`
 
@@ -133,6 +164,7 @@ interface SubcommandGroupConfig {
 | `commandName` | `string` | Invoked command name. |
 | `subcommand` | `string \| null` | Invoked subcommand, if any. |
 | `showModal(modal)` | `Promise<void>` | Present a modal. |
+| `awaitModal(modal, options?)` | `Promise<ModalSubmitInteraction \| null>` | Show a modal and await its submission (scoped to this user). |
 
 Plus all `BaseContext` members.
 
@@ -151,6 +183,10 @@ Plus all `BaseContext` members.
 | `handle(interaction)` | `Promise<void>` | Dispatch a chat-input interaction. |
 | `handleAutocomplete(interaction)` | `Promise<void>` | Dispatch an autocomplete interaction. |
 | `deploy(options: DeployOptions)` | `Promise<DeployResult>` | Push commands to discord. |
+| `setLogger(logger: Logger)` | `this` | Attach a debug logger for dispatch tracing. |
+| `setCooldowns(manager: CooldownManager, default?: CooldownConfig)` | `this` | Wire a shared cooldown manager and optional default. |
+| `setDefaultGuards(guards: readonly Guard[])` | `this` | Guards run before each command's own guards. |
+| `setUsageHook(hook: (event: UsageEvent) => void)` | `this` | Called after each dispatch (success or error). |
 
 ```ts
 type CommandErrorHandler = (error: Error, interaction: ChatInputCommandInteraction) => Awaitable<void>;
@@ -288,6 +324,7 @@ interface ButtonConfig<P extends string, R> {
   style?: ButtonStyleInput;    // "Primary" | "Secondary" | "Success" | "Danger" | ButtonStyle.*
   emoji?: ComponentEmojiResolvable;
   disabled?: boolean;
+  guards?: readonly Guard[];
   run: (ctx: ButtonContext<Params<P>>) => Awaitable<R>;
 }
 
@@ -297,11 +334,13 @@ interface StringSelectConfig<P extends string, R> {
   id: P;
   options: readonly SelectMenuComponentOptionData[];
   placeholder?: string; minValues?: number; maxValues?: number; disabled?: boolean;
+  guards?: readonly Guard[];
   run: (ctx: StringSelectContext<Params<P>>) => Awaitable<R>;
 }
 
 interface EntitySelectConfig<P extends string> {
   id: P; placeholder?: string; minValues?: number; maxValues?: number; disabled?: boolean;
+  guards?: readonly Guard[];
 }
 // user/role/mentionable selects take EntitySelectConfig & { run };
 // channelSelect additionally takes { channelTypes?: readonly ChannelType[] }.
@@ -316,6 +355,7 @@ interface ModalConfig<P extends string, F extends Record<string, TextInputDef>, 
   id: P;
   title: string;
   fields: F;
+  guards?: readonly Guard[];
   run: (ctx: ModalContext<Params<P>, keyof F & string>) => Awaitable<R>;
 }
 ```
@@ -324,7 +364,7 @@ interface ModalConfig<P extends string, F extends Record<string, TextInputDef>, 
 
 | Class | Extra members |
 | ----- | ------------- |
-| `MessageComponentContext<P, I>` | `params`, `customId`, `message`, `update(input)`, `deferUpdate()`, `showModal(modal)` (+ BaseContext) |
+| `MessageComponentContext<P, I>` | `params`, `customId`, `message`, `update(input)`, `deferUpdate()`, `showModal(modal)`, `awaitModal(modal, options?)` (+ BaseContext) |
 | `ButtonContext<P>` | — |
 | `StringSelectContext<P>` | `values: string[]`, `value: string \| undefined` |
 | `UserSelectContext<P>` | `values`, `users`, `members` |
@@ -341,6 +381,9 @@ interface ModalConfig<P extends string, F extends Record<string, TextInputDef>, 
 | `onError(handler: ComponentErrorHandler)` | `this` | Set the error handler. |
 | `size` | `number` | Count. |
 | `handle(interaction: Interaction)` | `Promise<boolean>` | Route an interaction; `true` if matched. |
+| `setLogger(logger: Logger)` | `this` | Debug logger for dispatch tracing. |
+| `setUsageHook(hook: (event: UsageEvent) => void)` | `this` | Called after each component run (success or error). |
+| `setDefaultGuards(guards: readonly Guard[])` | `this` | Guards run before each component's own guards. |
 
 ```ts
 type ComponentErrorHandler = (error: Error, interaction: RepliableInteraction) => Awaitable<void>;
@@ -380,7 +423,14 @@ The base for every interaction context.
 | `editReply(input)` | `Promise<Message>` | Edit the response. |
 | `followUp(input)` | `Promise<Message>` | Additional message. |
 | `send(input)` | `Promise<void>` | State-aware reply/edit/followUp. |
-| `error(message)` | `Promise<void>` | State-aware ephemeral error. |
+| `error(input, options?)` | `Promise<void>` | State-aware preset error embed; defaults to ephemeral (pass `{ ephemeral: false }` to override). |
+| `success` / `info` / `warn` `(input, options?)` | `Promise<void>` | State-aware preset embeds (green / blue / yellow). |
+| `replyError(input, options?)` | `Promise<InteractionResponse>` | Initial-reply error embed; defaults to ephemeral. |
+| `replySuccess` / `replyInfo` / `replyWarn` `(input, options?)` | `Promise<InteractionResponse>` | Initial-reply preset embeds. |
+| `botPermissions` | `Readonly<PermissionsBitField>` | The bot's resolved permissions in the channel (zero-fetch). |
+| `botMissing(required)` | `PermissionsString[]` | Permission names the bot is missing here. |
+| `userMissing(required)` | `PermissionsString[]` | Permission names the invoking user is missing here. |
+| `awaitMessageFrom(userId?, options?)` | `Promise<Message \| null>` | Wait for the next message from a user in this channel. |
 
 ```ts
 type ReplyData = InteractionReplyOptions & { ephemeral?: boolean };
@@ -415,12 +465,12 @@ function loadInto(client: SpearClient, dir: string, options?: LoadOptions): Prom
 ## Added in 0.2
 
 New subsystems, each with a dedicated guide. The `SpearClient` options
-`{ logger?, dotenv?, cooldown?, prefix?, usage? }` configure them.
+`{ logger?, dotenv?, cooldown?, prefix?, usage?, embeds?, guards? }` configure them.
 
 ### Logging — [guide](./logging.md)
 
 ```ts
-class Logger { debug/info/warn/error(message: string, options?: { error?: Error; data?: Record<string, LogValue> }): void; child(scope: string): Logger; setLevel(level: LogThreshold): this; enabled(level: LogLevel): boolean; }
+class Logger { log(level, message, options?): void; debug/info/warn/error(message: string, options?: { error?: Error; data?: Record<string, LogValue> }): void; child(scope: string): Logger; setLevel(level: LogThreshold): this; enabled(level: LogLevel): boolean; addTransport(sink): this; setTransports(sinks): this; }
 type LogLevel = "debug" | "info" | "warn" | "error";
 type LogThreshold = LogLevel | "silent";
 function consoleSink(entry: LogEntry): void;
@@ -442,6 +492,13 @@ const env: { string(k, fallback?); number(k, fallback?); boolean(k, fallback?); 
 ```ts
 interface CooldownConfig { duration: number; scope?: "user" | "guild" | "channel" | "global"; exempt?: { users?: string[]; roles?: string[] }; overrides?: { users?: Record<string, number>; roles?: Record<string, number> }; message?: string | ((remainingMs: number) => string); }
 class CooldownManager { consume(bucket, input, actor, now?); peek(...); reset(...); clear(); }
+type CooldownInput = number | CooldownConfig;       // a bare ms duration, or a full config
+type CooldownScope = "user" | "guild" | "channel" | "global";
+type CooldownResult = { allowed: true } | { allowed: false; remaining: number };
+interface CooldownActor { userId; roleIds; guildId; channelId; }   // also: CooldownExemptions, CooldownOverrides
+function normalizeCooldown(input: CooldownInput): CooldownConfig;
+function effectiveDuration(config: CooldownConfig, actor: CooldownActor): number | null; // null = exempt
+function formatCooldownMessage(config: CooldownConfig, remainingMs: number): string;
 // command({ cooldown: number | CooldownConfig }); new SpearClient({ cooldown }); client.cooldowns
 ```
 
@@ -450,15 +507,15 @@ class CooldownManager { consume(bucket, input, actor, now?); peek(...); reset(..
 ```ts
 function task(config: { name: string; cron?: string; interval?: number; runOnStart?: boolean; run: (client: SpearClient) => Awaitable<void> }): ScheduledTask;
 function cron(expression: string): CronExpression; // .next(from?: Date): Date
-class TaskScheduler { add/remove/list/size/active/start/stop }
+class TaskScheduler { add/remove/list/size/active/start/stop/setLogger; delay/followUp/reconcile (see "Scheduler — one-shot + reconcile") }
 // client.register(task(...)); client.schedule(config); client.scheduler
 ```
 
 ### Prefix commands — [guide](./prefix.md)
 
 ```ts
-function prefixCommand(config: { name: string; aliases?: string[]; description?: string; cooldown?: CooldownInput; run: (ctx: PrefixContext) => Awaitable<R> }): PrefixCommand;
-class PrefixContext { message; commandName; args: string[]; rest: string; reply(content); send(content); }
+function prefixCommand<TArgs, R>(config: { name: string; aliases?: readonly string[]; description?: string; cooldown?: CooldownInput; guards?: readonly Guard[]; args?: (a: PrefixArgsBuilder<{}>) => PrefixArgsBuilder<TArgs>; run: (ctx: PrefixContext<TArgs>) => Awaitable<R> }): PrefixCommand;
+class PrefixContext<TArgs> { message; commandName; args: string[]; rest: string; options: TArgs; client; author; member; guild; guildId; channel; channelId; reply(content); send(content); }
 // new SpearClient({ prefix: "!" | string[] | { prefix, mention?, ignoreBots?, caseInsensitive? } }); client.prefix
 // reading others' content needs the privileged MessageContent intent (Intents.messages)
 ```
@@ -466,7 +523,11 @@ class PrefixContext { message; commandName; args: string[]; rest: string; reply(
 ### Usage tracking — [guide](./usage.md)
 
 ```ts
-interface UsageEvent { type: "command" | "prefix" | "component" | "event"; name: string; userId?; userTag?; guildId?; channelId?; detail?; timestamp: Date; }
+interface UsageEvent { type: UsageType; name: string; userId?; userTag?; guildId?; channelId?; detail?; outcome?: UsageOutcome; durationMs?: number; options?: Readonly<Record<string, UsageMetaValue>>; errorMessage?: string; timestamp: Date; }
+type UsageType = "command" | "prefix" | "component" | "event";
+type UsageOutcome = "success" | "error";
+type UsageMetaValue = string | number | boolean | null;
+function formatUsage(event: UsageEvent): string; // default channel-line renderer
 interface UsageStore { record(event): Awaitable<void>; all(): Awaitable<readonly UsageEvent[]>; }
 class MemoryUsageStore { record; all; size; byUser(id); clear; }
 class JsonFileUsageStore { constructor(path: string); record; all; }
@@ -486,16 +547,22 @@ log/usage transports a real Discord bot ends up writing.
 ### Embeds — preset replies
 
 ```ts
-class Embeds { error(input); success(input); info(input); warn(input); build(level, input); }
-function createEmbeds(opts?): Embeds; // alias for new Embeds(opts)
+class Embeds { constructor(options?: EmbedsOptions); error(input); success(input); info(input); warn(input); build(level, input); readonly colors: EmbedColors; readonly icons: EmbedIcons; }
+const defaultEmbeds: Embeds;                 // shared default used when `client.embeds` is unset
+const DEFAULT_EMBED_COLORS: EmbedColors;     // red / green / blue / yellow
+const DEFAULT_EMBED_ICONS: EmbedIcons;       // ⛔ ✅ ℹ️ ⚠️
 // SpearClient owns one as `client.embeds`; configure via the `embeds` option.
 // BaseContext gains ctx.success/info/warn/error (state-aware send) + replySuccess/replyInfo/replyWarn/replyError.
 ```
 
-### Guards — declarative preconditions
+### Guards — declarative preconditions — [guide](./guards.md)
 
 ```ts
 type Guard<TCtx extends GuardContext = GuardContext> = (ctx: TCtx) => Awaitable<GuardResult>;
+interface GuardContext { client; user; member; guild; guildId; channelId; }
+type GuardResult = boolean | { allowed: false; reason?: string };
+type RunGuardsResult = { allowed: true } | { allowed: false; reason: string | undefined };
+function runGuards<TCtx extends GuardContext>(ctx: TCtx, guards?: readonly Guard<TCtx>[]): Promise<RunGuardsResult>;
 function denied(reason?: string): GuardResult;
 function guildOnly(reason?: string): Guard;
 function dmOnly(reason?: string): Guard;
@@ -505,49 +572,62 @@ function requireOwner(ownerIds: readonly string[], reason?: string): Guard;
 function requireUserPermissions(permission: PermissionResolvable, reason?: string): Guard;
 function requireBotPermissions(permission: PermissionResolvable, reason?: string): Guard;
 function guard<TCtx>(predicate: Guard<TCtx>): Guard<TCtx>;
+// every built-in guard takes an optional custom `reason`; each has a sensible default message.
 // per-handler: command({ guards: [...] }), prefixCommand({ guards }), button({ guards }), userCommand({ guards }), ...
 // client-wide: new SpearClient({ guards: [...] })
 ```
 
-### Context-menu commands
+### Context-menu commands — [guide](./context-menus.md)
 
 ```ts
-function userCommand({ name, run: (ctx: UserContextMenuContext) => Awaitable<R>, guards?, cooldown? }): UserContextMenu;
-function messageCommand({ name, run: (ctx: MessageContextMenuContext) => Awaitable<R>, guards?, cooldown? }): MessageContextMenu;
-// SpearClient.deployAllCommands deploys slash + context menus in one PUT.
+interface ContextMenuMeta { defaultMemberPermissions?: PermissionResolvable | null; nsfw?: boolean; guildOnly?: boolean; nameLocalizations?: LocalizationMap; cooldown?: CooldownInput; guards?: readonly Guard[]; autoDefer?: AutoDeferInput; }
+function userCommand<R>(config: ContextMenuMeta & { name: string; run: (ctx: UserContextMenuContext) => Awaitable<R> }): UserContextMenu;
+function messageCommand<R>(config: ContextMenuMeta & { name: string; run: (ctx: MessageContextMenuContext) => Awaitable<R> }): MessageContextMenu;
+// UserContextMenuContext adds ctx.targetUser, ctx.targetMember; MessageContextMenuContext adds ctx.targetMessage (+ BaseContext).
+// ContextMenuCommand = UserContextMenu | MessageContextMenu; client.contextMenus is a ContextMenuRegistry.
+// Deploy slash commands + menus together with client.deployAllCommands({ guildId }).
 ```
 
 ### Prefix typed arguments
 
 ```ts
 function prefixArgs(): PrefixArgsBuilder<{}>;
-// builder methods: .string/.integer/.number/.boolean/.snowflake/.duration/.rest
-// prefixCommand<TArgs>({ args: a => a.snowflake("target").duration("dur").rest("reason"), run: ctx => ctx.options }))
+// builder methods — each requires a `name` and takes an optional options object:
+//   .string(name, { required?, minLength?, maxLength?, default? })   -> string
+//   .integer(name, { required?, minValue?, maxValue?, default? })    -> number
+//   .number(name,  { required?, minValue?, maxValue?, default? })    -> number
+//   .boolean(name, { required?, default? })                          -> boolean
+//   .snowflake(name, { required?, default? })   -> string (accepts raw ids and <@u>/<#c>/<@&r> mentions)
+//   .duration(name, { required?, default? })    -> number ("1h30m" parsed to ms)
+//   .rest(name, { required?, default? })        -> string (remaining text)
+// prefixCommand({ args: (a) => a.snowflake("target", { required: true }).duration("dur").rest("reason", { default: "No reason" }), run: (ctx) => ctx.options });
 ```
 
 ### Pagination + Confirmation
 
 ```ts
-function paginate<T>(interaction, items, { pageSize, render, user?, timeoutMs?, controls?, ephemeral? }): Promise<void>;
+function paginate<T>(interaction, items, { render, pageSize?, user?, timeoutMs?, controls?: "prev-next" | "first-prev-next-last", ephemeral?, namespace?, labels?: { first?; prev?; next?; last? } }): Promise<void>;
 function buildPaginatorPage<T>(items, page, options): Promise<{ payload; pages }>;
-function confirm(interaction, { title?, body, confirm?, cancel?, user?, timeoutMs?, ephemeral? }): Promise<{ confirmed, reason, interaction? }>;
+function confirm(interaction, { body, title?, confirm?: { label?; style? }, cancel?: { label?; style? }, user?, timeoutMs?, ephemeral?, namespace? }): Promise<{ confirmed: boolean; reason: "confirm" | "cancel" | "timeout"; interaction? }>; // style: "Primary" | "Secondary" | "Success" | "Danger"
 ```
 
 ### Primitives
 
 ```ts
-class KeyedLock { tryAcquire(key, ttl?); run(key, fn, { onBusy?, ttl? }); isHeld(key); forget(key); dispose(); }
-const safeFetch = { member, channel, message, user, guild, role, try }; // each returns T | null
+class KeyedLock { constructor(options?: { ttl?: number; sweep?: number }); tryAcquire(key, ttl?); run(key, fn, { onBusy?, ttl? }); isHeld(key); forget(key); dispose(); readonly size: number; }
+const safeFetch = { member, channel, message, user, guild, role, try }; // each returns T | null; also exported standalone as fetchMember/fetchChannel/fetchMessage/fetchUser/fetchGuild/fetchRole/safeTry
 function withSafeTimeout<T>(p: Promise<T>, ms): Promise<T | null>;
-function formatDuration(ms, { locale?: "en" | "tr" | UnitLabels; largest?; units? }): string;
+function formatDuration(ms, opts?: { locale?: string | UnitLabels; largest?: number; units?: readonly DurationUnit[] }): string; // locale: "en"|"en-US"|"en-GB"|"tr"|"tr-TR" or a custom label set; unknown locales fall back to en
 function parseDuration(input: string): number | null;
 function discordTimestamp(date, style?: "t"|"T"|"d"|"D"|"f"|"F"|"R"): string;
 function relativeTimestamp(date): string;
 interface CacheStore { get; set; delete; has; increment; rateLimit; clear; }
 class MemoryCache implements CacheStore { /* TTL, counter, fixed-window rate limit */ }
+function createCache(): CacheStore; // default in-memory cache
 function loadConfig<T>({ file, parser?, schema?, encoding? }): T;
 function loadConfigAsync<T>(opts): Promise<T>;
 function lookup<K, V>(table, resourceName?): (key: K) => V;
+function lookupOptional<K, V>(table): (key: K) => V | undefined; // non-throwing variant of lookup
 ```
 
 ### Logger transports
@@ -556,6 +636,7 @@ function lookup<K, V>(table, resourceName?): (key: K) => V;
 new Logger({ level, transports: [consoleSink, jsonlSink("./logs/bot.jsonl"), webhookSink({ url, minLevel: "error" })] });
 function jsonlSink(path: string, { minLevel? }?): LogSink;
 function webhookSink({ url, minLevel?, username? }): LogSink;
+function consoleSink(entry: LogEntry): void; // default human-readable console transport
 // Logger.addTransport(sink), setTransports([sinks])
 ```
 
@@ -574,16 +655,123 @@ client.deployAllCommands({ guildId, dryRun: true });            // returns { ski
 client.deployAllCommands({ guildId, strategy: "diff" });        // skips PUT when remote matches
 client.deployAllCommands({ applicationId: "...", strategy: "diff" }); // explicit app id, no ready required
 ```
+---
 
-### Usage outcome + duration
+## Added in 0.4
+
+Reliability and moderation helpers distilled from production bots: never lose an
+interaction to the 3-second window, shut down cleanly, run permission/hierarchy
+preflights, persist per-guild settings, and await replies without hand-rolled
+collectors.
+
+### Auto-defer — [guide](./auto-defer.md)
 
 ```ts
-interface UsageEvent {
-  type; name; userId; userTag; guildId; channelId; detail?;
-  outcome?: "success" | "error";
-  durationMs?: number;
-  errorMessage?: string;
-  options?: Record<string, string | number | boolean | null>;
-  timestamp: Date;
+type AutoDeferInput = boolean | { ephemeral?: boolean; delayMs?: number };
+interface AutoDeferConfig { ephemeral: boolean; delayMs: number; }
+const DEFAULT_AUTO_DEFER_DELAY_MS = 2000;
+function normalizeAutoDefer(input?: AutoDeferInput): AutoDeferConfig | undefined;
+function armAutoDefer(interaction, config: AutoDeferConfig): () => void; // returns a cancel fn
+type AutoDeferrableInteraction = ChatInputCommandInteraction | UserContextMenuCommandInteraction | MessageContextMenuCommandInteraction;
+// Enable per handler: command({ autoDefer: true }), userCommand({ autoDefer }), messageCommand({ autoDefer })
+// Or globally: new SpearClient({ autoDefer: true }). With it on, respond via ctx.send / ctx.editReply.
+// Arms a timer when the handler starts; defers if it hasn't responded by ~2s, preventing "Unknown interaction" (10062).
+```
+
+### Graceful shutdown
+
+```ts
+interface GracefulShutdownOptions {
+  signals?: readonly NodeJS.Signals[];   // default ["SIGINT", "SIGTERM"]
+  timeoutMs?: number;                     // force-exit after this; default 10000
+  exit?: boolean;                         // call process.exit when done; default true
+  onShutdown?: (signal: NodeJS.Signals) => Awaitable<void>; // runs before client.destroy()
+  logger?: { info?(msg): void; error?(msg, meta?): void };
 }
+interface Destroyable { destroy(): Awaitable<void>; } // a discord.js Client qualifies
+interface ShutdownLogger { info?(message: string): void; error?(message: string, meta?: unknown): void; }
+function gracefulShutdown(client: Destroyable, options?: GracefulShutdownOptions): () => void;
+// SpearClient.enableGracefulShutdown(options?) wires it with client.logger and returns a disposer.
+```
+
+### Permissions & moderation — [guide](./permissions.md)
+
+```ts
+type PermissionHolder = GuildMember | Role;
+function missingPermissions(channel: GuildBasedChannel, who: PermissionHolder, required: PermissionResolvable): PermissionsString[];
+function botMissingPermissions(channel: GuildBasedChannel, required: PermissionResolvable): PermissionsString[];
+function hasPermissions(channel: GuildBasedChannel, who: PermissionHolder, required: PermissionResolvable): boolean;
+function compareRoles(a: GuildMember, b: GuildMember): number;     // by highest-role position
+function canActOn(actor: GuildMember, target: GuildMember): boolean;
+function formatPermissions(permissions: PermissionResolvable): string; // human, comma-separated
+
+type ModerationCheckResult = { ok: true } | { ok: false; reason: string };
+interface ModerationCheckOptions { moderator: GuildMember; target: GuildMember; me?: GuildMember | null; action?: string; }
+function moderationCheck(options: ModerationCheckOptions): ModerationCheckResult; // self / owner / role-hierarchy preflight
+```
+
+### Persistent storage
+
+```ts
+interface KeyValueStore {
+  get<T>(key: string): Promise<T | undefined>;
+  set<T>(key: string, value: T): Promise<void>;
+  has(key: string): Promise<boolean>;
+  delete(key: string): Promise<boolean>;
+  keys(): Promise<string[]>;
+  clear(): Promise<void>;
+}
+class MemoryStore implements KeyValueStore { /* deep-cloned in-memory */ }
+class JsonStore implements KeyValueStore { constructor(path: string); /* atomic JSON file */ }
+function namespaced(store: KeyValueStore, prefix: string): KeyValueStore;
+
+interface SettingsManager<T> { readonly defaults: T; readonly store: KeyValueStore; get(id): Promise<T>; set(id, patch: Partial<T>): Promise<T>; reset(id): Promise<void>; }
+interface CreateSettingsOptions<T> { store: KeyValueStore; defaults: T; namespace?: string; } // namespace default "settings"
+function createSettings<T extends Record<string, unknown>>(options: CreateSettingsOptions<T>): SettingsManager<T>;
+```
+
+### Collectors
+
+```ts
+interface AwaitMessageOptions { filter?: (m: Message) => boolean; time?: number; }   // time default 60000
+function awaitMessage(channel: CollectableChannel, options?: AwaitMessageOptions): Promise<Message | null>;
+interface AwaitComponentOptions { filter?; time?; componentType?: ComponentType; }   // time default 60000
+function awaitComponent(message: Message, options?: AwaitComponentOptions): Promise<MessageComponentInteraction | null>;
+interface AwaitModalOptions { time?: number; filter?: (i: ModalSubmitInteraction) => boolean; } // time default 120000
+function showAndAwaitModal(interaction: ModalShowingInteraction, modal: ModalLike, options?: AwaitModalOptions): Promise<ModalSubmitInteraction | null>;
+// Context sugar: ctx.awaitMessageFrom(userId?, options?) and ctx.awaitModal(modal, options?) (command + component contexts).
+```
+
+### Discord errors — [guide](./errors.md)
+
+```ts
+const DiscordErrorCode = { UnknownChannel, UnknownGuild, UnknownMember, UnknownMessage, UnknownUser,
+  UnknownInteraction, MissingAccess, CannotExecuteActionOnDMChannel, CannotSendMessagesToThisUser,
+  MissingPermissions, InvalidFormBodyOrContentType, InteractionHasAlreadyBeenAcknowledged,
+  MaximumNumberOfGuildsReached, MaximumNumberOfReactionsReached } as const; // named RESTJSONErrorCodes
+type DiscordErrorCodeValue = (typeof DiscordErrorCode)[keyof typeof DiscordErrorCode];
+function isDiscordError(error: unknown, code?: number | string | readonly (number | string)[]): error is DiscordAPIError;
+function isHTTPError(error: unknown): error is HTTPError;
+function isRateLimitError(error: unknown): boolean;        // HTTP 429
+function explainDiscordError(error: unknown): string | null; // end-user-friendly sentence, or null
+// The default command/component error reply uses explainDiscordError(...) when it can.
+```
+
+### Message formatting
+
+```ts
+const MESSAGE_CHARACTER_LIMIT = 2000;
+function truncate(text: string, max: number, suffix?: string): string;       // suffix default "…"
+interface ChunkOptions { max?: number; }                                      // default MESSAGE_CHARACTER_LIMIT
+function chunkMessage(text: string, options?: ChunkOptions): string[];        // splits on line/word boundaries
+```
+
+### Dynamic prefixes
+
+```ts
+// PrefixOptions gains a per-message resolver (e.g. a per-guild prefix from a store):
+interface PrefixOptions { /* …prefix, mention, ignoreBots, caseInsensitive… */
+  dynamic?: (message: Message) => Awaitable<string | readonly string[] | null | undefined>;
+}
+// Dynamic prefixes are tried in addition to any static prefix. Keep the resolver fast (cache it).
 ```

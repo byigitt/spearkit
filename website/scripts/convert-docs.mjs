@@ -18,8 +18,13 @@ const map = {
   commands: { out: "guides/commands.mdx", route: "/docs/guides/commands" },
   options: { out: "guides/options.mdx", route: "/docs/guides/options" },
   components: { out: "guides/components.mdx", route: "/docs/guides/components" },
+  "context-menus": { out: "guides/context-menus.mdx", route: "/docs/guides/context-menus" },
   events: { out: "guides/events.mdx", route: "/docs/guides/events" },
   context: { out: "guides/context.mdx", route: "/docs/guides/context" },
+  guards: { out: "guides/guards.mdx", route: "/docs/guides/guards" },
+  permissions: { out: "guides/permissions.mdx", route: "/docs/guides/permissions" },
+  "auto-defer": { out: "guides/auto-defer.mdx", route: "/docs/guides/auto-defer" },
+  errors: { out: "guides/errors.mdx", route: "/docs/guides/errors" },
   client: { out: "guides/client.mdx", route: "/docs/guides/client" },
   plugins: { out: "guides/plugins.mdx", route: "/docs/guides/plugins" },
   loading: { out: "guides/loading.mdx", route: "/docs/guides/loading" },
@@ -29,6 +34,10 @@ const map = {
   logging: { out: "guides/logging.mdx", route: "/docs/guides/logging" },
   usage: { out: "guides/usage.mdx", route: "/docs/guides/usage" },
   env: { out: "guides/env.mdx", route: "/docs/guides/env" },
+  collectors: { out: "guides/collectors.mdx", route: "/docs/guides/collectors" },
+  store: { out: "guides/store.mdx", route: "/docs/guides/store" },
+  messages: { out: "guides/messages.mdx", route: "/docs/guides/messages" },
+  shutdown: { out: "guides/shutdown.mdx", route: "/docs/guides/shutdown" },
 };
 
 function stripInline(md) {
@@ -140,7 +149,7 @@ async function main() {
     JSON.stringify(
       {
         title: "Guides",
-        pages: ["commands", "options", "components", "events", "context", "client", "cooldown", "scheduler", "prefix", "logging", "usage", "env", "plugins", "loading"],
+        pages: ["commands", "options", "components", "context-menus", "events", "context", "collectors", "guards", "permissions", "auto-defer", "client", "cooldown", "scheduler", "prefix", "logging", "errors", "messages", "usage", "store", "env", "plugins", "shutdown", "loading"],
       },
       null,
       2,

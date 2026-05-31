@@ -15,15 +15,15 @@ npm install spearkit discord.js
 ## Batteries included
 
 - **Type-safe slash commands**, options, subcommands, autocomplete, buttons, selects and modals — no `interactionCreate` switch.
-- **Cooldowns** — per user/role/guild/channel, with exemptions and per-role/per-user overrides ([guide](./docs/cooldown.md)).
+- **Cooldowns** — per user/guild/channel/global, with per-role/per-user exemptions and overrides ([guide](./docs/cooldown.md)).
 - **Scheduled tasks** — cron and interval jobs, started on ready ([guide](./docs/scheduler.md)).
 - **Prefix commands** — classic `!text` commands that share cooldowns ([guide](./docs/prefix.md)).
 - **Structured logging** — leveled, scoped, pluggable; every error flows through it ([guide](./docs/logging.md)).
 - **Usage tracking** — record who used what to a database and/or a Discord channel ([guide](./docs/usage.md)).
 - **dotenv built in** — auto-load `.env` and read typed env vars ([guide](./docs/env.md)).
 - **Plugins & file-based loading** for organising larger bots.
-- **Guards** — declarative `requireAnyRole`/`requireUserPermissions`/`guildOnly`/`requireOwner` preconditions on commands, components and prefix commands ([API ref](./docs/api-reference.md#guards--declarative-preconditions)).
-- **Context-menu commands** — `userCommand` / `messageCommand` with typed `targetUser` / `targetMessage` ([API ref](./docs/api-reference.md#context-menu-commands)).
+- **Guards** — declarative `requireAnyRole`/`requireUserPermissions`/`guildOnly`/`requireOwner` preconditions on commands, components and prefix commands ([guide](./docs/guards.md)).
+- **Context-menu commands** — `userCommand` / `messageCommand` with typed `targetUser` / `targetMessage` ([guide](./docs/context-menus.md)).
 - **Preset embeds** — `ctx.success/info/warn/error` and `client.embeds` factory with configurable colors/icons ([API ref](./docs/api-reference.md#embeds--preset-replies)).
 - **Pagination & confirmation** — `paginate(...)` and `confirm(...)` button flows with user-only filter and timeout.
 - **Typed prefix args** — `prefixCommand({ args: a => a.snowflake("target").duration("d").rest("reason"), run: ctx => ctx.options })`.
@@ -31,6 +31,13 @@ npm install spearkit discord.js
 - **Logger transports** — multi-sink (`consoleSink`, `jsonlSink`, `webhookSink`); per-level routing.
 - **Scheduler extras** — `scheduler.delay/followUp/reconcile` for one-shot jobs and on-ready recovery.
 - **Deploy strategy** — `deployAllCommands({ dryRun, strategy: "diff" })` for safe CI deploys.
+- **Auto-defer** — `command({ autoDefer: true })` / `new SpearClient({ autoDefer: true })` to dodge `Unknown interaction` (10062) on slow handlers ([API ref](./docs/api-reference.md#auto-defer)).
+- **Graceful shutdown** — `client.enableGracefulShutdown({ onShutdown })` for clean `SIGINT`/`SIGTERM` teardown ([API ref](./docs/api-reference.md#graceful-shutdown)).
+- **Permissions & moderation** — `moderationCheck`, `missingPermissions`, `canActOn`, `ctx.botMissing(...)` role-hierarchy/permission preflights ([API ref](./docs/api-reference.md#permissions--moderation)).
+- **Persistent storage** — `MemoryStore`/`JsonStore` key-value stores + typed per-guild `createSettings(...)` ([API ref](./docs/api-reference.md#persistent-storage)).
+- **Collectors** — `ctx.awaitMessageFrom(...)`, `ctx.awaitModal(...)`, `awaitComponent(...)` without hand-rolled collectors ([API ref](./docs/api-reference.md#collectors)).
+- **Discord error helpers** — `isDiscordError(err, DiscordErrorCode.UnknownMessage)`, `explainDiscordError(...)` ([API ref](./docs/api-reference.md#discord-errors)).
+- **Dynamic prefixes** — per-guild prefix resolution via `prefix: { dynamic }` ([guide](./docs/prefix.md#dynamic-per-guild-prefixes)).
 
 ## Documentation
 

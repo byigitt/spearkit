@@ -12,18 +12,27 @@ components.
 3. [Commands](./commands.md) — slash commands, subcommands, permissions, deployment.
 4. [Options](./options.md) — typed option builders, choices, autocomplete.
 5. [Components](./components.md) — buttons, selects, modals, custom-id routing.
-6. [Events](./events.md) — the `event()` helper and the event registry.
-7. [Contexts](./context.md) — reply helpers shared by every handler.
-8. [Cooldowns](./cooldown.md) — per-user/role/guild rate limiting.
-9. [Scheduled tasks](./scheduler.md) — cron and interval jobs.
-10. [Prefix commands](./prefix.md) — classic `!text` commands.
-11. [Logging](./logging.md) — structured, leveled, scoped logging.
-12. [Usage tracking](./usage.md) — record who used what (store + Discord channel).
-13. [Environment & dotenv](./env.md) — load `.env` and read typed env vars.
-14. [Plugins](./plugins.md) — bundling features into reusable units.
-15. [File-based loading](./loading.md) — one file per command/event/component.
-16. [Migrating from discord.js](./migration.md) — the drop-in path.
-17. [API reference](./api-reference.md) — every exported symbol.
+6. [Context menus](./context-menus.md) — user and message "Apps" commands.
+7. [Events](./events.md) — the `event()` helper and the event registry.
+8. [Contexts](./context.md) — reply helpers shared by every handler.
+9. [Guards](./guards.md) — role/permission/owner/guild preconditions.
+10. [Auto-defer](./auto-defer.md) — beat the 3-second `Unknown interaction` error.
+11. [Permissions & hierarchy](./permissions.md) — moderation preflight checks.
+12. [Discord API errors](./errors.md) — recognise and recover from `DiscordAPIError`.
+13. [Cooldowns](./cooldown.md) — per-user/role/guild rate limiting.
+14. [Scheduled tasks](./scheduler.md) — cron and interval jobs.
+15. [Prefix commands](./prefix.md) — classic `!text` commands.
+16. [Collectors](./collectors.md) — await messages, modals and component clicks.
+17. [Key-value store & settings](./store.md) — persist per-guild config + dynamic prefix.
+18. [Messages & limits](./messages.md) — split long output, truncate text.
+19. [Logging](./logging.md) — structured, leveled, scoped logging.
+20. [Usage tracking](./usage.md) — record who used what (store + Discord channel).
+21. [Environment & dotenv](./env.md) — load `.env` and read typed env vars.
+22. [Graceful shutdown](./shutdown.md) — close cleanly on `SIGINT`/`SIGTERM`.
+23. [Plugins](./plugins.md) — bundling features into reusable units.
+24. [File-based loading](./loading.md) — one file per command/event/component.
+25. [Migrating from discord.js](./migration.md) — the drop-in path.
+26. [API reference](./api-reference.md) — every exported symbol.
 
 ## Why spearkit
 

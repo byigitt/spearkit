@@ -30,7 +30,9 @@ rest extend `BaseContext`, adding their own specifics (e.g. `ctx.options`,
 | `editReply(input)` | `Promise<Message>` | Edit the original (or deferred) response. |
 | `followUp(input)` | `Promise<Message>` | Add a message after the initial response. |
 | `send(input)` | `Promise<void>` | State-aware: replies, edits, or follows up automatically. |
-| `error(message)` | `Promise<void>` | State-aware ephemeral message. |
+| `error(input, options?)` | `Promise<void>` | State-aware preset error embed; ephemeral by default. |
+| `success` / `info` / `warn` `(input, options?)` | `Promise<void>` | State-aware preset embeds. |
+| `replyError` / `replySuccess` / `replyInfo` / `replyWarn` `(input, options?)` | `Promise<InteractionResponse>` | Initial-reply preset embeds. |
 
 ```ts
 import { command } from "spearkit";
@@ -72,7 +74,8 @@ export default command({
 
 ### `error` for ephemeral failures
 
-`error(message)` sends a state-aware, always-ephemeral message — perfect for
+`error(input, options?)` sends a state-aware preset **error embed** — ephemeral
+by default (pass `{ ephemeral: false }` to make it public) — perfect for
 validation failures that only the invoking user should see.
 
 ```ts
@@ -88,6 +91,40 @@ export default command({
   },
 });
 ```
+
+## Preset embeds
+
+`BaseContext` builds consistent, colored embeds from `client.embeds` (or a shared
+default). Each takes an `EmbedPresetInput` — a plain string, or a structured body
+(`{ title?, description?, fields?, footer?, ... }`) — and an optional
+`{ ephemeral? }`.
+
+| Method | Sends via | Default visibility |
+| ------ | --------- | ------------------ |
+| `success(input, options?)` | `send` (state-aware) | public |
+| `info(input, options?)` | `send` (state-aware) | public |
+| `warn(input, options?)` | `send` (state-aware) | public |
+| `error(input, options?)` | `send` (state-aware) | **ephemeral** |
+| `replySuccess` / `replyInfo` / `replyWarn` `(input, options?)` | `reply` (initial only) | public |
+| `replyError(input, options?)` | `reply` (initial only) | **ephemeral** |
+
+```ts
+import { command } from "spearkit";
+
+export default command({
+  name: "save",
+  description: "Save settings",
+  run: async (ctx) => {
+    await ctx.success("Settings saved.");            // green embed, public
+    await ctx.warn({ title: "Heads up", description: "Quota is almost full." });
+    // error defaults to ephemeral; make it public with { ephemeral: false }:
+    // await ctx.error("Failed to save.", { ephemeral: false });
+  },
+});
+```
+
+Configure the colors/icons with the client `embeds` option; see the
+[API reference](./api-reference.md#embeds--preset-replies).
 
 ## The `{ ephemeral: true }` shortcut
 
@@ -164,6 +201,7 @@ asEphemeral("hidden");
 | `locale` | The user's locale. |
 | `deferred` | Whether the interaction is already deferred. |
 | `replied` | Whether the interaction already received an initial response. |
+| `botPermissions` | The bot's resolved permissions in the channel (`PermissionsBitField`, zero-fetch). |
 
 ```ts
 import { command } from "spearkit";
@@ -194,6 +232,60 @@ export default button({
   },
 });
 ```
+
+## Permission preflights
+
+`BaseContext` reads the permissions Discord already attached to the interaction —
+no extra fetches — so you can check before attempting a privileged action:
+
+```ts
+import { command, PermissionFlagsBits } from "spearkit";
+
+export default command({
+  name: "slowmode",
+  description: "Set slowmode",
+  run: async (ctx) => {
+    const missing = ctx.botMissing(PermissionFlagsBits.ManageChannels);
+    if (missing.length > 0) return ctx.error(`I'm missing: ${missing.join(", ")}`);
+    // …apply slowmode…
+  },
+});
+```
+
+- `ctx.botPermissions` — the bot's `PermissionsBitField` in the current channel.
+- `ctx.botMissing(required)` — permission names the bot lacks here (`[]` if none).
+- `ctx.userMissing(required)` — permission names the invoking user lacks here.
+
+For role-hierarchy and moderation preflights (acting on self/owner, comparing top
+roles) see `moderationCheck` and the permission helpers in the
+[API reference](./api-reference.md#permissions--moderation).
+
+## Awaiting input
+
+When a flow needs a follow-up message or a modal, the context wraps discord.js
+collectors so you skip the boilerplate. Both resolve to `null` on timeout.
+
+```ts
+import { command, modal, textInput } from "spearkit";
+
+const nameModal = modal({ id: "name", title: "Your name", fields: { name: textInput({ label: "Name" }) }, run: () => {} });
+
+export default command({
+  name: "setup",
+  description: "Interactive setup",
+  run: async (ctx) => {
+    // Wait for the user to type an answer in this channel:
+    const reply = await ctx.awaitMessageFrom(ctx.user.id, { time: 30_000 });
+    if (reply === null) return ctx.error("Timed out.");
+    // Or show a modal and await its submission:
+    const submission = await ctx.awaitModal(nameModal);
+    if (submission !== null) await submission.reply(`Hi, ${submission.fields.getTextInputValue("name")}!`);
+  },
+});
+```
+
+The standalone `awaitMessage`, `awaitComponent` and `showAndAwaitModal` helpers
+are also exported; see the [API reference](./api-reference.md#collectors).
 
 ## See also
 

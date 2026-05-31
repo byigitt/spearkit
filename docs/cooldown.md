@@ -1,6 +1,7 @@
 # Cooldowns
 
-Rate-limit commands per user, per role, per guild, per channel or globally.
+Rate-limit commands per user, per guild, per channel, or globally — with per-role
+and per-user exemptions and overrides.
 Cooldowns are enforced automatically by command dispatch: when an actor is
 still on cooldown, spearkit replies (ephemerally) with a message and the
 handler does not run.

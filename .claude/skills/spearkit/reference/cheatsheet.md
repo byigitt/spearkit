@@ -78,7 +78,7 @@ the full discord.js surface. For prose and edge cases, read the package's
 ## Client
 
 ```ts
-new SpearClient(options?: Partial<ClientOptions>) // intents optional → Intents.default
+new SpearClient(options?: Partial<ClientOptions> & SpearOptions) // intents optional → Intents.default; SpearOptions: logger/dotenv/cooldown/prefix/usage/embeds/guards
 client.commands   // CommandRegistry
 client.events     // EventRegistry
 client.components // ComponentRegistry
@@ -89,7 +89,9 @@ client.start(token?): Promise<this>                    // login; falls back to D
 client.deployCommands({ guildId? }): Promise<DeployResult>      // after start()
 client.deployAllCommands({ guildId?, applicationId?, strategy?: "diff", dryRun? }) // slash + context menus
 client.schedule(taskConfig); client.scheduler          // TaskScheduler
-client.cooldowns; client.prefix; client.usage; client.logger; client.embeds
+client.enableGracefulShutdown({ onShutdown?, timeoutMs? }): () => void  // clean SIGINT/SIGTERM teardown
+client.cooldowns; client.prefix; client.usage; client.logger; client.embeds; client.contextMenus
+new SpearClient({ autoDefer: true })   // default auto-defer for slash + context-menu handlers
 
 const Intents = { none: [], default: [Guilds], guilds: [Guilds, GuildMembers],
                   messages: [Guilds, GuildMessages, MessageContent], all: /* every intent */ }
@@ -99,7 +101,7 @@ const Intents = { none: [], default: [Guilds], guilds: [Guilds, GuildMembers],
 
 ```ts
 command({ name, description, options?, defaultMemberPermissions?, nsfw?, guildOnly?,
-          nameLocalizations?, descriptionLocalizations?, guards?, cooldown?, run })
+          nameLocalizations?, descriptionLocalizations?, guards?, cooldown?, autoDefer?, run })
 commandGroup({ name, description, subcommands?, groups?, defaultMemberPermissions?, nsfw?, guildOnly?, ... })
 subcommand({ description, options?, run, ... })
 subcommandGroup({ description, subcommands, ... })
@@ -156,10 +158,12 @@ event({ name, once?, run })
 
 ```ts
 reply(input) · replyEphemeral(input) · defer({ ephemeral? }) · editReply(input) ·
-followUp(input) · send(input) · error(message)
+followUp(input) · send(input)
 success(input) · info(input) · warn(input) · error(input)                 // preset embeds, state-aware
 replySuccess/replyInfo/replyWarn/replyError(input)
 client · user · member · guild · guildId · channel · channelId · locale · deferred · replied
+botPermissions · botMissing(perm) · userMissing(perm)                      // permission preflight (zero-fetch)
+awaitMessageFrom(userId?, { time?, filter? }) · awaitModal(modal, { time?, filter? })  // → T | null
 // ReplyInput = string | (InteractionReplyOptions & { ephemeral?: boolean })
 ```
 
@@ -226,7 +230,7 @@ confirm(interaction, { body, title?, confirm?, cancel?, user?, timeoutMs?, ephem
 
 ```ts
 client.embeds.{ error|success|info|warn|build(level, input) }
-createEmbeds(opts?)  // alias for new Embeds(opts)
+new Embeds(opts?); defaultEmbeds   // shared default used when client.embeds is unset
 new SpearClient({ embeds: { /* colors/icons per level */ } })
 // BaseContext exposes ctx.success/info/warn/error + replySuccess/Info/Warn/Error
 ```
@@ -272,12 +276,48 @@ client.load(dir, { extensions?: readonly string[], recursive? })  // defaults [.
 new KeyedLock(); lock.tryAcquire(key, ttl?); lock.run(key, fn, { onBusy?, ttl? }); lock.isHeld(key); lock.forget(key); lock.dispose()
 safeFetch.{ member, channel, message, user, guild, role, try }  // each returns T | null
 withSafeTimeout(promise, ms)  // T | null
-formatDuration(ms, { locale?: "en"|"tr"|UnitLabels, largest?, units? })
+formatDuration(ms, { locale?: string | custom-labels, largest?, units? })  // "en"|"en-US"|"en-GB"|"tr"|"tr-TR" or a custom label set
 parseDuration(input): number | null
 discordTimestamp(date, style?: "t"|"T"|"d"|"D"|"f"|"F"|"R"); relativeTimestamp(date)
 new MemoryCache()  // CacheStore: get/set/delete/has/increment/rateLimit/clear (TTL + counters + fixed-window rate limit)
 loadConfig({ file, parser?, schema?, encoding? }); loadConfigAsync(opts)   // JSON/JSON5/YAML
 lookup(table, resourceName?) -> (key) => value
+```
+
+## Reliability, permissions, storage & collectors
+
+```ts
+// Auto-defer — dodge "Unknown interaction" (10062) on slow handlers
+command({ autoDefer: true | { ephemeral?, delayMs? } }); new SpearClient({ autoDefer: true })
+armAutoDefer(interaction, config) -> cancel(); normalizeAutoDefer(input); DEFAULT_AUTO_DEFER_DELAY_MS = 2000
+
+// Graceful shutdown
+client.enableGracefulShutdown({ signals?, timeoutMs?, exit?, onShutdown?, logger? }) -> dispose()
+gracefulShutdown(client, options)   // standalone variant
+
+// Permissions & moderation
+missingPermissions(channel, who, required) -> PermissionsString[]; botMissingPermissions(channel, required)
+hasPermissions(channel, who, required); compareRoles(a, b); canActOn(actor, target); formatPermissions(perm)
+moderationCheck({ moderator, target, me?, action? }) -> { ok: true } | { ok: false, reason }
+
+// Persistent storage + per-guild settings
+new MemoryStore(); new JsonStore(path)   // KeyValueStore: get/set/has/delete/keys/clear
+namespaced(store, prefix)
+createSettings({ store, defaults, namespace? }) -> { defaults, store, get(id), set(id, patch), reset(id) }
+
+// Collectors (all resolve null on timeout)
+awaitMessage(channel, { filter?, time? }); awaitComponent(message, { filter?, time?, componentType? })
+showAndAwaitModal(interaction, modal, { time?, filter? })
+
+// Discord errors
+isDiscordError(err, DiscordErrorCode.UnknownMessage?); isHTTPError(err); isRateLimitError(err)
+explainDiscordError(err) -> string | null; DiscordErrorCode.{ UnknownMessage, UnknownInteraction, MissingPermissions, ... }
+
+// Message formatting
+truncate(text, max, suffix?); chunkMessage(text, { max? }) -> string[]; MESSAGE_CHARACTER_LIMIT = 2000
+
+// Dynamic prefixes
+new SpearClient({ prefix: { prefix?, dynamic: (message) => string | string[] | null } })
 ```
 
 ## Error handling

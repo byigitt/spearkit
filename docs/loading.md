@@ -1,9 +1,9 @@
 # File-based loading
 
 Instead of importing and registering every handler by hand, you can keep one
-command, event or component per file and let spearkit discover them. The loader
-imports a directory, inspects each module's exports, and registers everything that
-is a command, event or component.
+handler per file and let spearkit discover them. The loader imports a directory,
+inspects each module's exports, and registers everything that is a command,
+event, component, scheduled task or prefix command.
 
 ## `client.load`
 
@@ -36,8 +36,10 @@ await client.deployCommands({ guildId: process.env.GUILD_ID });
 
 For every imported file, spearkit walks **all** of its exports — default *and*
 named — and registers each value that is a command (`command`, `commandGroup`),
-an event (`event`), or a component (`button`, `stringSelect`, `modal`, …). Other
-exports (helpers, constants, types) are ignored. So both of these are picked up:
+an event (`event`), a component (`button`, `stringSelect`, `modal`, …), a
+scheduled task (`task`) or a prefix command (`prefixCommand`). Other exports
+(helpers, constants, types) are ignored, and context-menu commands are **not**
+auto-detected — register those explicitly. So both of these are picked up:
 
 ```ts
 // default export

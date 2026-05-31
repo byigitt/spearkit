@@ -1,4 +1,4 @@
-# spearkit v0.3.2 — full documentation for LLMs
+# spearkit v0.4.0 — full documentation for LLMs
 
 > discord.js++ — a developer-experience-first Discord library. Drop-in compatible with discord.js, with ergonomic events, slash commands, and interactive components.
 
@@ -30,6 +30,7 @@ This file concatenates every spearkit guide and the complete API reference. It i
 | A right-click "Apps" action on a user/message | `userCommand` / `messageCommand` |
 | A classic `!text` command | `prefixCommand(...)` + `new SpearClient({ prefix })` |
 | Parse `!cmd` arguments into typed values | `args: (a) => a.snowflake().duration().rest()` → `ctx.options` |
+| Avoid `Unknown interaction` (10062) on slow work | `command({ autoDefer: true })` / `new SpearClient({ autoDefer: true })` |
 
 **Interactivity (components)**
 
@@ -65,6 +66,11 @@ This file concatenates every spearkit guide and the complete API reference. It i
 | Structured logs to file/webhook | `client.logger` + `consoleSink` / `jsonlSink` / `webhookSink` |
 | Track who used what | `new SpearClient({ usage })` + `MemoryUsageStore` / `JsonFileUsageStore` |
 | Read typed env / load `.env` | `env.string/number/boolean/require` (auto-loaded on `start()`) |
+| Shut down cleanly on SIGINT/SIGTERM | `client.enableGracefulShutdown({ onShutdown })` |
+| Permission / role-hierarchy preflight | `moderationCheck(...)`, `missingPermissions(...)`, `canActOn(...)`, `ctx.botMissing(...)` |
+| Wait for a reply / click / modal submission | `ctx.awaitMessageFrom(...)` / `ctx.awaitModal(...)` / `awaitComponent(...)` |
+| Branch on a Discord API error | `isDiscordError(err, DiscordErrorCode.X)` / `explainDiscordError(err)` |
+| Per-guild prefix from a store | `prefix: { dynamic: (message) => ... }` |
 
 **Utilities (primitives)**
 
@@ -76,6 +82,8 @@ This file concatenates every spearkit guide and the complete API reference. It i
 | Render `<t:…>` Discord timestamps | `discordTimestamp` / `relativeTimestamp` |
 | In-memory cache / counters / rate-limit window | `MemoryCache` |
 | Load JSON/JSON5/YAML config | `loadConfig` |
+| Persist key-value data / per-guild settings | `MemoryStore` / `JsonStore` + `createSettings({ store, defaults })` |
+| Split text to Discord's 2000-char limit | `chunkMessage(text)` / `truncate(text, max)` |
 
 ---
 
@@ -93,18 +101,27 @@ components.
 3. [Commands](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/commands.md) — slash commands, subcommands, permissions, deployment.
 4. [Options](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/options.md) — typed option builders, choices, autocomplete.
 5. [Components](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/components.md) — buttons, selects, modals, custom-id routing.
-6. [Events](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/events.md) — the `event()` helper and the event registry.
-7. [Contexts](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/context.md) — reply helpers shared by every handler.
-8. [Cooldowns](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/cooldown.md) — per-user/role/guild rate limiting.
-9. [Scheduled tasks](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/scheduler.md) — cron and interval jobs.
-10. [Prefix commands](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/prefix.md) — classic `!text` commands.
-11. [Logging](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/logging.md) — structured, leveled, scoped logging.
-12. [Usage tracking](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/usage.md) — record who used what (store + Discord channel).
-13. [Environment & dotenv](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/env.md) — load `.env` and read typed env vars.
-14. [Plugins](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/plugins.md) — bundling features into reusable units.
-15. [File-based loading](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/loading.md) — one file per command/event/component.
-16. [Migrating from discord.js](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/migration.md) — the drop-in path.
-17. [API reference](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/api-reference.md) — every exported symbol.
+6. [Context menus](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/context-menus.md) — user and message "Apps" commands.
+7. [Events](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/events.md) — the `event()` helper and the event registry.
+8. [Contexts](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/context.md) — reply helpers shared by every handler.
+9. [Guards](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/guards.md) — role/permission/owner/guild preconditions.
+10. [Auto-defer](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/auto-defer.md) — beat the 3-second `Unknown interaction` error.
+11. [Permissions & hierarchy](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/permissions.md) — moderation preflight checks.
+12. [Discord API errors](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/errors.md) — recognise and recover from `DiscordAPIError`.
+13. [Cooldowns](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/cooldown.md) — per-user/role/guild rate limiting.
+14. [Scheduled tasks](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/scheduler.md) — cron and interval jobs.
+15. [Prefix commands](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/prefix.md) — classic `!text` commands.
+16. [Collectors](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/collectors.md) — await messages, modals and component clicks.
+17. [Key-value store & settings](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/store.md) — persist per-guild config + dynamic prefix.
+18. [Messages & limits](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/messages.md) — split long output, truncate text.
+19. [Logging](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/logging.md) — structured, leveled, scoped logging.
+20. [Usage tracking](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/usage.md) — record who used what (store + Discord channel).
+21. [Environment & dotenv](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/env.md) — load `.env` and read typed env vars.
+22. [Graceful shutdown](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/shutdown.md) — close cleanly on `SIGINT`/`SIGTERM`.
+23. [Plugins](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/plugins.md) — bundling features into reusable units.
+24. [File-based loading](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/loading.md) — one file per command/event/component.
+25. [Migrating from discord.js](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/migration.md) — the drop-in path.
+26. [API reference](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/api-reference.md) — every exported symbol.
 
 ## Why spearkit
 
@@ -488,9 +505,10 @@ const a = new SpearClient({ intents: Intents.messages });
 const b = new SpearClient();
 ```
 
-The options type is exported as `SpearClientOptions` (`Partial<ClientOptions>`),
-so every other discord.js option (`partials`, `presence`, `sweepers`, …) is
-available.
+The options type is exported as `SpearClientOptions` — `Partial<ClientOptions> &
+SpearOptions`. Every discord.js option (`partials`, `presence`, `sweepers`, …) is
+available, plus spearkit's own: `logger`, `dotenv`, `cooldown`, `prefix`, `usage`,
+`embeds`, `guards` and `autoDefer` (each covered in its own guide).
 
 ### Intents presets
 
@@ -521,26 +539,38 @@ const client = new SpearClient({
 });
 ```
 
-## The three registries
+## Registries and subsystems
 
-Every client owns three registries, each populated by `register` (or `load`):
+Every client owns a set of registries and subsystems, each populated by
+`register` (or `load`) or configured by an option:
 
-| Registry | Property | Holds |
-| -------- | -------- | ----- |
-| `CommandRegistry` | `client.commands` | Slash commands; dispatches chat-input and autocomplete interactions. |
-| `EventRegistry` | `client.events` | Event listeners; attached to the client automatically. |
-| `ComponentRegistry` | `client.components` | Buttons, selects and modals; routes component interactions by custom id. |
+| Member | Type | Holds / does |
+| ------ | ---- | ------------ |
+| `client.commands` | `CommandRegistry` | Slash commands; dispatches chat-input and autocomplete interactions. |
+| `client.events` | `EventRegistry` | Event listeners; attached to the client automatically. |
+| `client.components` | `ComponentRegistry` | Buttons, selects and modals; routed by custom-id namespace. |
+| `client.contextMenus` | `ContextMenuRegistry` | User / message context-menu ("Apps") commands. |
+| `client.prefix` | `PrefixRegistry` | Prefix (text) commands, dispatched from `messageCreate`. |
+| `client.scheduler` | `TaskScheduler` | Cron / interval tasks; started on ready, stopped on `destroy`. |
+| `client.cooldowns` | `CooldownManager` | Shared rate-limit state across commands and prefix commands. |
+| `client.usage` | `UsageTracker` | Records who used what to a store and/or channel. |
+| `client.logger` | `Logger` | Structured, scoped logger used across spearkit. |
+| `client.embeds` | `Embeds` | Preset embed factory behind `ctx.success/error/...`. |
 
-You rarely touch them directly — `register` routes items into the right one —
-but they are public if you need to inspect or manipulate them (e.g.
-`client.commands.size`, `client.commands.toJSON()`).
+You rarely touch the registries directly — `register` routes items into the right
+one — but they are public for inspection and advanced control (e.g.
+`client.commands.size`, `client.commands.toJSON()`). Each subsystem has its own
+guide: [Cooldowns](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/cooldown.md), [Scheduled tasks](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/scheduler.md),
+[Prefix commands](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/prefix.md), [Context menus](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/context-menus.md),
+[Logging](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/logging.md), [Usage tracking](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/usage.md), [Guards](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/guards.md).
 
 ## Registering handlers
 
-`client.register(...items)` accepts commands, events and components in a single
-call and routes each to its registry by kind. The accepted union is exported as
-`Registerable` (`SlashCommand | EventDef | ComponentDef`). It returns the client
-for chaining.
+`client.register(...items)` accepts commands, events, components, context-menu
+commands, prefix commands and scheduled tasks in a single call and routes each to
+its registry by kind. The accepted union is exported as `Registerable`
+(`SlashCommand | EventDef | ComponentDef | ScheduledTask | PrefixCommand |
+ContextMenuCommand`). It returns the client for chaining.
 
 ```ts
 import { SpearClient, command, event, button, option } from "spearkit";
@@ -586,8 +616,8 @@ See [Plugins](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/plugi
 ## File-based loading
 
 `client.load(dir, options?)` recursively imports a directory and registers every
-command, event and component it exports. It returns the number of items
-registered.
+spearkit-registrable export it finds — commands, events, components, scheduled
+tasks and prefix commands. It returns the number of items registered.
 
 ```ts
 import { SpearClient } from "spearkit";
@@ -635,6 +665,31 @@ await client.start(); // uses DISCORD_TOKEN
 client.once("clientReady", async () => {
   await client.deployCommands({ guildId: process.env.GUILD_ID });
 });
+```
+
+## Reliability: auto-defer and graceful shutdown
+
+A slow handler that doesn't respond within Discord's 3-second window dies with
+`Unknown interaction` (10062). Set `autoDefer` to have spearkit `deferReply()`
+automatically just before that window closes — per handler (`command({ autoDefer:
+true })`, `userCommand`/`messageCommand`) or for every slash + context-menu
+handler at once:
+
+```ts
+const client = new SpearClient({ autoDefer: true });
+// or { ephemeral: true, delayMs: 1500 } for a hidden defer / earlier fire.
+```
+
+With auto-defer on, respond via `ctx.send(...)` or `ctx.editReply(...)` — the
+initial reply slot may already be taken by the safety defer.
+
+`client.enableGracefulShutdown(options?)` closes the bot cleanly on `SIGINT` /
+`SIGTERM`: it runs an optional `onShutdown` hook, calls `destroy()` (stopping the
+scheduler and gateway), and exits, with a hard timeout so a wedged shutdown can't
+hang. It returns a disposer that removes the signal handlers.
+
+```ts
+client.enableGracefulShutdown({ onShutdown: () => db.close() });
 ```
 
 ## Everything discord.js still works
@@ -750,6 +805,9 @@ export const purge = command({
 | `nsfw` | `boolean` | Marks the command age-restricted. |
 | `defaultMemberPermissions` | `PermissionResolvable \| null` | Default permission gate (members without it don't see the command). |
 | `nameLocalizations` / `descriptionLocalizations` | `LocalizationMap` | Per-locale name/description. |
+| `cooldown` | `number \| CooldownConfig` | Rate-limit the command (a number is milliseconds). See [Cooldowns](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/cooldown.md). |
+| `guards` | `readonly Guard[]` | Preconditions run before the handler. See [Guards](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/guards.md). |
+| `autoDefer` | `boolean \| { ephemeral?, delayMs? }` | Auto-`deferReply()` if the handler is slow (>~2s), preventing `Unknown interaction`. Respond via `ctx.send`/`ctx.editReply`. |
 
 ## Subcommands and groups
 
@@ -866,6 +924,8 @@ deploys (no `guildId`) can take up to an hour to propagate.
 - [Components](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/components.md) — buttons, selects, modals.
 - [Client](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/client.md) — registering and deploying from the client.
 - [Contexts](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/context.md) — the reply helpers every handler shares.
+- [Cooldowns](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/cooldown.md) — rate-limit a command with `cooldown`.
+- [Guards](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/guards.md) — gate a command with `guards`.
 
 ---
 
@@ -1109,6 +1169,10 @@ const docs = linkButton({ url: "https://example.com", label: "Docs" });
 `style` accepts the string names `"Primary"`, `"Secondary"`, `"Success"`,
 `"Danger"`, or the `ButtonStyle` enum. It defaults to `"Secondary"`.
 
+All component builders (`button`, the five selects, and `modal`) also accept
+`guards?: readonly Guard[]` — preconditions evaluated before the handler runs.
+See [Guards](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/guards.md).
+
 The `ButtonContext` adds, on top of the shared [reply helpers](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/context.md):
 
 | Member | Description |
@@ -1239,6 +1303,9 @@ namespace automatically. The `ComponentRegistry` API:
 | `size` | Number registered. |
 | `onError(handler)` | Set the error handler. |
 | `handle(interaction)` | Route an interaction; returns `true` if matched. |
+| `setDefaultGuards(guards)` | Guards run before each component's own guards. |
+
+`setLogger` and `setUsageHook` also exist; the client wires all three for you.
 
 ### Error handling
 
@@ -1309,6 +1376,130 @@ client.register(panel, open, rating, form);
 - [Commands](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/commands.md) — opening components from commands.
 - [Contexts](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/context.md) — the reply/update helpers contexts share.
 - [Client](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/client.md) — registration and routing.
+
+---
+
+# Context-menu commands
+
+Context-menu commands are the right-click **"Apps"** actions Discord shows on a
+user or a message. spearkit makes them first-class: define one with `userCommand`
+or `messageCommand`, register it like anything else, and deploy it alongside your
+slash commands. The handler gets a typed `targetUser` or `targetMessage`.
+
+```ts
+import { userCommand } from "spearkit";
+
+export const whois = userCommand({
+  name: "Who is this?",
+  run: (ctx) => ctx.replyEphemeral(`That's ${ctx.targetUser.tag}.`),
+});
+```
+
+`name` is the label shown in the Apps menu (no description — Discord does not show
+one for context-menu commands).
+
+## User vs message commands
+
+| Builder | Appears on | Target context |
+| ------- | ---------- | -------------- |
+| `userCommand` | a user (right-click → Apps) | `ctx.targetUser`, `ctx.targetMember` |
+| `messageCommand` | a message (right-click → Apps) | `ctx.targetMessage` |
+
+```ts
+import { messageCommand } from "spearkit";
+
+export const report = messageCommand({
+  name: "Report message",
+  run: (ctx) =>
+    ctx.replyEphemeral(`Reported message ${ctx.targetMessage.id}.`),
+});
+```
+
+Both handler contexts extend the shared [`BaseContext`](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/context.md), so
+`ctx.reply`, `ctx.replyEphemeral`, `ctx.defer`, `ctx.success/error/...` and the
+usual accessors are all available.
+
+## Metadata, cooldowns and guards
+
+Both builders accept the same metadata, plus a `cooldown` and `guards`:
+
+| Field | Type | Effect |
+| ----- | ---- | ------ |
+| `name` | `string` | The Apps-menu label. |
+| `defaultMemberPermissions` | `PermissionResolvable \| null` | Default permission gate. |
+| `nsfw` | `boolean` | Marks the command age-restricted. |
+| `guildOnly` | `boolean` | Restricts it to guild contexts. |
+| `nameLocalizations` | `LocalizationMap` | Per-locale label. |
+| `cooldown` | `number \| CooldownConfig` | Rate limit (shares `client.cooldowns`). |
+| `guards` | `readonly Guard[]` | Preconditions run before the handler. |
+| `autoDefer` | `boolean \| { ephemeral?, delayMs? }` | Auto-`deferReply()` if the handler is slow, preventing `Unknown interaction`. |
+
+```ts
+import { userCommand, guildOnly, requireUserPermissions, PermissionFlagsBits } from "spearkit";
+
+export const warn = userCommand({
+  name: "Warn user",
+  guildOnly: true,
+  cooldown: 5_000,
+  guards: [requireUserPermissions(PermissionFlagsBits.ModerateMembers)],
+  run: (ctx) => ctx.replyEphemeral(`Warned ${ctx.targetUser.tag}.`),
+});
+```
+
+See [Cooldowns](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/cooldown.md) and [Guards](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/guards.md) for the shared options.
+
+## Registering and deploying
+
+Register context-menu commands like everything else with `client.register(...)`.
+They route automatically — spearkit dispatches user- and message-context-menu
+interactions to the matching command.
+
+```ts
+client.register(whois, report, warn);
+```
+
+Because context menus and slash commands deploy to the same Discord endpoint,
+push them together with `deployAllCommands` once you mix the two — it sends both
+in a single request. (`deployCommands` is slash-only.)
+
+```ts
+await client.start(process.env.DISCORD_TOKEN);
+await client.deployAllCommands({ guildId: process.env.GUILD_ID }); // slash + menus
+```
+
+`deployAllCommands` also supports a `dryRun` flag and a `strategy: "diff"` that
+skips the PUT when the remote set already matches — handy in CI:
+
+```ts
+// Preview without touching Discord:
+const result = await client.deployAllCommands({ guildId, dryRun: true });
+// → { skipped: true, reason: "dry-run", body: [...] }
+
+// Only deploy when something changed:
+await client.deployAllCommands({ guildId, strategy: "diff" });
+```
+
+## The registry
+
+`client.contextMenus` is a `ContextMenuRegistry`. The client wires it to the
+logger and cooldown manager and routes interactions for you, so you rarely touch
+it directly:
+
+```ts
+client.contextMenus.size;   // number registered
+client.contextMenus.all();  // ContextMenuCommand[]
+client.contextMenus.toJSON(); // REST payloads (also included by deployAllCommands)
+```
+
+Note: context-menu commands are **not** picked up by `client.load(...)`
+directory loading — register them explicitly with `client.register(...)`.
+
+## See also
+
+- [Commands](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/commands.md) — slash commands.
+- [Client](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/client.md) — `deployAllCommands` and registration.
+- [Guards](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/guards.md) / [Cooldowns](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/cooldown.md) — the shared preconditions.
+- [Contexts](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/context.md) — the reply helpers every handler shares.
 
 ---
 
@@ -1499,7 +1690,9 @@ rest extend `BaseContext`, adding their own specifics (e.g. `ctx.options`,
 | `editReply(input)` | `Promise<Message>` | Edit the original (or deferred) response. |
 | `followUp(input)` | `Promise<Message>` | Add a message after the initial response. |
 | `send(input)` | `Promise<void>` | State-aware: replies, edits, or follows up automatically. |
-| `error(message)` | `Promise<void>` | State-aware ephemeral message. |
+| `error(input, options?)` | `Promise<void>` | State-aware preset error embed; ephemeral by default. |
+| `success` / `info` / `warn` `(input, options?)` | `Promise<void>` | State-aware preset embeds. |
+| `replyError` / `replySuccess` / `replyInfo` / `replyWarn` `(input, options?)` | `Promise<InteractionResponse>` | Initial-reply preset embeds. |
 
 ```ts
 import { command } from "spearkit";
@@ -1541,7 +1734,8 @@ export default command({
 
 ### `error` for ephemeral failures
 
-`error(message)` sends a state-aware, always-ephemeral message — perfect for
+`error(input, options?)` sends a state-aware preset **error embed** — ephemeral
+by default (pass `{ ephemeral: false }` to make it public) — perfect for
 validation failures that only the invoking user should see.
 
 ```ts
@@ -1557,6 +1751,40 @@ export default command({
   },
 });
 ```
+
+## Preset embeds
+
+`BaseContext` builds consistent, colored embeds from `client.embeds` (or a shared
+default). Each takes an `EmbedPresetInput` — a plain string, or a structured body
+(`{ title?, description?, fields?, footer?, ... }`) — and an optional
+`{ ephemeral? }`.
+
+| Method | Sends via | Default visibility |
+| ------ | --------- | ------------------ |
+| `success(input, options?)` | `send` (state-aware) | public |
+| `info(input, options?)` | `send` (state-aware) | public |
+| `warn(input, options?)` | `send` (state-aware) | public |
+| `error(input, options?)` | `send` (state-aware) | **ephemeral** |
+| `replySuccess` / `replyInfo` / `replyWarn` `(input, options?)` | `reply` (initial only) | public |
+| `replyError(input, options?)` | `reply` (initial only) | **ephemeral** |
+
+```ts
+import { command } from "spearkit";
+
+export default command({
+  name: "save",
+  description: "Save settings",
+  run: async (ctx) => {
+    await ctx.success("Settings saved.");            // green embed, public
+    await ctx.warn({ title: "Heads up", description: "Quota is almost full." });
+    // error defaults to ephemeral; make it public with { ephemeral: false }:
+    // await ctx.error("Failed to save.", { ephemeral: false });
+  },
+});
+```
+
+Configure the colors/icons with the client `embeds` option; see the
+[API reference](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/api-reference.md#embeds--preset-replies).
 
 ## The `{ ephemeral: true }` shortcut
 
@@ -1633,6 +1861,7 @@ asEphemeral("hidden");
 | `locale` | The user's locale. |
 | `deferred` | Whether the interaction is already deferred. |
 | `replied` | Whether the interaction already received an initial response. |
+| `botPermissions` | The bot's resolved permissions in the channel (`PermissionsBitField`, zero-fetch). |
 
 ```ts
 import { command } from "spearkit";
@@ -1664,6 +1893,60 @@ export default button({
 });
 ```
 
+## Permission preflights
+
+`BaseContext` reads the permissions Discord already attached to the interaction —
+no extra fetches — so you can check before attempting a privileged action:
+
+```ts
+import { command, PermissionFlagsBits } from "spearkit";
+
+export default command({
+  name: "slowmode",
+  description: "Set slowmode",
+  run: async (ctx) => {
+    const missing = ctx.botMissing(PermissionFlagsBits.ManageChannels);
+    if (missing.length > 0) return ctx.error(`I'm missing: ${missing.join(", ")}`);
+    // …apply slowmode…
+  },
+});
+```
+
+- `ctx.botPermissions` — the bot's `PermissionsBitField` in the current channel.
+- `ctx.botMissing(required)` — permission names the bot lacks here (`[]` if none).
+- `ctx.userMissing(required)` — permission names the invoking user lacks here.
+
+For role-hierarchy and moderation preflights (acting on self/owner, comparing top
+roles) see `moderationCheck` and the permission helpers in the
+[API reference](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/api-reference.md#permissions--moderation).
+
+## Awaiting input
+
+When a flow needs a follow-up message or a modal, the context wraps discord.js
+collectors so you skip the boilerplate. Both resolve to `null` on timeout.
+
+```ts
+import { command, modal, textInput } from "spearkit";
+
+const nameModal = modal({ id: "name", title: "Your name", fields: { name: textInput({ label: "Name" }) }, run: () => {} });
+
+export default command({
+  name: "setup",
+  description: "Interactive setup",
+  run: async (ctx) => {
+    // Wait for the user to type an answer in this channel:
+    const reply = await ctx.awaitMessageFrom(ctx.user.id, { time: 30_000 });
+    if (reply === null) return ctx.error("Timed out.");
+    // Or show a modal and await its submission:
+    const submission = await ctx.awaitModal(nameModal);
+    if (submission !== null) await submission.reply(`Hi, ${submission.fields.getTextInputValue("name")}!`);
+  },
+});
+```
+
+The standalone `awaitMessage`, `awaitComponent` and `showAndAwaitModal` helpers
+are also exported; see the [API reference](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/api-reference.md#collectors).
+
 ## See also
 
 - [Commands](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/commands.md) — `CommandContext`, options and `showModal`.
@@ -1671,9 +1954,307 @@ export default button({
 
 ---
 
+# Guards
+
+Guards are declarative **preconditions** that run before a handler. They work
+uniformly across slash commands, components (buttons, selects, modals), prefix
+commands and context-menu commands — and can also be applied client-wide. A
+guard returns `true` to allow the handler, or a denial (with an optional reason)
+to block it; spearkit replies with the reason and the handler never runs.
+
+```ts
+import { command, requireUserPermissions, PermissionFlagsBits } from "spearkit";
+
+export const purge = command({
+  name: "purge",
+  description: "Bulk-delete messages",
+  guards: [requireUserPermissions(PermissionFlagsBits.ManageMessages)],
+  run: (ctx) => ctx.reply("Purged."),
+});
+```
+
+## Where guards attach
+
+Pass `guards: [...]` to any handler definition, or set client-wide defaults that
+run before every handler's own guards.
+
+```ts
+import {
+  SpearClient,
+  command,
+  button,
+  prefixCommand,
+  userCommand,
+  guildOnly,
+} from "spearkit";
+
+// Per-handler — on commands, components, prefix and context-menu commands.
+command({ name: "kick", description: "…", guards: [guildOnly()], run: () => {} });
+button({ id: "del:{id}", guards: [guildOnly()], run: () => {} });
+prefixCommand({ name: "ban", guards: [guildOnly()], run: () => {} });
+userCommand({ name: "Report", guards: [guildOnly()], run: () => {} });
+
+// Client-wide — applied before each handler's own guards.
+const client = new SpearClient({ guards: [guildOnly()] });
+```
+
+Client-wide guards run first; if they pass, the handler's own guards run next.
+The first denial short-circuits the rest.
+
+## Built-in guards
+
+Each built-in returns a `Guard` and accepts an optional custom `reason`. When
+omitted, a sensible default message is used (shown below).
+
+| Guard | Denies unless… | Default reason |
+| ----- | -------------- | -------------- |
+| `guildOnly(reason?)` | used inside a guild | `"This can only be used in a server."` |
+| `dmOnly(reason?)` | used in a DM | `"This can only be used in DMs."` |
+| `requireAnyRole(roleIds, reason?)` | the member holds **any** of `roleIds` | `"You don't have permission to use this."` |
+| `requireAllRoles(roleIds, reason?)` | the member holds **every** id in `roleIds` | `"You're missing one of the required roles."` |
+| `requireOwner(ownerIds, reason?)` | the user id is in `ownerIds` | `"This is owner-only."` |
+| `requireUserPermissions(permission, reason?)` | the member has the Discord `permission` | `"You don't have permission to use this."` |
+| `requireBotPermissions(permission, reason?)` | the bot's member has the Discord `permission` | `"I don't have permission to do that here."` |
+
+```ts
+import {
+  command,
+  requireAnyRole,
+  requireBotPermissions,
+  PermissionFlagsBits,
+} from "spearkit";
+
+export const announce = command({
+  name: "announce",
+  description: "Post an announcement",
+  guards: [
+    requireAnyRole(["111111111111111111"], "Staff only."),
+    requireBotPermissions(PermissionFlagsBits.SendMessages),
+  ],
+  run: (ctx) => ctx.reply("Announced."),
+});
+```
+
+## Custom guards
+
+`guard(predicate)` wraps an inline predicate so a one-off check still types as a
+`Guard`. The predicate receives a `GuardContext` and returns a `GuardResult`;
+use `denied(reason?)` to build a denial.
+
+```ts
+import { command, guard, denied } from "spearkit";
+
+const cooldownOver = guard((ctx) =>
+  isReady(ctx.user.id) ? true : denied("Still warming up — try again soon."),
+);
+
+export const cast = command({
+  name: "cast",
+  description: "Cast a spell",
+  guards: [cooldownOver],
+  run: (ctx) => ctx.reply("✨"),
+});
+```
+
+`GuardContext` exposes the actor/location fields every handler shares, so the
+same guard works on commands, components, prefix and context-menu handlers:
+
+```ts
+interface GuardContext {
+  client: Client;
+  user: User;
+  member: GuildMember | APIInteractionGuildMember | null;
+  guild: Guild | null;
+  guildId: string | null;
+  channelId: string | null;
+}
+
+type GuardResult = boolean | { allowed: false; reason?: string };
+type Guard<TCtx extends GuardContext = GuardContext> = (ctx: TCtx) => Awaitable<GuardResult>;
+```
+
+## Running guards manually
+
+`runGuards(ctx, guards)` evaluates a list in order and short-circuits on the
+first denial — useful if you build your own dispatch on top of spearkit.
+
+```ts
+import { runGuards, guildOnly } from "spearkit";
+
+const result = await runGuards(ctx, [guildOnly()]);
+if (!result.allowed) {
+  // result.reason is the denial message (or undefined)
+}
+```
+
+`runGuards` resolves to `RunGuardsResult`:
+
+```ts
+type RunGuardsResult = { allowed: true } | { allowed: false; reason: string | undefined };
+```
+
+## See also
+
+- [Commands](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/commands.md) — `guards` on slash commands.
+- [Components](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/components.md) — `guards` on buttons, selects and modals.
+- [Prefix commands](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/prefix.md) — `guards` on text commands.
+- [Context menus](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/context-menus.md) — `guards` on "Apps" actions.
+- [Cooldowns](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/cooldown.md) — the other built-in precondition.
+
+---
+
+# Permissions & hierarchy
+
+Moderation commands fail in two predictable ways: the bot lacks a permission in
+the channel (`Missing Permissions`, 50013), or the target sits above the bot (or
+the moderator) in the role list. Both are checkable *before* you act, so you can
+bail out with a clear message instead of a half-finished action and an exception.
+
+## Did the bot/user get the permissions? (zero-fetch)
+
+Every interaction carries the bot's and the invoker's resolved permissions for
+the current channel. `ctx.botMissing(...)` / `ctx.userMissing(...)` read them
+with no API calls and return the **missing** flag names:
+
+```ts
+import { PermissionFlagsBits, command, formatPermissions } from "spearkit";
+
+export const slowmode = command({
+  name: "slowmode",
+  description: "Set channel slowmode",
+  run: async (ctx) => {
+    const missing = ctx.botMissing(PermissionFlagsBits.ManageChannels);
+    if (missing.length > 0) return ctx.error(`I need: ${formatPermissions(missing)}`);
+    // …
+  },
+});
+```
+
+`formatPermissions(...)` renders flag names as a friendly list
+(`"Manage Channels, Ban Members"`).
+
+## Permissions in another channel
+
+For a channel other than the current one, use the standalone helpers:
+
+```ts
+import { botMissingPermissions, hasPermissions, missingPermissions } from "spearkit";
+
+const missing = botMissingPermissions(targetChannel, [PermissionFlagsBits.SendMessages]);
+if (missing.length > 0) return ctx.error("I can't post there.");
+
+// or for a specific member/role:
+hasPermissions(targetChannel, member, PermissionFlagsBits.ViewChannel); // boolean
+missingPermissions(targetChannel, role, [PermissionFlagsBits.Connect]); // PermissionsString[]
+```
+
+## Role hierarchy
+
+`moderationCheck(...)` validates both the moderator and the bot against a target,
+returning a ready-to-show reason on the first failing rule (self, server owner,
+moderator hierarchy, bot hierarchy):
+
+```ts
+import { moderationCheck } from "spearkit";
+
+const moderator = await ctx.guild!.members.fetch(ctx.user.id);
+const check = moderationCheck({ moderator, target, action: "ban" });
+if (!check.ok) return ctx.error(check.reason);
+await target.ban();
+```
+
+The `me` (bot) member defaults to `target.guild.members.me`; pass `me: null` to
+skip the bot check. `action` is the verb used in messages (default `"moderate"`).
+
+Lower-level primitives are exported too:
+
+- `canActOn(actor, target)` — boolean: not self, target isn't the owner, actor is
+  the owner or outranks the target.
+- `compareRoles(a, b)` — highest-role position comparison (`>0`, `<0`, `0`).
+
+---
+
+# Auto-defer
+
+The single most common discord.js error is
+`DiscordAPIError[10062]: Unknown interaction`. An interaction token is valid for
+only **3 seconds** before your first response; any handler that awaits a database
+query or an HTTP call risks blowing past that window, after which the interaction
+is dead and every reply throws.
+
+Auto-defer removes the footgun: spearkit arms a timer when your handler starts
+and, if you haven't responded in time, calls `deferReply()` for you. The timer is
+cancelled the instant your handler replies or defers itself.
+
+## Per command
+
+```ts
+import { command, option } from "spearkit";
+
+export const weather = command({
+  name: "weather",
+  description: "Look up the weather",
+  autoDefer: true, // defers automatically if the handler takes too long
+  options: { city: option.string({ description: "City", required: true }) },
+  run: async (ctx) => {
+    const report = await fetchWeather(ctx.options.city); // slow
+    await ctx.send(`Weather in ${ctx.options.city}: ${report}`);
+  },
+});
+```
+
+> With auto-defer on, respond via `ctx.send(...)` or `ctx.editReply(...)`, not
+> `ctx.reply(...)` — the initial reply slot may already be taken by the
+> auto-defer. `ctx.send` is state-aware and always does the right thing.
+
+## Options
+
+`autoDefer` accepts `true` (defaults) or an object:
+
+```ts
+command({
+  name: "report",
+  description: "Generate a report",
+  autoDefer: { ephemeral: true, delayMs: 1500 },
+  run: async (ctx) => ctx.send("…"),
+});
+```
+
+| Field | Default | Meaning |
+| --- | --- | --- |
+| `ephemeral` | `false` | Defer as a hidden ("thinking…") response. |
+| `delayMs` | `2000` | How long to wait before the safety defer fires. Kept under the 3s cutoff. |
+
+## Client-wide default
+
+Apply auto-defer to **every** slash command and context menu; each handler can
+still override with its own `autoDefer`.
+
+```ts
+import { SpearClient } from "spearkit";
+
+const client = new SpearClient({ autoDefer: true });
+```
+
+## Scope
+
+Auto-defer covers slash commands and context menus (answered with `deferReply`).
+Component handlers (buttons/selects) usually respond instantly with `update`, so
+they're not auto-deferred — call `ctx.deferUpdate()` yourself if a component
+handler does slow work.
+
+## Lower-level helpers
+
+`normalizeAutoDefer(input)` resolves `true`/object/`undefined` into an
+`AutoDeferConfig`; `armAutoDefer(interaction, config)` arms the timer and returns
+a cancel function. Both are exported for custom dispatch.
+
+---
+
 # Cooldowns
 
-Rate-limit commands per user, per role, per guild, per channel or globally.
+Rate-limit commands per user, per guild, per channel, or globally — with per-role
+and per-user exemptions and overrides.
 Cooldowns are enforced automatically by command dispatch: when an actor is
 still on cooldown, spearkit replies (ephemerally) with a message and the
 handler does not run.
@@ -1806,7 +2387,7 @@ outlive your bot.
 
 ## Define a task
 
-Provide exactly one of `cron` or `interval`:
+Provide exactly one of `cron` or `interval` (if both are set, the interval is used):
 
 ```ts
 import { task } from "spearkit";
@@ -1855,7 +2436,7 @@ Each field supports `*`, ranges (`1-5`), lists (`1,3,5`) and steps (`*/15`).
 When both day-of-month and day-of-week are restricted, a date matches if
 **either** does (standard cron behaviour).
 
-Aliases: `@yearly`, `@monthly`, `@weekly`, `@daily`, `@hourly`.
+Aliases: `@yearly`/`@annually`, `@monthly`, `@weekly`, `@daily`/`@midnight`, `@hourly`.
 
 ```ts
 task({ name: "report", cron: "@daily", run: () => {} });
@@ -1869,6 +2450,30 @@ Compute the next run yourself with `cron`:
 import { cron } from "spearkit";
 
 const next = cron("*/15 * * * *").next(new Date());
+```
+
+## One-shot jobs, follow-ups and on-ready recovery
+
+Beyond recurring tasks, the scheduler runs one-shot timers (they `unref()`
+themselves, so they never keep the process alive) and a once-on-ready reconciler.
+
+```ts
+// Run once after a delay; returns a cancel handle.
+const handle = client.scheduler.delay("remind", 10 * 60_000, async () => {
+  // …remind the moderator if nothing happened…
+});
+handle.cancel(); // true if it was still pending
+
+// A series of fires measured from "now"; the callback gets the fire index.
+client.scheduler.followUp("escalate", [10_000, 30_000, 60_000], (i) => {
+  // i = 0, then 1, then 2
+});
+
+// Run once the first time the scheduler starts (typically on clientReady) and
+// never again — ideal for restart recovery.
+client.scheduler.reconcile("voice-sessions", async (client) => {
+  // …close orphaned voice sessions, reapply cached state…
+});
 ```
 
 ## The scheduler
@@ -1921,6 +2526,25 @@ new SpearClient({
 });
 ```
 
+### Dynamic (per-guild) prefixes
+
+Pass `dynamic` to resolve extra prefix(es) per message — for example a custom
+per-guild prefix from a database or [`createSettings`](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/api-reference.md#persistent-storage).
+Dynamic prefixes are tried in addition to any static `prefix`; return
+`null`/`undefined` for none. It runs on every candidate message, so keep it fast
+(and cached).
+
+```ts
+new SpearClient({
+  intents: Intents.messages,
+  prefix: {
+    prefix: "!", // static fallback
+    dynamic: async (message) =>
+      message.guildId ? await settings.get(message.guildId).then((s) => s.prefix) : null,
+  },
+});
+```
+
 ## You need the MessageContent intent
 
 Reading the text of other users' messages is a **privileged** gateway intent.
@@ -1969,6 +2593,8 @@ client.register(ping);
 | `aliases` | `string[]` | Extra names that also trigger it. |
 | `description` | `string` | Human description, for your own help command. |
 | `cooldown` | `number \| CooldownConfig` | Per-user rate limit (a number is milliseconds). |
+| `guards` | `readonly Guard[]` | Preconditions run before the handler. See [Guards](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/guards.md). |
+| `args` | `(a) => PrefixArgsBuilder` | Typed argument schema; shapes `ctx.options`. See [Typed arguments](#typed-arguments). |
 | `run` | `(ctx: PrefixContext) => void \| Promise<void>` | The handler. |
 
 ## The prefix context
@@ -1982,6 +2608,7 @@ adds the parsed arguments plus reply helpers.
 | `ctx.commandName` | The matched name as the user typed it (an alias if they used one). |
 | `ctx.args` | Whitespace-split arguments after the command name (`string[]`). |
 | `ctx.rest` | The raw text after the command name (unsplit). |
+| `ctx.options` | Typed parsed arguments from the `args` schema (`{}` when none). |
 | `ctx.author` / `ctx.member` / `ctx.guild` / `ctx.guildId` / `ctx.channel` / `ctx.channelId` | Actor and location accessors. |
 | `ctx.reply(content)` | Reply to the triggering message. |
 | `ctx.send(content)` | Send a message to the same channel without a reply reference. |
@@ -2002,6 +2629,38 @@ export const echo = prefixCommand({
 
 `ctx.args` and `ctx.rest` are two views of the same input: `!say hello   world`
 gives `args === ["hello", "world"]` and `rest === "hello   world"`.
+
+## Typed arguments
+
+Pass an `args` schema to parse positional arguments into typed values. Chain
+builder methods — first token → first arg, second → second, and so on — and read
+the result from `ctx.options`. Each method requires a name and takes optional
+settings (`required`, `default`, and per-type bounds).
+
+```ts
+import { prefixCommand } from "spearkit";
+
+export const mute = prefixCommand({
+  name: "mute",
+  description: "Mute a member",
+  args: (a) =>
+    a
+      .snowflake("target", { required: true })       // raw id or <@mention> → string
+      .duration("duration", { required: true })      // "1h30m" → number (ms)
+      .rest("reason", { default: "No reason given" }), // remaining text → string
+  run: (ctx) => {
+    ctx.options.target;   // string
+    ctx.options.duration; // number
+    ctx.options.reason;   // string
+    return ctx.reply(`Muted <@${ctx.options.target}> for ${ctx.options.duration}ms.`);
+  },
+});
+```
+
+Builder methods: `.string`, `.integer`, `.number`, `.boolean`, `.snowflake`,
+`.duration`, `.rest`. A missing required argument — or a value that fails to
+parse — makes spearkit reply with an error and skip the handler. Without an `args`
+schema, `ctx.options` is `{}`; use `ctx.args` / `ctx.rest` for raw access.
 
 ## Aliases
 
@@ -2269,10 +2928,87 @@ const client = new SpearClient({ logger: { level: "debug" } });
 
 ---
 
+# Discord API errors
+
+discord.js reports REST failures as `DiscordAPIError` with a numeric `code`
+(`10008` "Unknown Message", `50013` "Missing Permissions", `50007` "Cannot send
+DMs to this user", …). Catching *everything* turns recoverable failures — a
+deleted message, a closed DM — into crashes or scary stack traces. spearkit gives
+you named codes, a type-narrowing predicate, and a friendly explanation.
+
+## Recognise and recover
+
+`isDiscordError(err, code?)` narrows the throw and optionally matches a code
+(or a list). Perfect for "ignore this one, re-throw the rest":
+
+```ts
+import { DiscordErrorCode, isDiscordError } from "spearkit";
+
+try {
+  await message.delete();
+} catch (err) {
+  if (isDiscordError(err, DiscordErrorCode.UnknownMessage)) return; // already gone
+  throw err;
+}
+```
+
+```ts
+// match any of several codes
+if (isDiscordError(err, [DiscordErrorCode.UnknownChannel, DiscordErrorCode.MissingAccess])) {
+  return;
+}
+```
+
+## Friendly messages
+
+`explainDiscordError(err)` returns an end-user-appropriate sentence for a
+recognised failure, or `null` otherwise (fall back to a generic message + log):
+
+```ts
+import { explainDiscordError } from "spearkit";
+
+catch (err) {
+  await ctx.error(explainDiscordError(err) ?? "Something went wrong.");
+}
+```
+
+spearkit already routes its own command/context-menu errors through
+`explainDiscordError`, so a handler that throws `Missing Permissions` shows the
+user *"I'm missing the permissions needed to do that."* instead of a generic
+error.
+
+## Named codes
+
+`DiscordErrorCode` is a curated map of the codes bots actually hit:
+
+| Name | Code | When |
+| --- | --- | --- |
+| `UnknownChannel` | 10003 | Channel gone/invisible |
+| `UnknownMessage` | 10008 | Message deleted |
+| `UnknownMember` | 10007 | Member left |
+| `UnknownInteraction` | 10062 | Token expired (the 3s window) |
+| `MissingAccess` | 50001 | No access to the resource |
+| `CannotSendMessagesToThisUser` | 50007 | DMs closed / blocked |
+| `MissingPermissions` | 50013 | Missing a permission |
+| `InteractionHasAlreadyBeenAcknowledged` | 40060 | Double-acked |
+
+(See the type for the full set — it mirrors discord.js' `RESTJSONErrorCodes`.)
+
+## Transport & rate-limit errors
+
+- `isHTTPError(err)` — a transport-level `HTTPError` (timeout, 5xx, aborted): an
+  HTTP status with no Discord JSON code.
+- `isRateLimitError(err)` — a `DiscordAPIError` with HTTP status `429`.
+  `explainDiscordError` handles this case first, returning a "try again in a
+  moment" message.
+
+---
+
 # Usage tracking
 
-Usage tracking records **who used what**: every successful command, component,
-and prefix-command invocation becomes a `UsageEvent` that spearkit can persist to a
+Usage tracking records **who used what**: every command, component, context-menu
+and prefix-command invocation — successful or errored — becomes a `UsageEvent`
+that spearkit can persist to a
 store and/or mirror into a Discord channel. Turn it on with the client's `usage`
 option.
 
@@ -2284,13 +3020,14 @@ independent sinks:
 | | Logger | Usage tracking |
 | --- | --- | --- |
 | Question | *What is the bot doing?* (diagnostics) | *Who used which feature?* (audit) |
-| Content | Free-form messages, levels, errors, internals | Structured `UsageEvent`s for successful uses |
+| Content | Free-form messages, levels, errors, internals | Structured `UsageEvent`s for every completed use (with its `outcome`) |
 | Sinks | Console / your log pipeline | A database store and/or a Discord channel |
 | Configured by | the `logger` option | the `usage` option |
 
-A failed or errored command shows up in your **logs**; it is not recorded as a
-usage event. Reach for the [logger](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/logging.md) for debugging, and usage
-tracking for analytics, audit trails, and "top commands" dashboards.
+Both successes and handler errors are recorded as usage events — an error carries
+`outcome: "error"` and an `errorMessage` — so usage is a complete audit trail.
+The [logger](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/logging.md) is for debugging; usage tracking is for analytics,
+audit trails, and "top commands" dashboards.
 
 ## Enabling it
 
@@ -2308,8 +3045,9 @@ const client = new SpearClient({
 });
 ```
 
-Once enabled, spearkit auto-tracks every successful command, component, and prefix
-command — you write no tracking code in your handlers.
+Once enabled, spearkit auto-tracks every command, component, context-menu and
+prefix-command invocation — successes and errors alike — with no tracking code in
+your handlers.
 
 ## The usage event
 
@@ -2317,15 +3055,22 @@ Each tracked use is a `UsageEvent`:
 
 ```ts
 interface UsageEvent {
-  type: "command" | "prefix" | "component" | "event";
-  name: string;            // command/component/event name
+  type: UsageType;         // "command" | "prefix" | "component" | "event"
+  name: string;            // command / component / event name
   userId?: string;
   userTag?: string;
   guildId?: string | null;
   channelId?: string | null;
   detail?: string;         // free-form extra detail
+  outcome?: UsageOutcome;  // "success" | "error"
+  durationMs?: number;     // handler wall-clock time
+  options?: Readonly<Record<string, UsageMetaValue>>; // snapshot of typed options
+  errorMessage?: string;   // set when outcome === "error"
   timestamp: Date;
 }
+type UsageType = "command" | "prefix" | "component" | "event";
+type UsageOutcome = "success" | "error";
+type UsageMetaValue = string | number | boolean | null;
 ```
 
 ## Stores (the database)
@@ -2702,12 +3447,256 @@ Because `use` awaits `setup`, every plugin is fully installed before
 
 ---
 
+# Collectors
+
+discord.js collectors are powerful but fiddly: you wire an event emitter, set a
+`time`, write a `filter`, remember that dismissed modals need their own timeout,
+and translate the "timed out" rejection into something you can branch on.
+spearkit collapses the common cases to a single `await` that resolves to the
+result — or `null` on timeout.
+
+Beyond these, see the [pagination and confirm helpers](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/api-reference.md#pagination--confirmation)
+for ready-made paged lists and yes/no gates.
+
+## Wait for a message ("type your answer")
+
+`ctx.awaitMessageFrom(userId?, options?)` waits for the next message in the
+current channel from a user (defaults to the invoking user):
+
+```ts
+await ctx.reply("What's your favourite colour?");
+const answer = await ctx.awaitMessageFrom(ctx.user.id, { time: 30_000 });
+if (answer === null) return ctx.followUp("Timed out.");
+await ctx.followUp(`Nice — ${answer.content}!`);
+```
+
+The standalone `awaitMessage(channel, options)` does the same for any text
+channel; `options` takes `{ filter, time }` (default `time` 60s).
+
+## Wait for a modal submission
+
+`ctx.awaitModal(modal, options?)` (on command and component contexts) shows a
+modal and waits for the submission — scoped to the same user and that modal's
+custom-id, always bounded — sidestepping the "Unknown interaction after a
+cancelled modal" trap:
+
+```ts
+import { modal, textInput } from "spearkit";
+
+const form = modal({
+  id: "feedback",
+  title: "Feedback",
+  fields: { text: textInput({ label: "Your feedback", required: true }) },
+  run: (ctx) => ctx.replyEphemeral("thanks"), // routed fallback
+});
+
+const submitted = await ctx.awaitModal(form.build(), { time: 120_000 });
+if (submitted === null) return; // dismissed or timed out
+await submitted.reply({ content: submitted.fields.getTextInputValue("text"), ephemeral: true });
+```
+
+This is the inline alternative to registering a separate modal handler and
+threading state through its custom-id.
+
+## Wait for a component click
+
+`awaitComponent(message, options)` waits for the next button/select interaction
+on a message. `options` takes `{ filter, time, componentType }`. You must still
+acknowledge the returned interaction (`update`/`deferUpdate`/`reply`):
+
+```ts
+import { awaitComponent } from "spearkit";
+
+const sent = await ctx.channel!.send({ content: "Pick one", components: [row] });
+const click = await awaitComponent(sent, { time: 15_000 });
+if (click === null) return;
+await click.update("Got it!");
+```
+
+---
+
+# Key-value store & settings
+
+Almost every community bot needs to remember *something* per guild — a custom
+prefix, a mod-log channel, a welcome message — and reaches for a database on day
+one. spearkit ships a dependency-free `KeyValueStore` interface with two
+backends, plus a typed per-guild settings helper. Swap in Redis/SQL later by
+implementing the same interface.
+
+## Stores
+
+```ts
+import { JsonStore, MemoryStore } from "spearkit";
+
+const dev = new MemoryStore();             // in-memory, great for tests
+const prod = new JsonStore("data/db.json"); // durable JSON file
+```
+
+Both implement `KeyValueStore`:
+
+```ts
+await store.set("key", { any: "json" });
+await store.get<{ any: string }>("key"); // typed read, or undefined
+await store.has("key");
+await store.delete("key");                // → boolean (existed?)
+await store.keys();                       // → string[]
+await store.clear();
+```
+
+`MemoryStore` deep-clones on read and write, so callers can't mutate stored
+state. `JsonStore` serves reads from an in-memory cache and commits writes
+atomically (temp file + rename) through a queue — a crash mid-write can't corrupt
+the file, and concurrent writes don't interleave.
+
+## Typed per-guild settings
+
+`createSettings` wraps a store with defaults. `get` always returns a complete
+object; `set` persists *only* the overrides, so widening `defaults` later is
+safe.
+
+```ts
+import { JsonStore, createSettings } from "spearkit";
+
+const settings = createSettings({
+  store: new JsonStore("data/guilds.json"),
+  defaults: { prefix: "!", modLogChannelId: null as string | null },
+});
+
+const cfg = await settings.get(guildId);          // { prefix, modLogChannelId }
+await settings.set(guildId, { prefix: "?" });     // shallow-merged + persisted
+await settings.reset(guildId);                    // back to defaults
+```
+
+Pass `namespace` to keep several settings groups in one store:
+
+```ts
+const guilds = createSettings({ store, defaults: { prefix: "!" }, namespace: "guild" });
+const users = createSettings({ store, defaults: { xp: 0 }, namespace: "user" });
+```
+
+## Dynamic per-guild prefix
+
+A stored prefix is only useful if prefix commands respect it. `prefix.dynamic`
+resolves extra prefix(es) per message — combine it with `createSettings` for true
+per-guild prefixes:
+
+```ts
+const client = new SpearClient({
+  prefix: {
+    dynamic: async (message) =>
+      message.guildId ? (await settings.get(message.guildId)).prefix : null,
+  },
+});
+```
+
+The resolver runs on every candidate message, so keep it fast (cache or use the
+in-memory `JsonStore` cache). Returned prefixes are tried *in addition* to any
+static `prefix`. See [Prefix commands](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/prefix.md) for the rest of the prefix
+system.
+
+## Namespacing a raw store
+
+`namespaced(store, prefix)` returns a `KeyValueStore` whose keys are
+transparently prefixed — handy for sharing one file across features:
+
+```ts
+import { namespaced } from "spearkit";
+
+const tags = namespaced(store, "tags");
+await tags.set("hello", "world"); // stored under "tags:hello"
+```
+
+---
+
+# Messages & limits
+
+Discord caps a message's `content` at **2000 characters**. Long output — a log
+dump, a list, an AI response — silently fails or throws unless you split it.
+spearkit ships two helpers (in addition to the duration/timestamp formatters; see
+the [API reference](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/api-reference.md)).
+
+## Split long output
+
+`chunkMessage(text, options?)` breaks text into chunks that each fit the limit,
+preferring line boundaries (and word boundaries for an over-long single line) so
+you never lose the tail:
+
+```ts
+import { chunkMessage } from "spearkit";
+
+const parts = chunkMessage(hugeLog); // default max = 2000
+await ctx.reply(parts[0] ?? "(empty)");
+for (const part of parts.slice(1)) await ctx.followUp(part);
+```
+
+Pass `{ max }` to target a smaller budget (e.g. inside a code block or embed
+description). `MESSAGE_CHARACTER_LIMIT` (2000) is exported as the default.
+
+## Truncate
+
+`truncate(text, max, suffix?)` cuts text to `max` characters, appending the
+suffix (default `…`) — the result, suffix included, never exceeds `max`:
+
+```ts
+import { truncate } from "spearkit";
+
+embed.setFooter({ text: truncate(reason, 100) });
+truncate("a very long reason", 10); // → "a very lo…"
+```
+
+---
+
+# Graceful shutdown
+
+A `Ctrl-C` or a container stop sends your process a signal. If you don't handle
+it, the process dies mid-flight — the gateway connection, scheduler timers, and
+any open database handles are reaped abruptly. Graceful shutdown runs an optional
+cleanup hook, calls `client.destroy()` (which also stops spearkit's scheduler),
+then exits — with a hard timeout so a wedged shutdown can't hang forever.
+
+## On a SpearClient
+
+```ts
+client.enableGracefulShutdown({
+  onShutdown: () => db.close(), // flush state before we exit
+});
+await client.start();
+```
+
+Progress is logged through `client.logger`. The method returns a disposer that
+removes the signal handlers (useful for tests / hot-reload).
+
+## Standalone
+
+`gracefulShutdown(client, options)` works with any object that has a `destroy()`
+method:
+
+```ts
+import { gracefulShutdown } from "spearkit";
+
+gracefulShutdown(client, { onShutdown: () => db.close() });
+```
+
+## Options
+
+| Field | Default | Meaning |
+| --- | --- | --- |
+| `signals` | `["SIGINT", "SIGTERM"]` | Signals to listen for. |
+| `timeoutMs` | `10000` | Force-exit if shutdown exceeds this. |
+| `onShutdown` | — | Runs before `destroy()`; receives the signal. |
+| `exit` | `true` | Call `process.exit()` when done (set `false` in tests). |
+| `logger` | — | `{ info?, error? }` progress logger. |
+
+Shutdown runs **once** — repeated signals during teardown are ignored.
+
+---
+
 # File-based loading
 
 Instead of importing and registering every handler by hand, you can keep one
-command, event or component per file and let spearkit discover them. The loader
-imports a directory, inspects each module's exports, and registers everything that
-is a command, event or component.
+handler per file and let spearkit discover them. The loader imports a directory,
+inspects each module's exports, and registers everything that is a command,
+event, component, scheduled task or prefix command.
 
 ## `client.load`
 
@@ -2740,8 +3729,10 @@ await client.deployCommands({ guildId: process.env.GUILD_ID });
 
 For every imported file, spearkit walks **all** of its exports — default *and*
 named — and registers each value that is a command (`command`, `commandGroup`),
-an event (`event`), or a component (`button`, `stringSelect`, `modal`, …). Other
-exports (helpers, constants, types) are ignored. So both of these are picked up:
+an event (`event`), a component (`button`, `stringSelect`, `modal`, …), a
+scheduled task (`task`) or a prefix command (`prefixCommand`). Other exports
+(helpers, constants, types) are ignored, and context-menu commands are **not**
+auto-detected — register those explicitly. So both of these are picked up:
 
 ```ts
 // default export
@@ -2873,17 +3864,39 @@ new SpearClient(options?: SpearClientOptions)
 | `commands` | `CommandRegistry` | Slash command registry + dispatcher. |
 | `events` | `EventRegistry` | Event listener registry. |
 | `components` | `ComponentRegistry` | Button/select/modal router. |
+| `logger` | `Logger` | Structured logger (`client.logger.child(scope)` for sub-scopes). |
+| `cooldowns` | `CooldownManager` | Shared cooldown manager (also used by prefix commands). |
+| `scheduler` | `TaskScheduler` | Cron / interval task scheduler. |
+| `prefix` | `PrefixRegistry` | Prefix (text) command registry. |
+| `usage` | `UsageTracker` | Usage tracker — records who used what. |
+| `embeds` | `Embeds` | Preset embed factory behind `ctx.success/error/...`. |
+| `contextMenus` | `ContextMenuRegistry` | User / message context-menu registry. |
 | `register(...items: Registerable[])` | `this` | Route each item to the matching registry. |
 | `use(...plugins: SpearPlugin[])` | `Promise<this>` | Run each plugin's `setup`. |
 | `load(dir: string, options?: LoadOptions)` | `Promise<number>` | Import a directory and register its exports. Returns count. |
 | `start(token?: string)` | `Promise<this>` | Log in (falls back to `DISCORD_TOKEN`). |
 | `deployCommands(options?: { guildId?: string })` | `Promise<DeployResult>` | Push commands using the client's REST. Call after ready. |
+| `deployAllCommands(options?)` | `Promise<DeployResult \| { skipped: true; reason; body }>` | Deploy slash + context menus together; supports `dryRun` and `strategy: "diff"`. |
+| `schedule(config: TaskConfig)` | `ScheduledTask` | Define and register a scheduled task in one call. |
+| `enableGracefulShutdown(options?: GracefulShutdownOptions)` | `() => void` | Tear down cleanly on `SIGINT`/`SIGTERM`; returns a disposer. |
 
 Inherits everything from discord.js `Client` (`on`, `once`, `login`, `ws`, `rest`, `application`, `user`, …).
 
-### `type SpearClientOptions = Partial<ClientOptions>`
+### `type SpearClientOptions = Partial<ClientOptions> & SpearOptions`
 
-Same as discord.js `ClientOptions`, but `intents` may be omitted (defaults to `Intents.default`).
+discord.js `ClientOptions` (with `intents` optional — it defaults to
+`Intents.default`) intersected with spearkit's own options (`SpearOptions`):
+
+| Option | Type | Configures |
+| ------ | ---- | ---------- |
+| `logger` | `Logger \| LoggerOptions` | The `client.logger`. |
+| `dotenv` | `boolean \| LoadEnvOptions` | Auto-load `.env` on `start()` (default `true`). |
+| `cooldown` | `CooldownInput` | Default cooldown applied to every command. |
+| `prefix` | `string \| readonly string[] \| PrefixOptions` | Enable prefix commands. |
+| `usage` | `UsageOptions` | Usage-tracking store and/or channel. |
+| `embeds` | `Embeds \| EmbedsOptions` | Preset embed factory. |
+| `guards` | `readonly Guard[]` | Default guards run before every handler. |
+| `autoDefer` | `AutoDeferInput` | Default auto-defer for slash + context-menu handlers. |
 
 ### `const Intents`
 
@@ -2897,7 +3910,7 @@ Ready-made intent presets (arrays of `GatewayIntentBits`).
 | `Intents.messages` | `[Guilds, GuildMessages, MessageContent]` |
 | `Intents.all` | Every intent (includes privileged). |
 
-### `type Registerable = SlashCommand | EventDef | ComponentDef`
+### `type Registerable = SlashCommand | EventDef | ComponentDef | ScheduledTask | PrefixCommand | ContextMenuCommand`
 
 The union accepted by `SpearClient.register`.
 
@@ -2919,6 +3932,9 @@ interface CommandConfig<O extends OptionMap, R> {
   guildOnly?: boolean;
   nameLocalizations?: LocalizationMap;
   descriptionLocalizations?: LocalizationMap;
+  cooldown?: CooldownInput;
+  guards?: readonly Guard[];
+  autoDefer?: AutoDeferInput;
   run: (ctx: CommandContext<O>) => Awaitable<R>;
 }
 ```
@@ -2938,6 +3954,9 @@ interface CommandGroupConfig {
   guildOnly?: boolean;
   nameLocalizations?: LocalizationMap;
   descriptionLocalizations?: LocalizationMap;
+  cooldown?: CooldownInput;
+  guards?: readonly Guard[];
+  autoDefer?: AutoDeferInput;
 }
 ```
 
@@ -2973,6 +3992,9 @@ interface SubcommandGroupConfig {
 | `toJSON()` | `RESTPostAPIChatInputApplicationCommandsJSONBody` | REST payload. |
 | `execute(interaction)` | `Promise<void>` | Run for a chat-input interaction. |
 | `autocomplete(interaction)` | `Promise<void>` | Run autocomplete for the focused option. |
+| `cooldown` | `CooldownConfig \| undefined` | Resolved cooldown, when set. |
+| `guards` | `readonly Guard[] \| undefined` | Guards run before `execute`. |
+| `autoDefer` | `AutoDeferConfig \| undefined` | Resolved auto-defer config, when set. |
 
 ### `class CommandContext<O> extends BaseContext<ChatInputCommandInteraction>`
 
@@ -2982,6 +4004,7 @@ interface SubcommandGroupConfig {
 | `commandName` | `string` | Invoked command name. |
 | `subcommand` | `string \| null` | Invoked subcommand, if any. |
 | `showModal(modal)` | `Promise<void>` | Present a modal. |
+| `awaitModal(modal, options?)` | `Promise<ModalSubmitInteraction \| null>` | Show a modal and await its submission (scoped to this user). |
 
 Plus all `BaseContext` members.
 
@@ -3000,6 +4023,10 @@ Plus all `BaseContext` members.
 | `handle(interaction)` | `Promise<void>` | Dispatch a chat-input interaction. |
 | `handleAutocomplete(interaction)` | `Promise<void>` | Dispatch an autocomplete interaction. |
 | `deploy(options: DeployOptions)` | `Promise<DeployResult>` | Push commands to discord. |
+| `setLogger(logger: Logger)` | `this` | Attach a debug logger for dispatch tracing. |
+| `setCooldowns(manager: CooldownManager, default?: CooldownConfig)` | `this` | Wire a shared cooldown manager and optional default. |
+| `setDefaultGuards(guards: readonly Guard[])` | `this` | Guards run before each command's own guards. |
+| `setUsageHook(hook: (event: UsageEvent) => void)` | `this` | Called after each dispatch (success or error). |
 
 ```ts
 type CommandErrorHandler = (error: Error, interaction: ChatInputCommandInteraction) => Awaitable<void>;
@@ -3137,6 +4164,7 @@ interface ButtonConfig<P extends string, R> {
   style?: ButtonStyleInput;    // "Primary" | "Secondary" | "Success" | "Danger" | ButtonStyle.*
   emoji?: ComponentEmojiResolvable;
   disabled?: boolean;
+  guards?: readonly Guard[];
   run: (ctx: ButtonContext<Params<P>>) => Awaitable<R>;
 }
 
@@ -3146,11 +4174,13 @@ interface StringSelectConfig<P extends string, R> {
   id: P;
   options: readonly SelectMenuComponentOptionData[];
   placeholder?: string; minValues?: number; maxValues?: number; disabled?: boolean;
+  guards?: readonly Guard[];
   run: (ctx: StringSelectContext<Params<P>>) => Awaitable<R>;
 }
 
 interface EntitySelectConfig<P extends string> {
   id: P; placeholder?: string; minValues?: number; maxValues?: number; disabled?: boolean;
+  guards?: readonly Guard[];
 }
 // user/role/mentionable selects take EntitySelectConfig & { run };
 // channelSelect additionally takes { channelTypes?: readonly ChannelType[] }.
@@ -3165,6 +4195,7 @@ interface ModalConfig<P extends string, F extends Record<string, TextInputDef>, 
   id: P;
   title: string;
   fields: F;
+  guards?: readonly Guard[];
   run: (ctx: ModalContext<Params<P>, keyof F & string>) => Awaitable<R>;
 }
 ```
@@ -3173,7 +4204,7 @@ interface ModalConfig<P extends string, F extends Record<string, TextInputDef>, 
 
 | Class | Extra members |
 | ----- | ------------- |
-| `MessageComponentContext<P, I>` | `params`, `customId`, `message`, `update(input)`, `deferUpdate()`, `showModal(modal)` (+ BaseContext) |
+| `MessageComponentContext<P, I>` | `params`, `customId`, `message`, `update(input)`, `deferUpdate()`, `showModal(modal)`, `awaitModal(modal, options?)` (+ BaseContext) |
 | `ButtonContext<P>` | — |
 | `StringSelectContext<P>` | `values: string[]`, `value: string \| undefined` |
 | `UserSelectContext<P>` | `values`, `users`, `members` |
@@ -3190,6 +4221,9 @@ interface ModalConfig<P extends string, F extends Record<string, TextInputDef>, 
 | `onError(handler: ComponentErrorHandler)` | `this` | Set the error handler. |
 | `size` | `number` | Count. |
 | `handle(interaction: Interaction)` | `Promise<boolean>` | Route an interaction; `true` if matched. |
+| `setLogger(logger: Logger)` | `this` | Debug logger for dispatch tracing. |
+| `setUsageHook(hook: (event: UsageEvent) => void)` | `this` | Called after each component run (success or error). |
+| `setDefaultGuards(guards: readonly Guard[])` | `this` | Guards run before each component's own guards. |
 
 ```ts
 type ComponentErrorHandler = (error: Error, interaction: RepliableInteraction) => Awaitable<void>;
@@ -3229,7 +4263,14 @@ The base for every interaction context.
 | `editReply(input)` | `Promise<Message>` | Edit the response. |
 | `followUp(input)` | `Promise<Message>` | Additional message. |
 | `send(input)` | `Promise<void>` | State-aware reply/edit/followUp. |
-| `error(message)` | `Promise<void>` | State-aware ephemeral error. |
+| `error(input, options?)` | `Promise<void>` | State-aware preset error embed; defaults to ephemeral (pass `{ ephemeral: false }` to override). |
+| `success` / `info` / `warn` `(input, options?)` | `Promise<void>` | State-aware preset embeds (green / blue / yellow). |
+| `replyError(input, options?)` | `Promise<InteractionResponse>` | Initial-reply error embed; defaults to ephemeral. |
+| `replySuccess` / `replyInfo` / `replyWarn` `(input, options?)` | `Promise<InteractionResponse>` | Initial-reply preset embeds. |
+| `botPermissions` | `Readonly<PermissionsBitField>` | The bot's resolved permissions in the channel (zero-fetch). |
+| `botMissing(required)` | `PermissionsString[]` | Permission names the bot is missing here. |
+| `userMissing(required)` | `PermissionsString[]` | Permission names the invoking user is missing here. |
+| `awaitMessageFrom(userId?, options?)` | `Promise<Message \| null>` | Wait for the next message from a user in this channel. |
 
 ```ts
 type ReplyData = InteractionReplyOptions & { ephemeral?: boolean };
@@ -3264,12 +4305,12 @@ function loadInto(client: SpearClient, dir: string, options?: LoadOptions): Prom
 ## Added in 0.2
 
 New subsystems, each with a dedicated guide. The `SpearClient` options
-`{ logger?, dotenv?, cooldown?, prefix?, usage? }` configure them.
+`{ logger?, dotenv?, cooldown?, prefix?, usage?, embeds?, guards? }` configure them.
 
 ### Logging — [guide](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/logging.md)
 
 ```ts
-class Logger { debug/info/warn/error(message: string, options?: { error?: Error; data?: Record<string, LogValue> }): void; child(scope: string): Logger; setLevel(level: LogThreshold): this; enabled(level: LogLevel): boolean; }
+class Logger { log(level, message, options?): void; debug/info/warn/error(message: string, options?: { error?: Error; data?: Record<string, LogValue> }): void; child(scope: string): Logger; setLevel(level: LogThreshold): this; enabled(level: LogLevel): boolean; addTransport(sink): this; setTransports(sinks): this; }
 type LogLevel = "debug" | "info" | "warn" | "error";
 type LogThreshold = LogLevel | "silent";
 function consoleSink(entry: LogEntry): void;
@@ -3291,6 +4332,13 @@ const env: { string(k, fallback?); number(k, fallback?); boolean(k, fallback?); 
 ```ts
 interface CooldownConfig { duration: number; scope?: "user" | "guild" | "channel" | "global"; exempt?: { users?: string[]; roles?: string[] }; overrides?: { users?: Record<string, number>; roles?: Record<string, number> }; message?: string | ((remainingMs: number) => string); }
 class CooldownManager { consume(bucket, input, actor, now?); peek(...); reset(...); clear(); }
+type CooldownInput = number | CooldownConfig;       // a bare ms duration, or a full config
+type CooldownScope = "user" | "guild" | "channel" | "global";
+type CooldownResult = { allowed: true } | { allowed: false; remaining: number };
+interface CooldownActor { userId; roleIds; guildId; channelId; }   // also: CooldownExemptions, CooldownOverrides
+function normalizeCooldown(input: CooldownInput): CooldownConfig;
+function effectiveDuration(config: CooldownConfig, actor: CooldownActor): number | null; // null = exempt
+function formatCooldownMessage(config: CooldownConfig, remainingMs: number): string;
 // command({ cooldown: number | CooldownConfig }); new SpearClient({ cooldown }); client.cooldowns
 ```
 
@@ -3299,15 +4347,15 @@ class CooldownManager { consume(bucket, input, actor, now?); peek(...); reset(..
 ```ts
 function task(config: { name: string; cron?: string; interval?: number; runOnStart?: boolean; run: (client: SpearClient) => Awaitable<void> }): ScheduledTask;
 function cron(expression: string): CronExpression; // .next(from?: Date): Date
-class TaskScheduler { add/remove/list/size/active/start/stop }
+class TaskScheduler { add/remove/list/size/active/start/stop/setLogger; delay/followUp/reconcile (see "Scheduler — one-shot + reconcile") }
 // client.register(task(...)); client.schedule(config); client.scheduler
 ```
 
 ### Prefix commands — [guide](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/prefix.md)
 
 ```ts
-function prefixCommand(config: { name: string; aliases?: string[]; description?: string; cooldown?: CooldownInput; run: (ctx: PrefixContext) => Awaitable<R> }): PrefixCommand;
-class PrefixContext { message; commandName; args: string[]; rest: string; reply(content); send(content); }
+function prefixCommand<TArgs, R>(config: { name: string; aliases?: readonly string[]; description?: string; cooldown?: CooldownInput; guards?: readonly Guard[]; args?: (a: PrefixArgsBuilder<{}>) => PrefixArgsBuilder<TArgs>; run: (ctx: PrefixContext<TArgs>) => Awaitable<R> }): PrefixCommand;
+class PrefixContext<TArgs> { message; commandName; args: string[]; rest: string; options: TArgs; client; author; member; guild; guildId; channel; channelId; reply(content); send(content); }
 // new SpearClient({ prefix: "!" | string[] | { prefix, mention?, ignoreBots?, caseInsensitive? } }); client.prefix
 // reading others' content needs the privileged MessageContent intent (Intents.messages)
 ```
@@ -3315,7 +4363,11 @@ class PrefixContext { message; commandName; args: string[]; rest: string; reply(
 ### Usage tracking — [guide](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/usage.md)
 
 ```ts
-interface UsageEvent { type: "command" | "prefix" | "component" | "event"; name: string; userId?; userTag?; guildId?; channelId?; detail?; timestamp: Date; }
+interface UsageEvent { type: UsageType; name: string; userId?; userTag?; guildId?; channelId?; detail?; outcome?: UsageOutcome; durationMs?: number; options?: Readonly<Record<string, UsageMetaValue>>; errorMessage?: string; timestamp: Date; }
+type UsageType = "command" | "prefix" | "component" | "event";
+type UsageOutcome = "success" | "error";
+type UsageMetaValue = string | number | boolean | null;
+function formatUsage(event: UsageEvent): string; // default channel-line renderer
 interface UsageStore { record(event): Awaitable<void>; all(): Awaitable<readonly UsageEvent[]>; }
 class MemoryUsageStore { record; all; size; byUser(id); clear; }
 class JsonFileUsageStore { constructor(path: string); record; all; }
@@ -3335,16 +4387,22 @@ log/usage transports a real Discord bot ends up writing.
 ### Embeds — preset replies
 
 ```ts
-class Embeds { error(input); success(input); info(input); warn(input); build(level, input); }
-function createEmbeds(opts?): Embeds; // alias for new Embeds(opts)
+class Embeds { constructor(options?: EmbedsOptions); error(input); success(input); info(input); warn(input); build(level, input); readonly colors: EmbedColors; readonly icons: EmbedIcons; }
+const defaultEmbeds: Embeds;                 // shared default used when `client.embeds` is unset
+const DEFAULT_EMBED_COLORS: EmbedColors;     // red / green / blue / yellow
+const DEFAULT_EMBED_ICONS: EmbedIcons;       // ⛔ ✅ ℹ️ ⚠️
 // SpearClient owns one as `client.embeds`; configure via the `embeds` option.
 // BaseContext gains ctx.success/info/warn/error (state-aware send) + replySuccess/replyInfo/replyWarn/replyError.
 ```
 
-### Guards — declarative preconditions
+### Guards — declarative preconditions — [guide](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/guards.md)
 
 ```ts
 type Guard<TCtx extends GuardContext = GuardContext> = (ctx: TCtx) => Awaitable<GuardResult>;
+interface GuardContext { client; user; member; guild; guildId; channelId; }
+type GuardResult = boolean | { allowed: false; reason?: string };
+type RunGuardsResult = { allowed: true } | { allowed: false; reason: string | undefined };
+function runGuards<TCtx extends GuardContext>(ctx: TCtx, guards?: readonly Guard<TCtx>[]): Promise<RunGuardsResult>;
 function denied(reason?: string): GuardResult;
 function guildOnly(reason?: string): Guard;
 function dmOnly(reason?: string): Guard;
@@ -3354,49 +4412,62 @@ function requireOwner(ownerIds: readonly string[], reason?: string): Guard;
 function requireUserPermissions(permission: PermissionResolvable, reason?: string): Guard;
 function requireBotPermissions(permission: PermissionResolvable, reason?: string): Guard;
 function guard<TCtx>(predicate: Guard<TCtx>): Guard<TCtx>;
+// every built-in guard takes an optional custom `reason`; each has a sensible default message.
 // per-handler: command({ guards: [...] }), prefixCommand({ guards }), button({ guards }), userCommand({ guards }), ...
 // client-wide: new SpearClient({ guards: [...] })
 ```
 
-### Context-menu commands
+### Context-menu commands — [guide](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/context-menus.md)
 
 ```ts
-function userCommand({ name, run: (ctx: UserContextMenuContext) => Awaitable<R>, guards?, cooldown? }): UserContextMenu;
-function messageCommand({ name, run: (ctx: MessageContextMenuContext) => Awaitable<R>, guards?, cooldown? }): MessageContextMenu;
-// SpearClient.deployAllCommands deploys slash + context menus in one PUT.
+interface ContextMenuMeta { defaultMemberPermissions?: PermissionResolvable | null; nsfw?: boolean; guildOnly?: boolean; nameLocalizations?: LocalizationMap; cooldown?: CooldownInput; guards?: readonly Guard[]; autoDefer?: AutoDeferInput; }
+function userCommand<R>(config: ContextMenuMeta & { name: string; run: (ctx: UserContextMenuContext) => Awaitable<R> }): UserContextMenu;
+function messageCommand<R>(config: ContextMenuMeta & { name: string; run: (ctx: MessageContextMenuContext) => Awaitable<R> }): MessageContextMenu;
+// UserContextMenuContext adds ctx.targetUser, ctx.targetMember; MessageContextMenuContext adds ctx.targetMessage (+ BaseContext).
+// ContextMenuCommand = UserContextMenu | MessageContextMenu; client.contextMenus is a ContextMenuRegistry.
+// Deploy slash commands + menus together with client.deployAllCommands({ guildId }).
 ```
 
 ### Prefix typed arguments
 
 ```ts
 function prefixArgs(): PrefixArgsBuilder<{}>;
-// builder methods: .string/.integer/.number/.boolean/.snowflake/.duration/.rest
-// prefixCommand<TArgs>({ args: a => a.snowflake("target").duration("dur").rest("reason"), run: ctx => ctx.options }))
+// builder methods — each requires a `name` and takes an optional options object:
+//   .string(name, { required?, minLength?, maxLength?, default? })   -> string
+//   .integer(name, { required?, minValue?, maxValue?, default? })    -> number
+//   .number(name,  { required?, minValue?, maxValue?, default? })    -> number
+//   .boolean(name, { required?, default? })                          -> boolean
+//   .snowflake(name, { required?, default? })   -> string (accepts raw ids and <@u>/<#c>/<@&r> mentions)
+//   .duration(name, { required?, default? })    -> number ("1h30m" parsed to ms)
+//   .rest(name, { required?, default? })        -> string (remaining text)
+// prefixCommand({ args: (a) => a.snowflake("target", { required: true }).duration("dur").rest("reason", { default: "No reason" }), run: (ctx) => ctx.options });
 ```
 
 ### Pagination + Confirmation
 
 ```ts
-function paginate<T>(interaction, items, { pageSize, render, user?, timeoutMs?, controls?, ephemeral? }): Promise<void>;
+function paginate<T>(interaction, items, { render, pageSize?, user?, timeoutMs?, controls?: "prev-next" | "first-prev-next-last", ephemeral?, namespace?, labels?: { first?; prev?; next?; last? } }): Promise<void>;
 function buildPaginatorPage<T>(items, page, options): Promise<{ payload; pages }>;
-function confirm(interaction, { title?, body, confirm?, cancel?, user?, timeoutMs?, ephemeral? }): Promise<{ confirmed, reason, interaction? }>;
+function confirm(interaction, { body, title?, confirm?: { label?; style? }, cancel?: { label?; style? }, user?, timeoutMs?, ephemeral?, namespace? }): Promise<{ confirmed: boolean; reason: "confirm" | "cancel" | "timeout"; interaction? }>; // style: "Primary" | "Secondary" | "Success" | "Danger"
 ```
 
 ### Primitives
 
 ```ts
-class KeyedLock { tryAcquire(key, ttl?); run(key, fn, { onBusy?, ttl? }); isHeld(key); forget(key); dispose(); }
-const safeFetch = { member, channel, message, user, guild, role, try }; // each returns T | null
+class KeyedLock { constructor(options?: { ttl?: number; sweep?: number }); tryAcquire(key, ttl?); run(key, fn, { onBusy?, ttl? }); isHeld(key); forget(key); dispose(); readonly size: number; }
+const safeFetch = { member, channel, message, user, guild, role, try }; // each returns T | null; also exported standalone as fetchMember/fetchChannel/fetchMessage/fetchUser/fetchGuild/fetchRole/safeTry
 function withSafeTimeout<T>(p: Promise<T>, ms): Promise<T | null>;
-function formatDuration(ms, { locale?: "en" | "tr" | UnitLabels; largest?; units? }): string;
+function formatDuration(ms, opts?: { locale?: string | UnitLabels; largest?: number; units?: readonly DurationUnit[] }): string; // locale: "en"|"en-US"|"en-GB"|"tr"|"tr-TR" or a custom label set; unknown locales fall back to en
 function parseDuration(input: string): number | null;
 function discordTimestamp(date, style?: "t"|"T"|"d"|"D"|"f"|"F"|"R"): string;
 function relativeTimestamp(date): string;
 interface CacheStore { get; set; delete; has; increment; rateLimit; clear; }
 class MemoryCache implements CacheStore { /* TTL, counter, fixed-window rate limit */ }
+function createCache(): CacheStore; // default in-memory cache
 function loadConfig<T>({ file, parser?, schema?, encoding? }): T;
 function loadConfigAsync<T>(opts): Promise<T>;
 function lookup<K, V>(table, resourceName?): (key: K) => V;
+function lookupOptional<K, V>(table): (key: K) => V | undefined; // non-throwing variant of lookup
 ```
 
 ### Logger transports
@@ -3405,6 +4476,7 @@ function lookup<K, V>(table, resourceName?): (key: K) => V;
 new Logger({ level, transports: [consoleSink, jsonlSink("./logs/bot.jsonl"), webhookSink({ url, minLevel: "error" })] });
 function jsonlSink(path: string, { minLevel? }?): LogSink;
 function webhookSink({ url, minLevel?, username? }): LogSink;
+function consoleSink(entry: LogEntry): void; // default human-readable console transport
 // Logger.addTransport(sink), setTransports([sinks])
 ```
 
@@ -3423,18 +4495,125 @@ client.deployAllCommands({ guildId, dryRun: true });            // returns { ski
 client.deployAllCommands({ guildId, strategy: "diff" });        // skips PUT when remote matches
 client.deployAllCommands({ applicationId: "...", strategy: "diff" }); // explicit app id, no ready required
 ```
+---
 
-### Usage outcome + duration
+## Added in 0.4
+
+Reliability and moderation helpers distilled from production bots: never lose an
+interaction to the 3-second window, shut down cleanly, run permission/hierarchy
+preflights, persist per-guild settings, and await replies without hand-rolled
+collectors.
+
+### Auto-defer — [guide](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/auto-defer.md)
 
 ```ts
-interface UsageEvent {
-  type; name; userId; userTag; guildId; channelId; detail?;
-  outcome?: "success" | "error";
-  durationMs?: number;
-  errorMessage?: string;
-  options?: Record<string, string | number | boolean | null>;
-  timestamp: Date;
+type AutoDeferInput = boolean | { ephemeral?: boolean; delayMs?: number };
+interface AutoDeferConfig { ephemeral: boolean; delayMs: number; }
+const DEFAULT_AUTO_DEFER_DELAY_MS = 2000;
+function normalizeAutoDefer(input?: AutoDeferInput): AutoDeferConfig | undefined;
+function armAutoDefer(interaction, config: AutoDeferConfig): () => void; // returns a cancel fn
+type AutoDeferrableInteraction = ChatInputCommandInteraction | UserContextMenuCommandInteraction | MessageContextMenuCommandInteraction;
+// Enable per handler: command({ autoDefer: true }), userCommand({ autoDefer }), messageCommand({ autoDefer })
+// Or globally: new SpearClient({ autoDefer: true }). With it on, respond via ctx.send / ctx.editReply.
+// Arms a timer when the handler starts; defers if it hasn't responded by ~2s, preventing "Unknown interaction" (10062).
+```
+
+### Graceful shutdown
+
+```ts
+interface GracefulShutdownOptions {
+  signals?: readonly NodeJS.Signals[];   // default ["SIGINT", "SIGTERM"]
+  timeoutMs?: number;                     // force-exit after this; default 10000
+  exit?: boolean;                         // call process.exit when done; default true
+  onShutdown?: (signal: NodeJS.Signals) => Awaitable<void>; // runs before client.destroy()
+  logger?: { info?(msg): void; error?(msg, meta?): void };
 }
+interface Destroyable { destroy(): Awaitable<void>; } // a discord.js Client qualifies
+interface ShutdownLogger { info?(message: string): void; error?(message: string, meta?: unknown): void; }
+function gracefulShutdown(client: Destroyable, options?: GracefulShutdownOptions): () => void;
+// SpearClient.enableGracefulShutdown(options?) wires it with client.logger and returns a disposer.
+```
+
+### Permissions & moderation — [guide](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/permissions.md)
+
+```ts
+type PermissionHolder = GuildMember | Role;
+function missingPermissions(channel: GuildBasedChannel, who: PermissionHolder, required: PermissionResolvable): PermissionsString[];
+function botMissingPermissions(channel: GuildBasedChannel, required: PermissionResolvable): PermissionsString[];
+function hasPermissions(channel: GuildBasedChannel, who: PermissionHolder, required: PermissionResolvable): boolean;
+function compareRoles(a: GuildMember, b: GuildMember): number;     // by highest-role position
+function canActOn(actor: GuildMember, target: GuildMember): boolean;
+function formatPermissions(permissions: PermissionResolvable): string; // human, comma-separated
+
+type ModerationCheckResult = { ok: true } | { ok: false; reason: string };
+interface ModerationCheckOptions { moderator: GuildMember; target: GuildMember; me?: GuildMember | null; action?: string; }
+function moderationCheck(options: ModerationCheckOptions): ModerationCheckResult; // self / owner / role-hierarchy preflight
+```
+
+### Persistent storage
+
+```ts
+interface KeyValueStore {
+  get<T>(key: string): Promise<T | undefined>;
+  set<T>(key: string, value: T): Promise<void>;
+  has(key: string): Promise<boolean>;
+  delete(key: string): Promise<boolean>;
+  keys(): Promise<string[]>;
+  clear(): Promise<void>;
+}
+class MemoryStore implements KeyValueStore { /* deep-cloned in-memory */ }
+class JsonStore implements KeyValueStore { constructor(path: string); /* atomic JSON file */ }
+function namespaced(store: KeyValueStore, prefix: string): KeyValueStore;
+
+interface SettingsManager<T> { readonly defaults: T; readonly store: KeyValueStore; get(id): Promise<T>; set(id, patch: Partial<T>): Promise<T>; reset(id): Promise<void>; }
+interface CreateSettingsOptions<T> { store: KeyValueStore; defaults: T; namespace?: string; } // namespace default "settings"
+function createSettings<T extends Record<string, unknown>>(options: CreateSettingsOptions<T>): SettingsManager<T>;
+```
+
+### Collectors
+
+```ts
+interface AwaitMessageOptions { filter?: (m: Message) => boolean; time?: number; }   // time default 60000
+function awaitMessage(channel: CollectableChannel, options?: AwaitMessageOptions): Promise<Message | null>;
+interface AwaitComponentOptions { filter?; time?; componentType?: ComponentType; }   // time default 60000
+function awaitComponent(message: Message, options?: AwaitComponentOptions): Promise<MessageComponentInteraction | null>;
+interface AwaitModalOptions { time?: number; filter?: (i: ModalSubmitInteraction) => boolean; } // time default 120000
+function showAndAwaitModal(interaction: ModalShowingInteraction, modal: ModalLike, options?: AwaitModalOptions): Promise<ModalSubmitInteraction | null>;
+// Context sugar: ctx.awaitMessageFrom(userId?, options?) and ctx.awaitModal(modal, options?) (command + component contexts).
+```
+
+### Discord errors — [guide](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/errors.md)
+
+```ts
+const DiscordErrorCode = { UnknownChannel, UnknownGuild, UnknownMember, UnknownMessage, UnknownUser,
+  UnknownInteraction, MissingAccess, CannotExecuteActionOnDMChannel, CannotSendMessagesToThisUser,
+  MissingPermissions, InvalidFormBodyOrContentType, InteractionHasAlreadyBeenAcknowledged,
+  MaximumNumberOfGuildsReached, MaximumNumberOfReactionsReached } as const; // named RESTJSONErrorCodes
+type DiscordErrorCodeValue = (typeof DiscordErrorCode)[keyof typeof DiscordErrorCode];
+function isDiscordError(error: unknown, code?: number | string | readonly (number | string)[]): error is DiscordAPIError;
+function isHTTPError(error: unknown): error is HTTPError;
+function isRateLimitError(error: unknown): boolean;        // HTTP 429
+function explainDiscordError(error: unknown): string | null; // end-user-friendly sentence, or null
+// The default command/component error reply uses explainDiscordError(...) when it can.
+```
+
+### Message formatting
+
+```ts
+const MESSAGE_CHARACTER_LIMIT = 2000;
+function truncate(text: string, max: number, suffix?: string): string;       // suffix default "…"
+interface ChunkOptions { max?: number; }                                      // default MESSAGE_CHARACTER_LIMIT
+function chunkMessage(text: string, options?: ChunkOptions): string[];        // splits on line/word boundaries
+```
+
+### Dynamic prefixes
+
+```ts
+// PrefixOptions gains a per-message resolver (e.g. a per-guild prefix from a store):
+interface PrefixOptions { /* …prefix, mention, ignoreBots, caseInsensitive… */
+  dynamic?: (message: Message) => Awaitable<string | readonly string[] | null | undefined>;
+}
+// Dynamic prefixes are tried in addition to any static prefix. Keep the resolver fast (cache it).
 ```
 
 ---
