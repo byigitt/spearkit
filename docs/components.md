@@ -131,9 +131,13 @@ Select contexts also have `ctx.params`, `ctx.update`, `ctx.deferUpdate`,
 
 ## Modals
 
-A modal declares its `fields` as a map of name → `textInput`. The submit handler
-receives the submitted values in `ctx.fields`, keyed (and typed) by those names,
-plus any custom-id params in `ctx.params`.
+A modal declares its `fields` as a map of name → field definition. The submit
+handler receives the submitted values in `ctx.fields`, keyed (and typed) by
+those names, plus any custom-id params in `ctx.params`.
+
+Every field renders as a Discord **Label** component (type 18) — the
+recommended modal surface. Legacy Action Row + Text Input modals are no longer
+emitted; the visible UX is identical, but new clients receive Label payloads.
 
 ```ts
 import { modal, textInput } from "spearkit";
@@ -154,9 +158,75 @@ const feedback = modal({
 });
 ```
 
-`textInput` config: `label` (required), `style` (`"Short"` default, or
-`"Paragraph"`, or a `TextInputStyle`), `placeholder`, `required`, `minLength`,
-`maxLength`, `value`.
+`textInput` config: `label` (required), `description?`, `style` (`"Short"`
+default, or `"Paragraph"`, or a `TextInputStyle`), `placeholder`, `required`,
+`minLength`, `maxLength`, `value`.
+
+### Field types
+
+Beyond text inputs, modals support the full Label surface — each definition
+carries its handler value type:
+
+| Builder | Submits as | Notes |
+| ------- | ---------- | ----- |
+| `textInput(...)` | `string` | Classic text input inside a Label. |
+| `radioGroup({ options })` | literal union of option values | Exactly one pick; `required: false` widens to `\| undefined`. |
+| `checkboxGroup({ options })` | array of option values | `minValues: 0` makes the group skippable (`[]`). |
+| `checkbox({ label })` | `boolean` | Cannot be required per the Discord spec. |
+| `fileUpload({...})` | `Attachment[]` | `allowedFileTypes` filters MIME types / extensions. |
+| `stringSelectField({ options })` | `string[]` | Select menus inside a modal. |
+| `userSelectField()` / `roleSelectField()` / `channelSelectField()` / `mentionableSelectField()` | `string[]` of ids | Entity selects inside a modal. |
+
+```ts
+import {
+  checkbox,
+  checkboxGroup,
+  fileUpload,
+  modal,
+  radioGroup,
+  textInput,
+} from "spearkit";
+
+const report = modal({
+  id: "report:{userId}",
+  title: "Report",
+  fields: {
+    reason: textInput({ label: "Why", style: "Paragraph", required: true }),
+    kind: radioGroup({
+      label: "Type",
+      description: "What is this?",
+      options: [
+        { label: "Spam", value: "spam" },
+        { label: "Abuse", value: "abuse" },
+      ],
+    }),
+    extras: checkboxGroup({
+      label: "Also",
+      minValues: 0,
+      maxValues: 2,
+      options: [
+        { label: "Ban", value: "ban" },
+        { label: "Delete", value: "delete" },
+      ],
+    }),
+    agree: checkbox({ label: "I understand" }),
+    proof: fileUpload({ label: "Screenshots", minValues: 0, maxValues: 5 }),
+  },
+  run: (ctx) => {
+    ctx.params.userId;   // string
+    ctx.fields.reason;   // string
+    ctx.fields.kind;     // "spam" | "abuse"
+    ctx.fields.extras;   // ("ban" | "delete")[]
+    ctx.fields.agree;    // boolean
+    ctx.fields.proof;    // Attachment[]
+  },
+});
+```
+
+Discord rules worth knowing: radio groups need **2–10** options, checkbox
+groups allow at most one checkbox per option and `maxValues ≤ options.length`,
+and a group/upload with `required` cannot have `minValues: 0` — spearkit
+derives the payload flag from `minValues` for you.
 
 Open a modal from a command or a component handler with `showModal` — modals
 cannot be the *response* to another modal, but they can follow a command or a

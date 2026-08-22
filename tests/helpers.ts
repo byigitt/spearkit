@@ -227,19 +227,102 @@ export function fakeStringSelect(
   return { interaction: base as unknown as StringSelectMenuInteraction, capture };
 }
 
+/** Typed modal-field values beyond plain text inputs. */
+export interface FakeModalData {
+  selects?: Record<string, string[]>;
+  users?: Record<string, string[]>;
+  roles?: Record<string, string[]>;
+  channels?: Record<string, string[]>;
+  radio?: Record<string, string | null>;
+  checkboxGroups?: Record<string, string[]>;
+  checkboxes?: Record<string, boolean>;
+  files?: Record<string, Record<string, unknown>[]>;
+}
+
+function idCollection(ids: string[]): { keys(): IterableIterator<string>; values(): IterableIterator<string> } {
+  const set = new Set(ids);
+  return set;
+}
+
 /** A fake modal-submit interaction carrying field values. */
 export function fakeModalSubmit(
   customId: string,
   fields: Record<string, string>,
+  data: FakeModalData = {},
 ): { interaction: ModalSubmitInteraction; capture: Capture } {
   const client = new EventEmitter();
   const capture = newCapture(client);
+  const present = (record: Record<string, unknown> | undefined, key: string): boolean =>
+    record !== undefined && Object.prototype.hasOwnProperty.call(record, key);
   const base = {
     ...componentBase(customId, { isButton: false, isStringSelectMenu: false, isModalSubmit: true }, capture, client),
     fields: {
       getTextInputValue: (key: string) => {
         if (key in fields) return fields[key];
         throw new Error(`no field ${key}`);
+      },
+      getStringSelectValues: (key: string) => {
+        if (!present(data.selects, key)) throw new Error(`no field ${key}`);
+        return data.selects![key]!;
+      },
+      getSelectedUsers: (key: string, required?: boolean) => {
+        if (!present(data.users, key)) {
+          if (required) throw new Error(`no field ${key}`);
+          return null;
+        }
+        return idCollection(data.users![key]!);
+      },
+      getSelectedRoles: (key: string, required?: boolean) => {
+        if (!present(data.roles, key)) {
+          if (required) throw new Error(`no field ${key}`);
+          return null;
+        }
+        return idCollection(data.roles![key]!);
+      },
+      getSelectedChannels: (key: string, required?: boolean) => {
+        if (!present(data.channels, key)) {
+          if (required) throw new Error(`no field ${key}`);
+          return null;
+        }
+        return idCollection(data.channels![key]!);
+      },
+      getSelectedMentionables: (key: string, required?: boolean) => {
+        const users = data.users?.[key];
+        const roles = data.roles?.[key];
+        if (users === undefined && roles === undefined) {
+          if (required) throw new Error(`no field ${key}`);
+          return null;
+        }
+        return {
+          users: idCollection(users ?? []),
+          roles: idCollection(roles ?? []),
+          members: idCollection([]),
+        };
+      },
+      getRadioGroup: (key: string, required?: boolean) => {
+        const value = data.radio?.[key];
+        if (value === undefined || value === null) {
+          if (required) throw new Error(`no field ${key}`);
+          return null;
+        }
+        return value;
+      },
+      getCheckboxGroup: (key: string) => {
+        if (!present(data.checkboxGroups, key)) throw new Error(`no field ${key}`);
+        return data.checkboxGroups![key]!;
+      },
+      getCheckbox: (key: string) => {
+        if (!present(data.checkboxes, key)) throw new Error(`no field ${key}`);
+        return data.checkboxes![key]!;
+      },
+      getUploadedFiles: (key: string, required?: boolean) => {
+        const files = data.files?.[key];
+        if (files === undefined) {
+          if (required) throw new Error(`no field ${key}`);
+          return null;
+        }
+        const collection = new Map<string, Record<string, unknown>>(files.map((f, i) => [`f${i}`, f]));
+        return collection;
       },
     },
   };

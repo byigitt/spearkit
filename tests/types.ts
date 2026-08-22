@@ -3,10 +3,20 @@
  * the tsconfig `include`) but is not run by vitest. If inference regresses,
  * the build fails here.
  */
-import type { User } from "discord.js";
+import type { Attachment, User } from "discord.js";
 import { command } from "../src/commands/command.js";
 import { option } from "../src/commands/options.js";
-import { button, modal, textInput } from "../src/components/builders.js";
+import {
+  button,
+  checkbox,
+  checkboxGroup,
+  fileUpload,
+  modal,
+  radioGroup,
+  stringSelectField,
+  textInput,
+  userSelectField,
+} from "../src/components/builders.js";
 
 // --- slash command option inference ---------------------------------------
 
@@ -85,5 +95,64 @@ modal({
     void ctx.fields.missing;
   },
 });
+
+// --- modal field + param inference (Label fields) --------------------------
+
+const report = modal({
+  id: "report:{userId}",
+  title: "Report",
+  fields: {
+    reason: textInput({ label: "Why", style: "Paragraph", required: true }),
+    kind: radioGroup({
+      label: "Type",
+      options: [
+        { label: "Spam", value: "spam" },
+        { label: "Abuse", value: "abuse" },
+      ],
+    }),
+    optionalKind: radioGroup({
+      label: "Opt",
+      required: false,
+      options: [{ label: "A", value: "a" }],
+    }),
+    extras: checkboxGroup({
+      label: "Also",
+      options: [
+        { label: "Ban", value: "ban" },
+        { label: "Delete", value: "delete" },
+      ],
+    }),
+    agree: checkbox({ label: "I understand" }),
+    proof: fileUpload({ label: "Screenshots" }),
+    channel: stringSelectField({
+      label: "Channel",
+      options: [{ label: "General", value: "general" }],
+    }),
+    target: userSelectField({ label: "User" }),
+  },
+  run: (ctx) => {
+    const reason: string = ctx.fields.reason;
+    const kind: "spam" | "abuse" = ctx.fields.kind;
+    const optionalKind: "a" | undefined = ctx.fields.optionalKind;
+    const extras: ("ban" | "delete")[] = ctx.fields.extras;
+    const agree: boolean = ctx.fields.agree;
+    const proof: Attachment[] = ctx.fields.proof;
+    const channel: string[] = ctx.fields.channel;
+    const target: string[] = ctx.fields.target;
+    void reason;
+    void kind;
+    void optionalKind;
+    void extras;
+    void agree;
+    void proof;
+    void channel;
+    void target;
+    // @ts-expect-error field name does not exist
+    void ctx.fields.missing;
+  },
+});
+report.build({ userId: "u1" });
+// @ts-expect-error build requires the userId param
+report.build();
 
 export {};

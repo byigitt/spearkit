@@ -66,7 +66,7 @@ await client.deployCommands({ guildId: process.env.GUILD_ID }); // omit guildId 
 
 - **Slash command** → `command()`; **typed inputs** → `option.*`; **grouped** → `commandGroup` + `subcommand`; **type-ahead** → `option.string({ autocomplete })`.
 - **Right-click on a user/message** → `userCommand` / `messageCommand`; **`!text` command** → `prefixCommand` (+ typed `args`).
-- **Button** → `button`; **URL button** → `linkButton`; **dropdown** → `stringSelect`; **pick user/role/channel/mentionable** → `userSelect` / `roleSelect` / `channelSelect` / `mentionableSelect`; **form** → `modal` + `textInput`; **carry data** → custom-id `{param}`.
+- **Button** → `button`; **URL button** → `linkButton`; **dropdown** → `stringSelect`; **pick user/role/channel/mentionable** → `userSelect` / `roleSelect` / `channelSelect` / `mentionableSelect`; **form** → `modal` + fields (`textInput`, `radioGroup`, `checkboxGroup`, `checkbox`, `fileUpload`, `*SelectField`); **carry data** → custom-id `{param}`.
 - **Paged list** → `paginate`; **yes/no gate** → `confirm`.
 - **Reply** → `ctx.reply` / `replyEphemeral`; **>3s work** → `ctx.defer()` then `editReply`; **styled embed** → `ctx.success/error/info/warn`.
 - **Gateway events** → `event(...)`; **rate-limit** → `cooldown`; **role/permission/owner gate** → guards; **cron/interval** → `task` / `client.schedule`; **logs** → `client.logger` + sinks; **usage tracking** → `usage`; **typed env / `.env`** → `env.*`.
@@ -149,8 +149,18 @@ const feedback = modal({
   id: "feedback:{ticket}",
   title: "Feedback",
   fields: {
-    summary: textInput({ label: "Summary", required: true }),
+    summary: textInput({ label: "Summary", required: true }),   // string
     detail: textInput({ label: "Details", style: "Paragraph" }),
+    severity: radioGroup({                                      // "low" | "high"
+      label: "Severity",
+      options: [{ label: "Low", value: "low" }, { label: "High", value: "high" }],
+    }),
+    topics: checkboxGroup({                                     // ("speed" | "ui")[]
+      label: "Topics", minValues: 0,
+      options: [{ label: "Speed", value: "speed" }, { label: "UI", value: "ui" }],
+    }),
+    ok: checkbox({ label: "I understand" }),                    // boolean
+    shots: fileUpload({ label: "Screenshots", minValues: 0 }),  // Attachment[]
   },
   run: (ctx) => ctx.reply(`#${ctx.params.ticket}: ${ctx.fields.summary}`), // params + fields typed
 });
@@ -162,10 +172,12 @@ await channel.send({ content: "Choose:", components: [row(vote.build({ choice: "
 ```
 
 Component builders: `button`, `linkButton`, `stringSelect`, `userSelect`,
-`roleSelect`, `channelSelect`, `mentionableSelect`, `modal` (+ `textInput`), `row`.
-Component context: `ctx.params`, `ctx.update`, `ctx.deferUpdate`, `ctx.showModal`,
-`ctx.message`; selects add `ctx.values` (+ `ctx.users/roles/channels/members`);
-modals add `ctx.fields`.
+`roleSelect`, `channelSelect`, `mentionableSelect`, `modal` (+ `textInput`,
+`radioGroup`, `checkboxGroup`, `checkbox`, `fileUpload`, `*SelectField`), `row`.
+Every modal field renders as a Discord **Label** component; values are inferred
+per field. Component context: `ctx.params`, `ctx.update`, `ctx.deferUpdate`,
+`ctx.showModal`, `ctx.message`; selects add `ctx.values`
+(+ `ctx.users/roles/channels/members`); modals add `ctx.fields`.
 
 ### Guards, cooldown, context menus, pagination/confirm
 

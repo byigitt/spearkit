@@ -166,14 +166,20 @@ export class MentionableSelectContext<P = Record<string, never>> extends Message
 
 /**
  * Context for a submitted modal. Exposes the routed {@link params} plus the
- * resolved text-input {@link fields}, keyed by the field names you declared.
+ * resolved {@link fields}, keyed by the field names you declared and typed by
+ * each field definition (text inputs are `string`, radio groups narrow to
+ * their option values, checkboxes are `boolean`, uploads resolve to
+ * {@link Attachment}[]).
  */
-export class ModalContext<P, F extends string = string> extends BaseContext<ModalSubmitInteraction> {
+export class ModalContext<
+  P,
+  Fields extends Record<string, unknown> = Record<string, string>,
+> extends BaseContext<ModalSubmitInteraction> {
   constructor(
     interaction: ModalSubmitInteraction,
     readonly params: P,
     /** Submitted values, keyed by the field names from your modal definition. */
-    readonly fields: Record<F, string>,
+    readonly fields: Fields,
   ) {
     super(interaction);
   }

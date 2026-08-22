@@ -207,7 +207,13 @@ await channel.send({
 ```
 
 Component builders: `button`, `linkButton`, `stringSelect`, `userSelect`,
-`roleSelect`, `channelSelect`, `mentionableSelect`, `modal` (+ `textInput`), `row`.
+`roleSelect`, `channelSelect`, `mentionableSelect`, `modal` (+ `textInput`,
+`radioGroup`, `checkboxGroup`, `checkbox`, `fileUpload`, `*SelectField`), `row`.
+
+Modals render every field as a Discord **Label** component — radio groups,
+checkbox groups, checkboxes and file uploads included — with submitted values
+inferred per field (`ctx.fields.kind` narrows to its option values,
+`ctx.fields.agree` is a `boolean`, uploads resolve to `Attachment[]`).
 
 spearkit routes interactions automatically by the custom-id namespace and decodes
 the params for you — no `interactionCreate` switch statements.

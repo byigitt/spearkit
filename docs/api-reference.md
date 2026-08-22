@@ -309,7 +309,16 @@ Thrown errors and rejected promises are routed to the client's `error` event.
 | `channelSelect(config)` | `ChannelSelect<P>` | Channel select; takes `channelTypes?`. |
 | `mentionableSelect(config)` | `MentionableSelect<P>` | User + role select. |
 | `modal(config)` | `Modal<P>` | Modal with `fields`. |
-| `textInput(config)` | `TextInputDef` | A modal text-input field. |
+| `textInput(config)` | `TextInputDef` | A modal text-input field (submits `string`). |
+| `radioGroup(config)` | `RadioGroupDef` | Modal radio group; submits the picked option value. |
+| `checkboxGroup(config)` | `CheckboxGroupDef` | Modal checkbox group; submits picked values. |
+| `checkbox(config)` | `CheckboxDef` | Single modal checkbox; submits `boolean`. |
+| `fileUpload(config)` | `FileUploadDef` | Modal file upload; submits `Attachment[]`, takes `allowedFileTypes?`. |
+| `stringSelectField(config)` | `StringSelectFieldDef` | String select inside a modal; submits values. |
+| `userSelectField(config)` | `UserSelectFieldDef` | User select inside a modal; submits user ids. |
+| `roleSelectField(config)` | `RoleSelectFieldDef` | Role select inside a modal; submits role ids. |
+| `channelSelectField(config)` | `ChannelSelectFieldDef` | Channel select inside a modal; submits channel ids. |
+| `mentionableSelectField(config)` | `MentionableSelectFieldDef` | Mentionable select inside a modal; submits ids. |
 | `row(...components)` | `ActionRowBuilder<C>` | Wrap components in a row. |
 
 Each registrable component (`Button`, `StringSelect`, …, `Modal`) extends its
@@ -348,15 +357,20 @@ interface EntitySelectConfig<P extends string> {
 function textInput(config: {
   label: string;
   style?: TextInputStyleInput;     // "Short" | "Paragraph" | TextInputStyle
+  description?: string;
   placeholder?: string; required?: boolean; minLength?: number; maxLength?: number; value?: string;
 }): TextInputDef;
 
-interface ModalConfig<P extends string, F extends Record<string, TextInputDef>, R> {
+// Every field definition carries a phantom value type, so `ctx.fields` is
+// inferred per field: textInput -> string, radioGroup -> option-value union,
+// checkboxGroup -> value[], checkbox -> boolean, fileUpload -> Attachment[],
+// *SelectField -> string[].
+interface ModalConfig<P extends string, F extends ModalFieldMap, R> {
   id: P;
   title: string;
   fields: F;
   guards?: readonly Guard[];
-  run: (ctx: ModalContext<Params<P>, keyof F & string>) => Awaitable<R>;
+  run: (ctx: ModalContext<Params<P>, ResolvedModalFields<F>>) => Awaitable<R>;
 }
 ```
 
@@ -371,7 +385,7 @@ interface ModalConfig<P extends string, F extends Record<string, TextInputDef>, 
 | `RoleSelectContext<P>` | `values`, `roles` |
 | `ChannelSelectContext<P>` | `values`, `channels` |
 | `MentionableSelectContext<P>` | `values`, `users`, `roles`, `members` |
-| `ModalContext<P, F>` | `params`, `fields: Record<F, string>`, `customId` (+ BaseContext) |
+| `ModalContext<P, Fields>` | `params`, `fields` (typed per field definition), `customId` (+ BaseContext) |
 
 ### `class ComponentRegistry`
 

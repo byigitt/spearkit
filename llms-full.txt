@@ -1,4 +1,4 @@
-# spearkit v0.4.0 — full documentation for LLMs
+# spearkit v0.5.0 — full documentation for LLMs
 
 > discord.js++ — a developer-experience-first Discord library. Drop-in compatible with discord.js, with ergonomic events, slash commands, and interactive components.
 
@@ -1228,9 +1228,13 @@ Select contexts also have `ctx.params`, `ctx.update`, `ctx.deferUpdate`,
 
 ## Modals
 
-A modal declares its `fields` as a map of name → `textInput`. The submit handler
-receives the submitted values in `ctx.fields`, keyed (and typed) by those names,
-plus any custom-id params in `ctx.params`.
+A modal declares its `fields` as a map of name → field definition. The submit
+handler receives the submitted values in `ctx.fields`, keyed (and typed) by
+those names, plus any custom-id params in `ctx.params`.
+
+Every field renders as a Discord **Label** component (type 18) — the
+recommended modal surface. Legacy Action Row + Text Input modals are no longer
+emitted; the visible UX is identical, but new clients receive Label payloads.
 
 ```ts
 import { modal, textInput } from "spearkit";
@@ -1251,9 +1255,75 @@ const feedback = modal({
 });
 ```
 
-`textInput` config: `label` (required), `style` (`"Short"` default, or
-`"Paragraph"`, or a `TextInputStyle`), `placeholder`, `required`, `minLength`,
-`maxLength`, `value`.
+`textInput` config: `label` (required), `description?`, `style` (`"Short"`
+default, or `"Paragraph"`, or a `TextInputStyle`), `placeholder`, `required`,
+`minLength`, `maxLength`, `value`.
+
+### Field types
+
+Beyond text inputs, modals support the full Label surface — each definition
+carries its handler value type:
+
+| Builder | Submits as | Notes |
+| ------- | ---------- | ----- |
+| `textInput(...)` | `string` | Classic text input inside a Label. |
+| `radioGroup({ options })` | literal union of option values | Exactly one pick; `required: false` widens to `\| undefined`. |
+| `checkboxGroup({ options })` | array of option values | `minValues: 0` makes the group skippable (`[]`). |
+| `checkbox({ label })` | `boolean` | Cannot be required per the Discord spec. |
+| `fileUpload({...})` | `Attachment[]` | `allowedFileTypes` filters MIME types / extensions. |
+| `stringSelectField({ options })` | `string[]` | Select menus inside a modal. |
+| `userSelectField()` / `roleSelectField()` / `channelSelectField()` / `mentionableSelectField()` | `string[]` of ids | Entity selects inside a modal. |
+
+```ts
+import {
+  checkbox,
+  checkboxGroup,
+  fileUpload,
+  modal,
+  radioGroup,
+  textInput,
+} from "spearkit";
+
+const report = modal({
+  id: "report:{userId}",
+  title: "Report",
+  fields: {
+    reason: textInput({ label: "Why", style: "Paragraph", required: true }),
+    kind: radioGroup({
+      label: "Type",
+      description: "What is this?",
+      options: [
+        { label: "Spam", value: "spam" },
+        { label: "Abuse", value: "abuse" },
+      ],
+    }),
+    extras: checkboxGroup({
+      label: "Also",
+      minValues: 0,
+      maxValues: 2,
+      options: [
+        { label: "Ban", value: "ban" },
+        { label: "Delete", value: "delete" },
+      ],
+    }),
+    agree: checkbox({ label: "I understand" }),
+    proof: fileUpload({ label: "Screenshots", minValues: 0, maxValues: 5 }),
+  },
+  run: (ctx) => {
+    ctx.params.userId;   // string
+    ctx.fields.reason;   // string
+    ctx.fields.kind;     // "spam" | "abuse"
+    ctx.fields.extras;   // ("ban" | "delete")[]
+    ctx.fields.agree;    // boolean
+    ctx.fields.proof;    // Attachment[]
+  },
+});
+```
+
+Discord rules worth knowing: radio groups need **2–10** options, checkbox
+groups allow at most one checkbox per option and `maxValues ≤ options.length`,
+and a group/upload with `required` cannot have `minValues: 0` — spearkit
+derives the payload flag from `minValues` for you.
 
 Open a modal from a command or a component handler with `showModal` — modals
 cannot be the *response* to another modal, but they can follow a command or a
@@ -4149,7 +4219,16 @@ Thrown errors and rejected promises are routed to the client's `error` event.
 | `channelSelect(config)` | `ChannelSelect<P>` | Channel select; takes `channelTypes?`. |
 | `mentionableSelect(config)` | `MentionableSelect<P>` | User + role select. |
 | `modal(config)` | `Modal<P>` | Modal with `fields`. |
-| `textInput(config)` | `TextInputDef` | A modal text-input field. |
+| `textInput(config)` | `TextInputDef` | A modal text-input field (submits `string`). |
+| `radioGroup(config)` | `RadioGroupDef` | Modal radio group; submits the picked option value. |
+| `checkboxGroup(config)` | `CheckboxGroupDef` | Modal checkbox group; submits picked values. |
+| `checkbox(config)` | `CheckboxDef` | Single modal checkbox; submits `boolean`. |
+| `fileUpload(config)` | `FileUploadDef` | Modal file upload; submits `Attachment[]`, takes `allowedFileTypes?`. |
+| `stringSelectField(config)` | `StringSelectFieldDef` | String select inside a modal; submits values. |
+| `userSelectField(config)` | `UserSelectFieldDef` | User select inside a modal; submits user ids. |
+| `roleSelectField(config)` | `RoleSelectFieldDef` | Role select inside a modal; submits role ids. |
+| `channelSelectField(config)` | `ChannelSelectFieldDef` | Channel select inside a modal; submits channel ids. |
+| `mentionableSelectField(config)` | `MentionableSelectFieldDef` | Mentionable select inside a modal; submits ids. |
 | `row(...components)` | `ActionRowBuilder<C>` | Wrap components in a row. |
 
 Each registrable component (`Button`, `StringSelect`, …, `Modal`) extends its
@@ -4188,15 +4267,20 @@ interface EntitySelectConfig<P extends string> {
 function textInput(config: {
   label: string;
   style?: TextInputStyleInput;     // "Short" | "Paragraph" | TextInputStyle
+  description?: string;
   placeholder?: string; required?: boolean; minLength?: number; maxLength?: number; value?: string;
 }): TextInputDef;
 
-interface ModalConfig<P extends string, F extends Record<string, TextInputDef>, R> {
+// Every field definition carries a phantom value type, so `ctx.fields` is
+// inferred per field: textInput -> string, radioGroup -> option-value union,
+// checkboxGroup -> value[], checkbox -> boolean, fileUpload -> Attachment[],
+// *SelectField -> string[].
+interface ModalConfig<P extends string, F extends ModalFieldMap, R> {
   id: P;
   title: string;
   fields: F;
   guards?: readonly Guard[];
-  run: (ctx: ModalContext<Params<P>, keyof F & string>) => Awaitable<R>;
+  run: (ctx: ModalContext<Params<P>, ResolvedModalFields<F>>) => Awaitable<R>;
 }
 ```
 
@@ -4211,7 +4295,7 @@ interface ModalConfig<P extends string, F extends Record<string, TextInputDef>, 
 | `RoleSelectContext<P>` | `values`, `roles` |
 | `ChannelSelectContext<P>` | `values`, `channels` |
 | `MentionableSelectContext<P>` | `values`, `users`, `roles`, `members` |
-| `ModalContext<P, F>` | `params`, `fields: Record<F, string>`, `customId` (+ BaseContext) |
+| `ModalContext<P, Fields>` | `params`, `fields` (typed per field definition), `customId` (+ BaseContext) |
 
 ### `class ComponentRegistry`
 

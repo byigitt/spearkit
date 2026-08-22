@@ -68,7 +68,7 @@ Map the task to the API. Patterns and signatures are below and in `docs/`.
 | A URL button (no handler) | `linkButton` |
 | A dropdown of fixed options | `stringSelect` |
 | Pick users / roles / channels / mentionables | `userSelect` / `roleSelect` / `channelSelect` / `mentionableSelect` |
-| A form with text fields | `modal` + `textInput` |
+| A form with typed fields | `modal` + `textInput` / `radioGroup` / `checkboxGroup` / `checkbox` / `fileUpload` / `*SelectField` |
 | Carry data through a component | custom-id params `id: "x:{id}"` → `ctx.params.id` |
 | A paged list with next/prev | `paginate(...)` |
 | An "Are you sure?" yes/no gate | `confirm(...)` |
@@ -170,7 +170,18 @@ const colour = stringSelect({
 const feedback = modal({
   id: "feedback:{ticket}",
   title: "Feedback",
-  fields: { summary: textInput({ label: "Summary", required: true }) },
+  fields: {
+    summary: textInput({ label: "Summary", required: true }),   // string
+    severity: radioGroup({                                      // "low" | "high"
+      label: "Severity",
+      options: [{ label: "Low", value: "low" }, { label: "High", value: "high" }],
+    }),
+    topics: checkboxGroup({                                     // ("speed" | "ui")[]
+      label: "Topics", minValues: 0,
+      options: [{ label: "Speed", value: "speed" }, { label: "UI", value: "ui" }],
+    }),
+    ok: checkbox({ label: "I understand" }),                    // boolean
+  },
   run: (ctx) => ctx.reply(`#${ctx.params.ticket}: ${ctx.fields.summary}`), // typed params + fields
 });
 
@@ -181,7 +192,9 @@ await channel.send({ content: "Choose:", components: [row(vote.build({ choice: "
 ```
 
 Builders: `button`, `linkButton`, `stringSelect`, `userSelect`, `roleSelect`,
-`channelSelect`, `mentionableSelect`, `modal` (+ `textInput`), `row`.
+`channelSelect`, `mentionableSelect`, `modal` (+ `textInput`, `radioGroup`,
+`checkboxGroup`, `checkbox`, `fileUpload`, `*SelectField`), `row`. Every modal
+field renders as a Discord **Label** component; values are inferred per field.
 Component context: `ctx.params`, `ctx.update(...)`, `ctx.deferUpdate()`,
 `ctx.showModal(modal)`; selects add `ctx.values` (+ `ctx.users/roles/channels/members`);
 modals add `ctx.fields`.
