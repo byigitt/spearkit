@@ -257,6 +257,64 @@ const components = [
 await channel.send({ content: "Choose:", components });
 ```
 
+## Components V2 (message layout)
+
+Components V2 is Discord's newer message surface: instead of `content` +
+`embeds` you compose the whole message from layout parts — text displays,
+separators, sections, media galleries, files and accent-coloured containers.
+The flag disables `content`, `embeds`, `poll` and `stickers` for that message.
+
+spearkit ships thin wrappers over the discord.js builders — no new routing,
+interactive children stay ordinary `.build()` rows:
+
+```ts
+import {
+  MessageFlags,
+  button,
+  container,
+  row,
+  section,
+  separator,
+  textDisplay,
+} from "spearkit";
+
+const skip = button({
+  id: "player-skip",
+  label: "Skip",
+  run: (ctx) => ctx.update("Skipped."),
+});
+
+await ctx.reply({
+  // flags: MessageFlags.IsComponentsV2,  <- optional; spearkit ORs it for you
+  components: [
+    textDisplay("## Queue"),
+    container({
+      accentColor: 0x5865f2,
+      children: [
+        section({
+          children: ["**Now playing** — Song", "by Artist"],
+          thumbnail: { url: "https://cdn.example/art.png" },
+        }),
+        separator(),
+        row(skip.build()),
+      ],
+    }),
+  ],
+});
+```
+
+Helpers: `textDisplay(content)`, `separator({ spacing?, divider? })`,
+`section({ children, button? | thumbnail? })` (children accept plain strings),
+`mediaGallery([{ url, description?, spoiler? }])`, `file(url, { spoiler? })`,
+`thumbnail({ url, description?, spoiler? })` and
+`container({ accentColor?, spoiler?, children })`. Containers cannot be
+nested. When spearkit sees a V2 tree in `components` it sets
+`MessageFlags.IsComponentsV2` for you — and throws if `content`, `embeds`,
+`poll` or `stickers` ride along.
+
+Classic action-row messages keep working unchanged; embeds are not going away.
+`paginate`/`confirm` still render legacy rows and will migrate separately.
+
 ## Registering and routing
 
 Register components like anything else:

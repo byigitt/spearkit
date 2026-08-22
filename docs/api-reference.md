@@ -320,6 +320,13 @@ Thrown errors and rejected promises are routed to the client's `error` event.
 | `channelSelectField(config)` | `ChannelSelectFieldDef` | Channel select inside a modal; submits channel ids. |
 | `mentionableSelectField(config)` | `MentionableSelectFieldDef` | Mentionable select inside a modal; submits ids. |
 | `row(...components)` | `ActionRowBuilder<C>` | Wrap components in a row. |
+| `textDisplay(content)` | `TextDisplayBuilder` | Components V2 text block. |
+| `separator(config?)` | `SeparatorBuilder` | Components V2 spacing/divider. |
+| `section(config)` | `SectionBuilder` | Text + one button/thumbnail accessory. |
+| `mediaGallery(items)` | `MediaGalleryBuilder` | Grid of remote images/videos. |
+| `file(url, config?)` | `FileBuilder` | Attached-file block (`attachment://…`). |
+| `thumbnail(config)` | `ThumbnailBuilder` | Inline thumbnail (section accessory). |
+| `container(config)` | `ContainerBuilder` | Accent-coloured card holding V2 children. |
 
 Each registrable component (`Button`, `StringSelect`, …, `Modal`) extends its
 routing interface and adds `build(...args: BuildArgs<P>)`, which returns the

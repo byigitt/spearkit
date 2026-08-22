@@ -33,10 +33,87 @@ function withEphemeralFlag(flags: Flags): Flags {
   return [flags, MessageFlags.Ephemeral] as Flags;
 }
 
+const IS_COMPONENTS_V2 = MessageFlags.IsComponentsV2 as number;
+
+/** The only top-level component type allowed on legacy (non-V2) messages. */
+const ACTION_ROW_TYPE = 1;
+
+function isV2FlagValue(flag: unknown): boolean {
+  return flag === IS_COMPONENTS_V2 || flag === "IsComponentsV2";
+}
+
+function flagsIncludeV2(flags: Flags): boolean {
+  if (flags == null) return false;
+  if (typeof flags === "number" || typeof flags === "bigint") {
+    return (Number(flags) & IS_COMPONENTS_V2) !== 0;
+  }
+  if (Array.isArray(flags)) return flags.some(isV2FlagValue);
+  return isV2FlagValue(flags);
+}
+
+function withV2Flag(flags: Flags): Flags {
+  if (flags == null) return IS_COMPONENTS_V2;
+  if (typeof flags === "number" || typeof flags === "bigint") {
+    return Number(flags) | IS_COMPONENTS_V2;
+  }
+  if (Array.isArray(flags)) {
+    if (flags.some(isV2FlagValue)) return flags;
+    return [...flags, IS_COMPONENTS_V2] as Flags;
+  }
+  return [flags, IS_COMPONENTS_V2] as Flags;
+}
+
+/**
+ * A components array is a V2 tree when it contains anything beyond plain
+ * action rows (containers, text displays, sections, galleries, …).
+ */
+function isComponentsV2Tree(components: unknown): boolean {
+  if (!Array.isArray(components)) return false;
+  return components.some((component) => {
+    const type = readComponentType(component);
+    return type !== undefined && type !== ACTION_ROW_TYPE;
+  });
+}
+
+function readComponentType(component: unknown): number | undefined {
+  if (component == null || typeof component !== "object") return undefined;
+  const direct = component as { type?: unknown };
+  if (typeof direct.type === "number") return direct.type;
+  const encodable = component as { toJSON?: () => { type?: unknown } };
+  const json = encodable.toJSON?.();
+  return typeof json?.type === "number" ? json.type : undefined;
+}
+
+/**
+ * Discord forbids mixing V2 layout components with the classic payload
+ * surface; enforce that instead of letting the API reject the reply.
+ */
+function assertV2Payload(input: ReplyData): void {
+  const payload = input as Record<string, unknown>;
+  const forbidden = (["content", "embeds", "poll", "stickers"] as const).filter(
+    (key) => payload[key] !== undefined,
+  );
+  if (forbidden.length > 0) {
+    throw new Error(
+      `spearkit: replies flagged MessageFlags.IsComponentsV2 cannot set ${forbidden.join(", ")} — use components instead`,
+    );
+  }
+}
+
 /** Normalises spearkit reply input into a discord.js reply payload. */
 export function normalizeReply(input: ReplyInput): InteractionReplyOptions {
   if (typeof input === "string") return { content: input };
   const { ephemeral, ...rest } = input;
+
+  if (flagsIncludeV2(rest.flags)) {
+    assertV2Payload(rest);
+    return ephemeral ? { ...rest, flags: withEphemeralFlag(rest.flags) } : rest;
+  }
+  if (isComponentsV2Tree(rest.components)) {
+    assertV2Payload(rest);
+    return { ...rest, flags: withV2Flag(ephemeral ? withEphemeralFlag(rest.flags) : rest.flags) };
+  }
+
   if (ephemeral) return { ...rest, flags: withEphemeralFlag(rest.flags) };
   return rest;
 }
