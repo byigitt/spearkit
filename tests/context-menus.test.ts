@@ -98,6 +98,29 @@ describe("userCommand", () => {
     expect(cmd.kind).toBe("userMenu");
   });
 
+  it("serialises user-install scope on context menus", () => {
+    const cmd = userCommand({
+      name: "Translate",
+      install: ["user"],
+      contexts: ["botDm", "privateChannel"],
+      run: () => {},
+    });
+    const json = cmd.toJSON();
+    expect(json.integration_types).toEqual([1]); // ApplicationIntegrationType.UserInstall
+    expect(json.contexts).toEqual([1, 2]);
+  });
+
+  it("throws when guildOnly and contexts are both set on a menu", () => {
+    expect(() =>
+      userCommand({
+        name: "Clash",
+        guildOnly: true,
+        contexts: ["guild"],
+        run: () => {},
+      }),
+    ).toThrow(/mutually exclusive/);
+  });
+
   it("dispatches with a UserContextMenuContext exposing targetUser", async () => {
     let seen = "";
     const cmd = userCommand({

@@ -76,13 +76,41 @@ export const purge = command({
 
 | Field | Type | Effect |
 | ----- | ---- | ------ |
-| `guildOnly` | `boolean` | Restricts the command to guild contexts. |
+| `guildOnly` | `boolean` | Restricts the command to guild contexts (alias for `contexts: ["guild"]`). |
+| `install` | `("guild" \| "user")[]` | App installation targets → `integration_types`. `["user"]` makes the command user-installable. |
+| `contexts` | `("guild" \| "botDm" \| "privateChannel")[]` | Where the command may run → `contexts`. |
 | `nsfw` | `boolean` | Marks the command age-restricted. |
 | `defaultMemberPermissions` | `PermissionResolvable \| null` | Default permission gate (members without it don't see the command). |
 | `nameLocalizations` / `descriptionLocalizations` | `LocalizationMap` | Per-locale name/description. |
 | `cooldown` | `number \| CooldownConfig` | Rate-limit the command (a number is milliseconds). See [Cooldowns](./cooldown.md). |
 | `guards` | `readonly Guard[]` | Preconditions run before the handler. See [Guards](./guards.md). |
 | `autoDefer` | `boolean \| { ephemeral?, delayMs? }` | Auto-`deferReply()` if the handler is slow (>~2s), preventing `Unknown interaction`. Respond via `ctx.send`/`ctx.editReply`. |
+
+### User-installable apps and contexts
+
+Commands expose two orthogonal Discord axes:
+
+- **`install`** — where your app is installed: guild install (`"guild"`) or
+  per-user install (`"user"`), serialised to `integration_types`.
+- **`contexts`** — where a command may run: `"guild"`, `"botDm"` or
+  `"privateChannel"` (private channels are only reachable via user install).
+
+```ts
+import { command } from "spearkit";
+
+export const remind = command({
+  name: "remind",
+  description: "Set a reminder from anywhere",
+  install: ["user"],                            // integration_types: [UserInstall]
+  contexts: ["guild", "botDm", "privateChannel"],
+  run: (ctx) => ctx.reply(`Reminder! ${ctx.interaction.context ?? ""}`),
+});
+```
+
+`guildOnly: true` keeps working as an alias for `contexts: ["guild"]`; passing
+both it and an explicit `contexts` list throws at definition time. The app
+itself must allow user installs in the Developer Portal for
+`integration_types: [UserInstall]` to be accepted.
 
 ## Subcommands and groups
 

@@ -1,4 +1,4 @@
-# spearkit v0.6.0 — full documentation for LLMs
+# spearkit v0.7.0 — full documentation for LLMs
 
 > discord.js++ — a developer-experience-first Discord library. Drop-in compatible with discord.js, with ergonomic events, slash commands, and interactive components.
 
@@ -801,13 +801,41 @@ export const purge = command({
 
 | Field | Type | Effect |
 | ----- | ---- | ------ |
-| `guildOnly` | `boolean` | Restricts the command to guild contexts. |
+| `guildOnly` | `boolean` | Restricts the command to guild contexts (alias for `contexts: ["guild"]`). |
+| `install` | `("guild" \| "user")[]` | App installation targets → `integration_types`. `["user"]` makes the command user-installable. |
+| `contexts` | `("guild" \| "botDm" \| "privateChannel")[]` | Where the command may run → `contexts`. |
 | `nsfw` | `boolean` | Marks the command age-restricted. |
 | `defaultMemberPermissions` | `PermissionResolvable \| null` | Default permission gate (members without it don't see the command). |
 | `nameLocalizations` / `descriptionLocalizations` | `LocalizationMap` | Per-locale name/description. |
 | `cooldown` | `number \| CooldownConfig` | Rate-limit the command (a number is milliseconds). See [Cooldowns](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/cooldown.md). |
 | `guards` | `readonly Guard[]` | Preconditions run before the handler. See [Guards](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/guards.md). |
 | `autoDefer` | `boolean \| { ephemeral?, delayMs? }` | Auto-`deferReply()` if the handler is slow (>~2s), preventing `Unknown interaction`. Respond via `ctx.send`/`ctx.editReply`. |
+
+### User-installable apps and contexts
+
+Commands expose two orthogonal Discord axes:
+
+- **`install`** — where your app is installed: guild install (`"guild"`) or
+  per-user install (`"user"`), serialised to `integration_types`.
+- **`contexts`** — where a command may run: `"guild"`, `"botDm"` or
+  `"privateChannel"` (private channels are only reachable via user install).
+
+```ts
+import { command } from "spearkit";
+
+export const remind = command({
+  name: "remind",
+  description: "Set a reminder from anywhere",
+  install: ["user"],                            // integration_types: [UserInstall]
+  contexts: ["guild", "botDm", "privateChannel"],
+  run: (ctx) => ctx.reply(`Reminder! ${ctx.interaction.context ?? ""}`),
+});
+```
+
+`guildOnly: true` keeps working as an alias for `contexts: ["guild"]`; passing
+both it and an explicit `contexts` list throws at definition time. The app
+itself must allow user installs in the Developer Portal for
+`integration_types: [UserInstall]` to be accepted.
 
 ## Subcommands and groups
 
@@ -4057,6 +4085,8 @@ interface CommandConfig<O extends OptionMap, R> {
   options?: O;
   defaultMemberPermissions?: PermissionResolvable | null;
   nsfw?: boolean;
+  install?: readonly ("guild" | "user")[];
+  contexts?: readonly ("guild" | "botDm" | "privateChannel")[];
   guildOnly?: boolean;
   nameLocalizations?: LocalizationMap;
   descriptionLocalizations?: LocalizationMap;
@@ -4079,6 +4109,8 @@ interface CommandGroupConfig {
   groups?: Record<string, SubcommandGroup>;
   defaultMemberPermissions?: PermissionResolvable | null;
   nsfw?: boolean;
+  install?: readonly ("guild" | "user")[];
+  contexts?: readonly ("guild" | "botDm" | "privateChannel")[];
   guildOnly?: boolean;
   nameLocalizations?: LocalizationMap;
   descriptionLocalizations?: LocalizationMap;
@@ -4569,7 +4601,7 @@ function guard<TCtx>(predicate: Guard<TCtx>): Guard<TCtx>;
 ### Context-menu commands — [guide](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/context-menus.md)
 
 ```ts
-interface ContextMenuMeta { defaultMemberPermissions?: PermissionResolvable | null; nsfw?: boolean; guildOnly?: boolean; nameLocalizations?: LocalizationMap; cooldown?: CooldownInput; guards?: readonly Guard[]; autoDefer?: AutoDeferInput; }
+interface ContextMenuMeta { defaultMemberPermissions?: PermissionResolvable | null; nsfw?: boolean; install?: readonly ("guild" | "user")[]; contexts?: readonly ("guild" | "botDm" | "privateChannel")[]; guildOnly?: boolean; nameLocalizations?: LocalizationMap; cooldown?: CooldownInput; guards?: readonly Guard[]; autoDefer?: AutoDeferInput; }
 function userCommand<R>(config: ContextMenuMeta & { name: string; run: (ctx: UserContextMenuContext) => Awaitable<R> }): UserContextMenu;
 function messageCommand<R>(config: ContextMenuMeta & { name: string; run: (ctx: MessageContextMenuContext) => Awaitable<R> }): MessageContextMenu;
 // UserContextMenuContext adds ctx.targetUser, ctx.targetMember; MessageContextMenuContext adds ctx.targetMessage (+ BaseContext).

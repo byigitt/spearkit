@@ -1,7 +1,6 @@
 import {
   ApplicationCommandOptionType,
   ApplicationCommandType,
-  InteractionContextType,
   PermissionsBitField,
   type APIApplicationCommandSubcommandGroupOption,
   type APIApplicationCommandSubcommandOption,
@@ -28,15 +27,14 @@ import {
   type AutoDeferInput,
 } from "../auto-defer.js";
 import type { Guard } from "../guards.js";
+import { resolveCommandScope, type CommandScopeMeta } from "../scope.js";
 
 /** Metadata shared by every kind of command. */
-interface CommonMeta {
+interface CommonMeta extends CommandScopeMeta {
   /** Permissions a member must have by default to see/use the command. */
   defaultMemberPermissions?: PermissionResolvable | null;
   /** Mark the command NSFW (age-restricted). */
   nsfw?: boolean;
-  /** Restrict invocation to guilds only. */
-  guildOnly?: boolean;
   nameLocalizations?: LocalizationMap;
   descriptionLocalizations?: LocalizationMap;
   /** Rate-limit this command. A number is a duration in ms; see {@link CooldownConfig}. */
@@ -192,6 +190,7 @@ function baseJSON(
   meta: CommonMeta & { name: string; description: string },
   options: RESTPostAPIChatInputApplicationCommandsJSONBody["options"],
 ): RESTPostAPIChatInputApplicationCommandsJSONBody {
+  const scope = resolveCommandScope(meta);
   return {
     type: ApplicationCommandType.ChatInput,
     name: meta.name,
@@ -203,7 +202,8 @@ function baseJSON(
       meta.defaultMemberPermissions == null
         ? meta.defaultMemberPermissions
         : new PermissionsBitField(meta.defaultMemberPermissions).bitfield.toString(),
-    contexts: meta.guildOnly ? [InteractionContextType.Guild] : undefined,
+    integration_types: scope.integration_types,
+    contexts: scope.contexts,
     options,
   };
 }

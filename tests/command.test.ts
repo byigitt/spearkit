@@ -40,6 +40,56 @@ describe("command().toJSON", () => {
     expect(json.contexts).toEqual([InteractionContextType.Guild]);
   });
 
+  it("resolves contexts names to interaction context values", () => {
+    const json = command({
+      name: "everywhere",
+      description: "d",
+      contexts: ["guild", "botDm", "privateChannel"],
+      run: () => {},
+    }).toJSON();
+    expect(json.contexts).toEqual([
+      InteractionContextType.Guild,
+      InteractionContextType.BotDM,
+      InteractionContextType.PrivateChannel,
+    ]);
+  });
+
+  it("maps install to integration types in declaration order", () => {
+    const userOnly = command({
+      name: "u",
+      description: "d",
+      install: ["user"],
+      run: () => {},
+    }).toJSON();
+    expect(userOnly.integration_types).toEqual([1]); // ApplicationIntegrationType.UserInstall
+
+    const both = command({
+      name: "b",
+      description: "d",
+      install: ["guild", "user"],
+      run: () => {},
+    }).toJSON();
+    expect(both.integration_types).toEqual([0, 1]);
+  });
+
+  it("throws when guildOnly conflicts with an explicit contexts list", () => {
+    expect(() =>
+      command({
+        name: "x",
+        description: "d",
+        guildOnly: true,
+        contexts: ["guild"],
+        run: () => {},
+      }),
+    ).toThrow(/guildOnly and contexts are mutually exclusive/);
+  });
+
+  it("omits scope fields entirely when unset", () => {
+    const json = command({ name: "plain", description: "d", run: () => {} }).toJSON();
+    expect(json.integration_types).toBeUndefined();
+    expect(json.contexts).toBeUndefined();
+  });
+
   it("serialises default member permissions to a bitfield string", () => {
     const json = command({
       name: "p",

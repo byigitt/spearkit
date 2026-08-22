@@ -89,6 +89,8 @@ interface CommandConfig<O extends OptionMap, R> {
   options?: O;
   defaultMemberPermissions?: PermissionResolvable | null;
   nsfw?: boolean;
+  install?: readonly ("guild" | "user")[];
+  contexts?: readonly ("guild" | "botDm" | "privateChannel")[];
   guildOnly?: boolean;
   nameLocalizations?: LocalizationMap;
   descriptionLocalizations?: LocalizationMap;
@@ -111,6 +113,8 @@ interface CommandGroupConfig {
   groups?: Record<string, SubcommandGroup>;
   defaultMemberPermissions?: PermissionResolvable | null;
   nsfw?: boolean;
+  install?: readonly ("guild" | "user")[];
+  contexts?: readonly ("guild" | "botDm" | "privateChannel")[];
   guildOnly?: boolean;
   nameLocalizations?: LocalizationMap;
   descriptionLocalizations?: LocalizationMap;
@@ -601,7 +605,7 @@ function guard<TCtx>(predicate: Guard<TCtx>): Guard<TCtx>;
 ### Context-menu commands — [guide](./context-menus.md)
 
 ```ts
-interface ContextMenuMeta { defaultMemberPermissions?: PermissionResolvable | null; nsfw?: boolean; guildOnly?: boolean; nameLocalizations?: LocalizationMap; cooldown?: CooldownInput; guards?: readonly Guard[]; autoDefer?: AutoDeferInput; }
+interface ContextMenuMeta { defaultMemberPermissions?: PermissionResolvable | null; nsfw?: boolean; install?: readonly ("guild" | "user")[]; contexts?: readonly ("guild" | "botDm" | "privateChannel")[]; guildOnly?: boolean; nameLocalizations?: LocalizationMap; cooldown?: CooldownInput; guards?: readonly Guard[]; autoDefer?: AutoDeferInput; }
 function userCommand<R>(config: ContextMenuMeta & { name: string; run: (ctx: UserContextMenuContext) => Awaitable<R> }): UserContextMenu;
 function messageCommand<R>(config: ContextMenuMeta & { name: string; run: (ctx: MessageContextMenuContext) => Awaitable<R> }): MessageContextMenu;
 // UserContextMenuContext adds ctx.targetUser, ctx.targetMember; MessageContextMenuContext adds ctx.targetMessage (+ BaseContext).

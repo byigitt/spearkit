@@ -12,7 +12,6 @@
  */
 import {
   ApplicationCommandType,
-  InteractionContextType,
   MessageFlags,
   PermissionsBitField,
   type Awaitable,
@@ -33,6 +32,7 @@ import {
 } from "./cooldown.js";
 import { runGuards, type Guard } from "./guards.js";
 import { defaultEmbeds, type Embeds } from "./embeds.js";
+import { resolveCommandScope, type CommandScopeMeta, type ResolvedCommandScope } from "./scope.js";
 import type { Logger } from "./logger.js";
 import type { UsageEvent } from "./usage.js";
 import {
@@ -44,10 +44,9 @@ import {
 import { explainDiscordError } from "./discord-errors.js";
 
 /** Metadata accepted by both context-menu kinds. */
-interface ContextMenuMeta {
+interface ContextMenuMeta extends CommandScopeMeta {
   defaultMemberPermissions?: PermissionResolvable | null;
   nsfw?: boolean;
-  guildOnly?: boolean;
   nameLocalizations?: LocalizationMap;
   cooldown?: CooldownInput;
   guards?: readonly Guard[];
@@ -113,6 +112,7 @@ export class MessageContextMenuContext extends BaseContext<MessageContextMenuCom
 
 function baseJSON(
   meta: ContextMenuMeta & { name: string },
+  scope: ResolvedCommandScope,
   type: ApplicationCommandType.User | ApplicationCommandType.Message,
 ): RESTPostAPIContextMenuApplicationCommandsJSONBody {
   return {
@@ -124,20 +124,22 @@ function baseJSON(
       meta.defaultMemberPermissions == null
         ? meta.defaultMemberPermissions
         : new PermissionsBitField(meta.defaultMemberPermissions).bitfield.toString(),
-    contexts: meta.guildOnly ? [InteractionContextType.Guild] : undefined,
+    integration_types: scope.integration_types,
+    contexts: scope.contexts,
   };
 }
 
 /** Define a user-target ("Apps → user") context-menu command. */
 export function userCommand<R = void>(config: UserCommandConfig<R>): UserContextMenu {
   const cooldown = config.cooldown !== undefined ? normalizeCooldown(config.cooldown) : undefined;
+  const scope = resolveCommandScope(config);
   return {
     kind: "userMenu",
     name: config.name,
     cooldown,
     guards: config.guards,
     autoDefer: normalizeAutoDefer(config.autoDefer),
-    toJSON: () => baseJSON(config, ApplicationCommandType.User),
+    toJSON: () => baseJSON(config, scope, ApplicationCommandType.User),
     execute: async (interaction) => {
       await config.run(new UserContextMenuContext(interaction));
     },
@@ -147,13 +149,14 @@ export function userCommand<R = void>(config: UserCommandConfig<R>): UserContext
 /** Define a message-target ("Apps → message") context-menu command. */
 export function messageCommand<R = void>(config: MessageCommandConfig<R>): MessageContextMenu {
   const cooldown = config.cooldown !== undefined ? normalizeCooldown(config.cooldown) : undefined;
+  const scope = resolveCommandScope(config);
   return {
     kind: "messageMenu",
     name: config.name,
     cooldown,
     guards: config.guards,
     autoDefer: normalizeAutoDefer(config.autoDefer),
-    toJSON: () => baseJSON(config, ApplicationCommandType.Message),
+    toJSON: () => baseJSON(config, scope, ApplicationCommandType.Message),
     execute: async (interaction) => {
       await config.run(new MessageContextMenuContext(interaction));
     },

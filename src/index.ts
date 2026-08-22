@@ -34,6 +34,7 @@ export * from "./scheduler.js";
 export * from "./prefix.js";
 export * from "./usage.js";
 export * from "./context.js";
+export * from "./scope.js";
 export * from "./commands/options.js";
 export * from "./commands/command.js";
 export * from "./commands/context.js";
