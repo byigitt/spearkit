@@ -21,7 +21,7 @@ npx spearkit create my-bot
 ## Batteries included
 
 - **Type-safe slash commands**, options, subcommands, autocomplete, buttons, selects and modals — no `interactionCreate` switch.
-- **Cooldowns** — per user/guild/channel/global, with per-role/per-user exemptions and overrides ([guide](./docs/cooldown.md)).
+- **Cooldowns** — per user/guild/channel/global, with per-role/per-user exemptions, overrides, and optional shared `cooldownStore` ([guide](./docs/cooldown.md)).
 - **Scheduled tasks** — cron and interval jobs, started on ready ([guide](./docs/scheduler.md)).
 - **Prefix commands** — classic `!text` commands that share cooldowns ([guide](./docs/prefix.md)).
 - **Structured logging** — leveled, scoped, pluggable; every error flows through it ([guide](./docs/logging.md)).
@@ -43,7 +43,7 @@ npx spearkit create my-bot
 - **Auto-defer** — `command({ autoDefer: true })` / `new SpearClient({ autoDefer: true })` to dodge `Unknown interaction` (10062) on slow handlers ([API ref](./docs/api-reference.md#auto-defer)).
 - **Graceful shutdown** — `client.enableGracefulShutdown({ onShutdown })` for clean `SIGINT`/`SIGTERM` teardown ([API ref](./docs/api-reference.md#graceful-shutdown)).
 - **Permissions & moderation** — `moderationCheck`, `missingPermissions`, `canActOn`, `ctx.botMissing(...)` role-hierarchy/permission preflights ([API ref](./docs/api-reference.md#permissions--moderation)).
-- **Persistent storage** — `MemoryStore`/`JsonStore` + `createSettings(...)` + `createPayloadStore` for short custom-id tokens ([API ref](./docs/api-reference.md#persistent-storage)).
+- **Persistent storage** — `MemoryStore`/`JsonStore`/`SqliteStore`/`RedisStore` + `createSettings(...)` + `createPayloadStore` for short custom-id tokens ([API ref](./docs/api-reference.md#persistent-storage)).
 - **Hybrid commands** — one `hybridCommand` for slash + prefix ([guide](./docs/hybrid.md)).
 - **Collectors** — `ctx.awaitMessageFrom(...)`, `ctx.awaitModal(...)`, `awaitComponent(...)` without hand-rolled collectors ([API ref](./docs/api-reference.md#collectors)).
 - **Discord error helpers** — `isDiscordError(err, DiscordErrorCode.UnknownMessage)`, `explainDiscordError(...)` ([API ref](./docs/api-reference.md#discord-errors)).

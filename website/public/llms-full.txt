@@ -1,4 +1,4 @@
-# spearkit v0.10.0 — full documentation for LLMs
+# spearkit v0.11.0 — full documentation for LLMs
 
 > discord.js++ — a developer-experience-first Discord library. Drop-in compatible with discord.js, with ergonomic events, slash commands, and interactive components.
 
@@ -520,7 +520,7 @@ const b = new SpearClient();
 The options type is exported as `SpearClientOptions` — `Partial<ClientOptions> &
 SpearOptions`. Every discord.js option (`partials`, `presence`, `sweepers`, …) is
 available, plus spearkit's own: `logger`, `dotenv`, `cooldown`, `prefix`, `usage`,
-`embeds`, `guards`, `autoDefer`, `onHandlerError`, and `i18n`.
+`embeds`, `guards`, `autoDefer`, `onHandlerError`, `i18n`, and `cooldownStore`.
 
 `onHandlerError` is one policy for slash commands, components, context menus,
 and prefix commands. Return a string to override the safe user reply, `false`
@@ -2573,7 +2573,7 @@ command({
 [prefix commands](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/prefix.md)). Use it directly for custom flows:
 
 ```ts
-const result = client.cooldowns.consume("vote", 5_000, {
+const result = await client.cooldowns.consume("vote", 5_000, {
   userId: "1",
   roleIds: [],
   guildId: null,
@@ -2584,7 +2584,30 @@ if (!result.allowed) console.log(`wait ${result.remaining}ms`);
 
 `consume` records the use and returns `{ allowed: true }` or
 `{ allowed: false, remaining }`. `peek` checks without recording; `reset` and
-`clear` drop tracked cooldowns.
+`clear` drop tracked cooldowns. The in-memory backend stays synchronous;
+store-backed backends return a Promise — dispatch always `await`s.
+
+## Shared / shard-safe clocks
+
+By default each process has its own map. Pass `cooldownStore` so restarts and
+shards share one clock:
+
+```ts
+import { SpearClient, SqliteStore, redisCooldownBackend } from "spearkit";
+
+// Restart-safe (SQLite). Two processes can still race a hit.
+const client = new SpearClient({
+  cooldownStore: new SqliteStore("data/cooldowns.sqlite"),
+});
+
+// Shard-safe: Redis SET NX PX, key lives only while cooling down.
+const sharded = new SpearClient({
+  cooldownStore: redisCooldownBackend(redis),
+});
+```
+
+A `KeyValueStore` is wrapped automatically. Use `redisCooldownBackend` when you
+need the atomic NX write rather than a timestamp get/set.
 
 ---
 
@@ -3871,17 +3894,19 @@ await click.update("Got it!");
 
 Almost every community bot needs to remember *something* per guild — a custom
 prefix, a mod-log channel, a welcome message — and reaches for a database on day
-one. spearkit ships a dependency-free `KeyValueStore` interface with two
-backends, plus a typed per-guild settings helper. Swap in Redis/SQL later by
-implementing the same interface.
+one. spearkit ships a dependency-free `KeyValueStore` interface with memory,
+JSON, SQLite (`node:sqlite`), and Redis (pass your own client) backends, plus
+a typed per-guild settings helper.
 
 ## Stores
 
 ```ts
-import { JsonStore, MemoryStore } from "spearkit";
+import { JsonStore, MemoryStore, RedisStore, SqliteStore } from "spearkit";
 
-const dev = new MemoryStore();             // in-memory, great for tests
-const prod = new JsonStore("data/db.json"); // durable JSON file
+const dev = new MemoryStore();                 // in-memory, great for tests
+const file = new JsonStore("data/db.json");    // durable JSON file
+const sqlite = new SqliteStore("data/bot.sqlite"); // Node 22.12+ `node:sqlite`
+const redis = new RedisStore(redisClient);     // your `redis` / wrapped ioredis
 ```
 
 Both implement `KeyValueStore`:
@@ -3899,6 +3924,12 @@ await store.clear();
 state. `JsonStore` serves reads from an in-memory cache and commits writes
 atomically (temp file + rename) through a queue — a crash mid-write can't corrupt
 the file, and concurrent writes don't interleave.
+
+`SqliteStore` uses Node's built-in `node:sqlite` (`DatabaseSync`) — no `better-sqlite3`
+package. Pass `":memory:"` in tests or a file path in production. `RedisStore`
+does **not** depend on ioredis; pass any client matching `RedisCommands`
+(`get` / `set` / `del` / `keys`). node-redis v4+ matches that surface. Wrap
+ioredis `set` if you need `{ NX, PX }` options for shard-safe cooldowns.
 
 ## Typed per-guild settings
 
@@ -4313,6 +4344,7 @@ discord.js `ClientOptions` (with `intents` optional — it defaults to
 | `autoDefer` | `AutoDeferInput` | Default auto-defer for slash + context-menu handlers. |
 | `onHandlerError` | `HandlerErrorHandler` | One error policy for commands, components, context menus, and prefix commands. |
 | `i18n` | `I18n \| I18nOptions` | Runtime catalogs, locale fallback, and optional async resolver. |
+| `cooldownStore` | `CooldownBackend \| KeyValueStore` | Persist cooldowns across restarts and shards. |
 
 ### `const Intents`
 
@@ -4799,7 +4831,12 @@ function createI18n<const M>(options: I18nOptions<M>): I18n<MessageKey<M>>;
 
 ```ts
 interface CooldownConfig { duration: number; scope?: "user" | "guild" | "channel" | "global"; exempt?: { users?: string[]; roles?: string[] }; overrides?: { users?: Record<string, number>; roles?: Record<string, number> }; message?: string | ((remainingMs: number) => string); }
-class CooldownManager { consume(bucket, input, actor, now?); peek(...); reset(...); clear(); }
+class CooldownManager { constructor(backend?: CooldownStoreInput); setBackend(backend); consume(bucket, input, actor, now?); peek(...); reset(...); clear(); }
+class MemoryCooldownBackend implements CooldownBackend {}
+interface CooldownBackend { hit(key, durationMs, now); peek(key, durationMs, now); delete(key); clear(); size?(); }
+function keyValueCooldownBackend(store: KeyValueStore): CooldownBackend;
+function redisCooldownBackend(client: RedisCommands, options?: { prefix?: string }): CooldownBackend;
+type CooldownStoreInput = CooldownBackend | KeyValueStore;
 type CooldownInput = number | CooldownConfig;       // a bare ms duration, or a full config
 type CooldownScope = "user" | "guild" | "channel" | "global";
 type CooldownResult = { allowed: true } | { allowed: false; remaining: number };
@@ -4807,7 +4844,7 @@ interface CooldownActor { userId; roleIds; guildId; channelId; }   // also: Cool
 function normalizeCooldown(input: CooldownInput): CooldownConfig;
 function effectiveDuration(config: CooldownConfig, actor: CooldownActor): number | null; // null = exempt
 function formatCooldownMessage(config: CooldownConfig, remainingMs: number): string;
-// command({ cooldown: number | CooldownConfig }); new SpearClient({ cooldown }); client.cooldowns
+// command({ cooldown }); new SpearClient({ cooldown, cooldownStore }); client.cooldowns
 ```
 
 ### Scheduled tasks — [guide](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/scheduler.md)
@@ -5078,6 +5115,9 @@ interface KeyValueStore {
 }
 class MemoryStore implements KeyValueStore { /* deep-cloned in-memory */ }
 class JsonStore implements KeyValueStore { constructor(path: string); /* atomic JSON file */ }
+class SqliteStore implements KeyValueStore { constructor(path: string | { path: string; table?: string }); close(): void; }
+class RedisStore implements KeyValueStore { constructor(client: RedisCommands | { client: RedisCommands; prefix?: string }); }
+interface RedisCommands { get(key): Promise<string | null>; set(key, value, options?: { NX?: boolean; PX?: number }); del(key | keys); keys(pattern); pttl?(key); }
 function namespaced(store: KeyValueStore, prefix: string): KeyValueStore;
 
 interface PayloadStore<T> { put(value: T): Promise<string>; get(token: string): Promise<T | undefined>; delete(token: string): Promise<boolean>; }

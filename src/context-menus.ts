@@ -264,7 +264,7 @@ export class ContextMenuRegistry {
     });
     const cooldown = command.cooldown ?? this.defaultCooldown;
     if (cooldown !== undefined && this.cooldowns !== undefined) {
-      const result = this.cooldowns.consume(
+      const result = await this.cooldowns.consume(
         `${command.kind}:${command.name}`,
         cooldown,
         actorOf(interaction),

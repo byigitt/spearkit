@@ -90,7 +90,7 @@ Map the task to the API. Patterns and signatures are below and in `docs/`.
 | Want to… | Reach for |
 | --- | --- |
 | React to gateway events | `event(name, run)`; once on startup → `event("clientReady", ...)` |
-| Rate-limit a command/handler | `cooldown` (per-command or client-wide) |
+| Rate-limit a command/handler | `cooldown` (per-command or client-wide); share across shards with `cooldownStore` |
 | Restrict by role / permission / owner / guild | guards: `requireAnyRole` / `requireUserPermissions` / `requireOwner` / `guildOnly` |
 | Run jobs on cron or interval | `task({ cron \| interval })` / `client.schedule(...)` |
 | Delay once / staged follow-ups / recover on restart | `client.scheduler.delay` / `followUp` / `reconcile` |
@@ -115,7 +115,7 @@ Map the task to the API. Patterns and signatures are below and in `docs/`.
 | Render `<t:…>` Discord timestamps | `discordTimestamp` / `relativeTimestamp` |
 | In-memory cache / counters / rate-limit window | `MemoryCache` |
 | Load JSON/JSON5/YAML config | `loadConfig` |
-| Persist key-value data / per-guild settings | `MemoryStore` / `JsonStore` + `createSettings({ store, defaults })` |
+| Persist key-value data / per-guild settings | `MemoryStore` / `JsonStore` / `SqliteStore` / `RedisStore` + `createSettings({ store, defaults })` |
 | Split text to Discord's 2000-char limit | `chunkMessage(text)` / `truncate(text, max)` |
 
 ## Canonical patterns
@@ -220,8 +220,8 @@ modals add `ctx.fields`.
   `guildOnly`, `dmOnly`, `requireAnyRole`, `requireAllRoles`, `requireOwner`,
   `requireUserPermissions`, `requireBotPermissions`, `guard`, `denied`.
 - **Cooldowns** — `command({ cooldown: number | CooldownConfig })` or
-  `new SpearClient({ cooldown })`; scopes `user|guild|channel|global`, `exempt`,
-  `overrides`.
+  `new SpearClient({ cooldown, cooldownStore })`; scopes `user|guild|channel|global`, `exempt`,
+  `overrides`. `SqliteStore` / `redisCooldownBackend` share the clock across processes.
 - **Scheduled tasks** — `task({ name, cron?, interval?, runOnStart?, run })`,
   `client.schedule(...)`, `client.scheduler.delay/followUp/reconcile`, `cron(expr)`.
 - **Prefix commands** — `prefixCommand({ name, aliases?, cooldown?, guards?, args?, run })`
@@ -258,7 +258,8 @@ modals add `ctx.fields`.
 - **Permissions & moderation** — `missingPermissions`, `botMissingPermissions`,
   `hasPermissions`, `compareRoles`, `canActOn`, `moderationCheck`, `formatPermissions`;
   on context: `ctx.botPermissions`, `ctx.botMissing(...)`, `ctx.userMissing(...)`.
-- **Persistent storage** — `MemoryStore`/`JsonStore` (`KeyValueStore`), `namespaced(...)`,
+- **Persistent storage** — `MemoryStore`/`JsonStore`/`SqliteStore`/`RedisStore`
+  (`KeyValueStore`), `namespaced(...)`,
   and typed per-guild `createSettings({ store, defaults, namespace? })`.
 - **Collectors** — `ctx.awaitMessageFrom(...)`, `ctx.awaitModal(...)`, plus standalone
   `awaitMessage`, `awaitComponent`, `showAndAwaitModal` (all resolve `null` on timeout).

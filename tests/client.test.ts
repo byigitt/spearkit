@@ -5,6 +5,7 @@ import { command } from "../src/commands/command.js";
 import { button } from "../src/components/builders.js";
 import { event } from "../src/events.js";
 import { definePlugin } from "../src/plugin.js";
+import { MemoryStore } from "../src/store.js";
 
 function newClient(): SpearClient {
   return new SpearClient({ intents: Intents.default });
@@ -44,6 +45,17 @@ describe("SpearClient i18n", () => {
       },
     });
     expect(client.i18n?.t("en", "hello")).toBe("Hello");
+    client.destroy();
+  });
+});
+
+describe("SpearClient cooldownStore", () => {
+  it("shares last-hit timestamps through the client manager", async () => {
+    const store = new MemoryStore();
+    const client = new SpearClient({ cooldownStore: store, cooldown: 1_000 });
+    const actor = { userId: "1", roleIds: [], guildId: null, channelId: null };
+    expect((await client.cooldowns.consume("x", 1_000, actor, 0)).allowed).toBe(true);
+    expect((await client.cooldowns.consume("x", 1_000, actor, 10)).allowed).toBe(false);
     client.destroy();
   });
 });

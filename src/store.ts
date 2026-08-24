@@ -5,8 +5,9 @@
  * prefix, a mod-log channel, a welcome message — and reaches for a database on
  * day one. spearkit ships a dependency-free {@link KeyValueStore} interface with
  * two backends ({@link MemoryStore} for tests, {@link JsonStore} for a durable
- * JSON file) plus {@link createSettings} for merged-with-defaults guild config.
- * Swap in your own store (Redis, SQL, …) by implementing the interface.
+ * JSON file) plus {@link SqliteStore} (`node:sqlite`) and {@link RedisStore}
+ * (pass your own client). {@link createSettings} covers merged-with-defaults
+ * guild config. Swap in anything else by implementing {@link KeyValueStore}.
  *
  * @example
  * ```ts

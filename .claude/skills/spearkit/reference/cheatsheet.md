@@ -83,7 +83,7 @@ the full discord.js surface. For prose and edge cases, read the package's
 ## Client
 
 ```ts
-new SpearClient(options?: Partial<ClientOptions> & SpearOptions) // intents optional → Intents.default; SpearOptions: logger/dotenv/cooldown/prefix/usage/embeds/guards
+new SpearClient(options?: Partial<ClientOptions> & SpearOptions) // intents optional → Intents.default; SpearOptions: logger/dotenv/cooldown/cooldownStore/prefix/usage/embeds/guards
 client.commands   // CommandRegistry
 client.events     // EventRegistry
 client.components // ComponentRegistry
@@ -186,7 +186,8 @@ guard(predicate) · denied(reason?)
 
 ```ts
 command({ cooldown: number | CooldownConfig })
-new SpearClient({ cooldown: CooldownConfig })
+new SpearClient({ cooldown: CooldownConfig, cooldownStore?: CooldownBackend | KeyValueStore })
+redisCooldownBackend(redis); keyValueCooldownBackend(store)
 CooldownConfig = { duration, scope?: "user"|"guild"|"channel"|"global",
                    exempt?: { users?, roles? }, overrides?: { users?, roles? },
                    message?: string | ((remainingMs) => string) }
@@ -323,7 +324,8 @@ hasPermissions(channel, who, required); compareRoles(a, b); canActOn(actor, targ
 moderationCheck({ moderator, target, me?, action? }) -> { ok: true } | { ok: false, reason }
 
 // Persistent storage + per-guild settings
-new MemoryStore(); new JsonStore(path)   // KeyValueStore: get/set/has/delete/keys/clear
+new MemoryStore(); new JsonStore(path); new SqliteStore(path); new RedisStore(redis)
+// KeyValueStore: get/set/has/delete/keys/clear
 namespaced(store, prefix)
 createPayloadStore({ store, namespace?, ttlMs? }) -> { put, get, delete }
 createSettings({ store, defaults, namespace? }) -> { defaults, store, get(id), set(id, patch), reset(id) }

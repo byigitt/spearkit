@@ -140,7 +140,7 @@ export class CommandRegistry {
     });
     const cooldown = command.cooldown ?? this.defaultCooldown;
     if (cooldown !== undefined && this.cooldowns !== undefined) {
-      const result = this.cooldowns.consume(command.name, cooldown, actorOf(interaction));
+      const result = await this.cooldowns.consume(command.name, cooldown, actorOf(interaction));
       if (!result.allowed) {
         await this.replyCooldown(interaction, cooldown, result.remaining);
         return;

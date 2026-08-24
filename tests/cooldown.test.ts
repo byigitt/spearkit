@@ -3,9 +3,14 @@ import {
   CooldownManager,
   effectiveDuration,
   formatCooldownMessage,
+  keyValueCooldownBackend,
   normalizeCooldown,
+  redisCooldownBackend,
   type CooldownActor,
 } from "../src/cooldown.js";
+import { MemoryStore } from "../src/store.js";
+import { SqliteStore } from "../src/sqlite-store.js";
+import type { RedisCommands, RedisSetOptions } from "../src/redis-store.js";
 import { CommandRegistry } from "../src/commands/registry.js";
 import { command } from "../src/commands/command.js";
 import { fakeChatInput } from "./helpers.js";
@@ -20,37 +25,35 @@ describe("normalizeCooldown", () => {
 });
 
 describe("CooldownManager.consume", () => {
-  it("allows, then blocks within the window, then allows again", () => {
+  it("allows, then blocks within the window, then allows again", async () => {
     const cd = new CooldownManager();
-    expect(cd.consume("b", 1000, actor, 0)).toEqual({ allowed: true });
-    const blocked = cd.consume("b", 1000, actor, 400);
+    expect(await cd.consume("b", 1000, actor, 0)).toEqual({ allowed: true });
+    const blocked = await cd.consume("b", 1000, actor, 400);
     expect(blocked).toEqual({ allowed: false, remaining: 600 });
-    expect(cd.consume("b", 1000, actor, 1000)).toEqual({ allowed: true });
+    expect(await cd.consume("b", 1000, actor, 1000)).toEqual({ allowed: true });
   });
 
-  it("keys separately per scope", () => {
+  it("keys separately per scope", async () => {
     const cd = new CooldownManager();
     const other: CooldownActor = { ...actor, userId: "u2" };
-    cd.consume("b", { duration: 1000, scope: "guild" }, actor, 0);
-    // same guild, different user -> still blocked under guild scope
-    expect(cd.consume("b", { duration: 1000, scope: "guild" }, other, 100).allowed).toBe(false);
-    // user scope keys on the user, so u2 is free
-    expect(cd.consume("b", { duration: 1000, scope: "user" }, other, 100).allowed).toBe(true);
+    await cd.consume("b", { duration: 1000, scope: "guild" }, actor, 0);
+    expect((await cd.consume("b", { duration: 1000, scope: "guild" }, other, 100)).allowed).toBe(false);
+    expect((await cd.consume("b", { duration: 1000, scope: "user" }, other, 100)).allowed).toBe(true);
   });
 
-  it("peek does not record", () => {
+  it("peek does not record", async () => {
     const cd = new CooldownManager();
-    expect(cd.peek("b", 1000, actor, 0).allowed).toBe(true);
-    expect(cd.consume("b", 1000, actor, 0).allowed).toBe(true);
-    expect(cd.peek("b", 1000, actor, 100).allowed).toBe(false);
+    expect((await cd.peek("b", 1000, actor, 0)).allowed).toBe(true);
+    expect((await cd.consume("b", 1000, actor, 0)).allowed).toBe(true);
+    expect((await cd.peek("b", 1000, actor, 100)).allowed).toBe(false);
   });
 
-  it("reset clears a bucket", () => {
+  it("reset clears a bucket", async () => {
     const cd = new CooldownManager();
-    cd.consume("b", 1000, actor, 0);
-    expect(cd.consume("b", 1000, actor, 100).allowed).toBe(false);
-    expect(cd.reset("b", actor, "user")).toBe(true);
-    expect(cd.consume("b", 1000, actor, 100).allowed).toBe(true);
+    await cd.consume("b", 1000, actor, 0);
+    expect((await cd.consume("b", 1000, actor, 100)).allowed).toBe(false);
+    expect(await cd.reset("b", actor, "user")).toBe(true);
+    expect((await cd.consume("b", 1000, actor, 100)).allowed).toBe(true);
   });
 });
 
@@ -112,5 +115,85 @@ describe("command dispatch enforces cooldown", () => {
     await reg.handle(b.interaction);
     expect(a.capture.replies).toEqual([{ content: "ok" }]);
     expect(b.capture.replies).toEqual([{ content: "ok" }]);
+  });
+});
+
+class MemoryRedis implements RedisCommands {
+  private readonly data = new Map<string, { value: string; expiresAt?: number }>();
+
+  private live(key: string): { value: string; expiresAt?: number } | undefined {
+    const row = this.data.get(key);
+    if (row === undefined) return undefined;
+    if (row.expiresAt !== undefined && row.expiresAt <= Date.now()) {
+      this.data.delete(key);
+      return undefined;
+    }
+    return row;
+  }
+
+  async get(key: string): Promise<string | null> {
+    return this.live(key)?.value ?? null;
+  }
+
+  async set(key: string, value: string, options?: RedisSetOptions): Promise<unknown> {
+    if (options?.NX === true && this.live(key) !== undefined) return null;
+    this.data.set(key, {
+      value,
+      expiresAt: options?.PX === undefined ? undefined : Date.now() + options.PX,
+    });
+    return "OK";
+  }
+
+  async del(key: string | readonly string[]): Promise<number> {
+    const keys = typeof key === "string" ? [key] : key;
+    let removed = 0;
+    for (const item of keys) {
+      if (this.data.delete(item)) removed += 1;
+    }
+    return removed;
+  }
+
+  async keys(pattern: string): Promise<string[]> {
+    const prefix = pattern.endsWith("*") ? pattern.slice(0, -1) : pattern;
+    return [...this.data.keys()].filter(
+      (key) => this.live(key) !== undefined && key.startsWith(prefix),
+    );
+  }
+
+  async pttl(key: string): Promise<number> {
+    const row = this.live(key);
+    if (row === undefined) return -2;
+    if (row.expiresAt === undefined) return -1;
+    return Math.max(0, row.expiresAt - Date.now());
+  }
+}
+
+describe("shared cooldown backends", () => {
+  it("shares last-hit timestamps across managers on a KeyValueStore", async () => {
+    const store = new MemoryStore();
+    const a = new CooldownManager(store);
+    const b = new CooldownManager(keyValueCooldownBackend(store));
+    expect(await a.consume("daily", 60_000, actor, 0)).toEqual({ allowed: true });
+    expect(await b.consume("daily", 60_000, actor, 100)).toEqual({
+      allowed: false,
+      remaining: 59_900,
+    });
+  });
+
+  it("shares sqlite-backed cooldowns across managers", async () => {
+    const store = new SqliteStore(":memory:");
+    const a = new CooldownManager(store);
+    const b = new CooldownManager(store);
+    expect((await a.consume("vote", 5_000, actor, 10)).allowed).toBe(true);
+    expect((await b.consume("vote", 5_000, actor, 20)).allowed).toBe(false);
+  });
+
+  it("uses Redis SET NX so a second shard is blocked", async () => {
+    const redis = new MemoryRedis();
+    const a = new CooldownManager(redisCooldownBackend(redis));
+    const b = new CooldownManager(redisCooldownBackend(redis));
+    expect((await a.consume("spin", 5_000, actor)).allowed).toBe(true);
+    const blocked = await b.consume("spin", 5_000, actor);
+    expect(blocked.allowed).toBe(false);
   });
 });

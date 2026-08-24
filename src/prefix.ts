@@ -356,7 +356,7 @@ export class PrefixRegistry {
 
     const cooldown = command.cooldown ?? this.defaultCooldown;
     if (cooldown !== undefined && this.cooldowns !== undefined) {
-      const result = this.cooldowns.consume(`prefix:${command.name}`, cooldown, actorFromMessage(message));
+      const result = await this.cooldowns.consume(`prefix:${command.name}`, cooldown, actorFromMessage(message));
       if (!result.allowed) {
         await message.reply(formatCooldownMessage(cooldown, result.remaining)).catch(() => undefined);
         return true;

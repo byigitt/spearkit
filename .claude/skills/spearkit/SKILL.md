@@ -224,7 +224,7 @@ channel/channelId/locale` · state `deferred/replied`. Commands add `ctx.options
 ## Subsystems (configured on `SpearClient` options)
 
 - **Cooldowns** — `command({ cooldown: number | CooldownConfig })` or
-  `new SpearClient({ cooldown })`; scopes `user|guild|channel|global`, plus
+  `new SpearClient({ cooldown, cooldownStore })`; scopes `user|guild|channel|global`, plus
   `exempt`/`overrides`.
 - **Scheduled tasks** — `task({ name, cron?, interval?, runOnStart?, run })`,
   `client.schedule(...)`, `client.scheduler.delay/followUp/reconcile`, `cron(expr)`.

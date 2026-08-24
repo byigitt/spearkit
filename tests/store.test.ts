@@ -9,6 +9,8 @@ import {
   namespaced,
   type KeyValueStore,
 } from "../src/store.js";
+import { SqliteStore } from "../src/sqlite-store.js";
+import { RedisStore, type RedisCommands, type RedisSetOptions } from "../src/redis-store.js";
 
 let dir: string;
 beforeAll(async () => {
@@ -53,6 +55,60 @@ function contract(name: string, make: () => KeyValueStore): void {
 
 contract("MemoryStore", () => new MemoryStore());
 contract("JsonStore", () => new JsonStore(join(dir, `kv-${Math.random().toString(36).slice(2)}.json`)));
+contract("SqliteStore", () => new SqliteStore(":memory:"));
+contract("RedisStore", () => new RedisStore(new MemoryRedis()));
+
+class MemoryRedis implements RedisCommands {
+  private readonly data = new Map<string, { value: string; expiresAt?: number }>();
+
+  private live(key: string): { value: string; expiresAt?: number } | undefined {
+    const row = this.data.get(key);
+    if (row === undefined) return undefined;
+    if (row.expiresAt !== undefined && row.expiresAt <= Date.now()) {
+      this.data.delete(key);
+      return undefined;
+    }
+    return row;
+  }
+
+  async get(key: string): Promise<string | null> {
+    return this.live(key)?.value ?? null;
+  }
+
+  async set(key: string, value: string, options?: RedisSetOptions): Promise<unknown> {
+    if (options?.NX === true && this.live(key) !== undefined) return null;
+    this.data.set(key, {
+      value,
+      expiresAt: options?.PX === undefined ? undefined : Date.now() + options.PX,
+    });
+    return "OK";
+  }
+
+  async del(key: string | readonly string[]): Promise<number> {
+    const keys = typeof key === "string" ? [key] : key;
+    let removed = 0;
+    for (const item of keys) {
+      if (this.data.delete(item)) removed += 1;
+    }
+    return removed;
+  }
+
+  async keys(pattern: string): Promise<string[]> {
+    const prefix = pattern.endsWith("*") ? pattern.slice(0, -1) : pattern;
+    const found: string[] = [];
+    for (const key of [...this.data.keys()]) {
+      if (this.live(key) !== undefined && key.startsWith(prefix)) found.push(key);
+    }
+    return found;
+  }
+
+  async pttl(key: string): Promise<number> {
+    const row = this.live(key);
+    if (row === undefined) return -2;
+    if (row.expiresAt === undefined) return -1;
+    return Math.max(0, row.expiresAt - Date.now());
+  }
+}
 
 describe("JsonStore persistence", () => {
   it("survives a fresh instance pointed at the same file", async () => {

@@ -13,7 +13,12 @@ import type { SpearPlugin } from "./plugin.js";
 import { loadInto, type LoadOptions } from "./loader.js";
 import { Logger, type LoggerOptions, toError } from "./logger.js";
 import { loadEnv, type LoadEnvOptions } from "./env.js";
-import { CooldownManager, normalizeCooldown, type CooldownInput } from "./cooldown.js";
+import {
+  CooldownManager,
+  normalizeCooldown,
+  type CooldownInput,
+  type CooldownStoreInput,
+} from "./cooldown.js";
 import { TaskScheduler, task, type ScheduledTask, type TaskConfig } from "./scheduler.js";
 import { PrefixRegistry, type PrefixCommand, type PrefixOptions } from "./prefix.js";
 import { UsageTracker, type UsageEvent, type UsageOptions } from "./usage.js";
@@ -76,6 +81,11 @@ export interface SpearOptions {
   dotenv?: boolean | LoadEnvOptions;
   /** A default cooldown applied to every command. A command's own cooldown overrides it. */
   cooldown?: CooldownInput;
+  /**
+   * Persist cooldowns across restarts/shards. A {@link CooldownBackend} or any
+   * {@link KeyValueStore} (SQLite, Redis, JSON).
+   */
+  cooldownStore?: CooldownStoreInput;
   /** Enable prefix (text) commands. A string/array sets prefixes; an object configures matching. */
   prefix?: string | readonly string[] | PrefixOptions;
   /** Track command/component/prefix usage to a store and/or a Discord channel. */
@@ -129,7 +139,7 @@ export class SpearClient extends Client {
   /** Structured logger shared across spearkit and available to your code. */
   readonly logger: Logger;
   /** Shared cooldown manager used by command dispatch; also usable directly. */
-  readonly cooldowns = new CooldownManager();
+  readonly cooldowns: CooldownManager;
   /** Cron/interval task scheduler; started on ready and stopped on destroy. */
   readonly scheduler = new TaskScheduler();
   /** Prefix (text) command registry, dispatched from `messageCreate`. */
@@ -150,6 +160,7 @@ export class SpearClient extends Client {
       logger,
       dotenv,
       cooldown,
+      cooldownStore,
       prefix,
       usage,
       embeds,
@@ -163,6 +174,7 @@ export class SpearClient extends Client {
     this.embeds = embeds instanceof Embeds ? embeds : new Embeds(embeds);
     this.envConfig = dotenv === false ? false : dotenv === undefined || dotenv === true ? {} : dotenv;
     this.logger = logger instanceof Logger ? logger : new Logger(logger);
+    this.cooldowns = new CooldownManager(cooldownStore);
     this.i18n =
       i18n === undefined
         ? undefined

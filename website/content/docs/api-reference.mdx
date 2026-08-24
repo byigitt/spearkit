@@ -60,6 +60,7 @@ discord.js `ClientOptions` (with `intents` optional — it defaults to
 | `autoDefer` | `AutoDeferInput` | Default auto-defer for slash + context-menu handlers. |
 | `onHandlerError` | `HandlerErrorHandler` | One error policy for commands, components, context menus, and prefix commands. |
 | `i18n` | `I18n \| I18nOptions` | Runtime catalogs, locale fallback, and optional async resolver. |
+| `cooldownStore` | `CooldownBackend \| KeyValueStore` | Persist cooldowns across restarts and shards. |
 
 ### `const Intents`
 
@@ -546,7 +547,12 @@ function createI18n<const M>(options: I18nOptions<M>): I18n<MessageKey<M>>;
 
 ```ts
 interface CooldownConfig { duration: number; scope?: "user" | "guild" | "channel" | "global"; exempt?: { users?: string[]; roles?: string[] }; overrides?: { users?: Record<string, number>; roles?: Record<string, number> }; message?: string | ((remainingMs: number) => string); }
-class CooldownManager { consume(bucket, input, actor, now?); peek(...); reset(...); clear(); }
+class CooldownManager { constructor(backend?: CooldownStoreInput); setBackend(backend); consume(bucket, input, actor, now?); peek(...); reset(...); clear(); }
+class MemoryCooldownBackend implements CooldownBackend {}
+interface CooldownBackend { hit(key, durationMs, now); peek(key, durationMs, now); delete(key); clear(); size?(); }
+function keyValueCooldownBackend(store: KeyValueStore): CooldownBackend;
+function redisCooldownBackend(client: RedisCommands, options?: { prefix?: string }): CooldownBackend;
+type CooldownStoreInput = CooldownBackend | KeyValueStore;
 type CooldownInput = number | CooldownConfig;       // a bare ms duration, or a full config
 type CooldownScope = "user" | "guild" | "channel" | "global";
 type CooldownResult = { allowed: true } | { allowed: false; remaining: number };
@@ -554,7 +560,7 @@ interface CooldownActor { userId; roleIds; guildId; channelId; }   // also: Cool
 function normalizeCooldown(input: CooldownInput): CooldownConfig;
 function effectiveDuration(config: CooldownConfig, actor: CooldownActor): number | null; // null = exempt
 function formatCooldownMessage(config: CooldownConfig, remainingMs: number): string;
-// command({ cooldown: number | CooldownConfig }); new SpearClient({ cooldown }); client.cooldowns
+// command({ cooldown }); new SpearClient({ cooldown, cooldownStore }); client.cooldowns
 ```
 
 ### Scheduled tasks — [guide](/docs/guides/scheduler)
@@ -825,6 +831,9 @@ interface KeyValueStore {
 }
 class MemoryStore implements KeyValueStore { /* deep-cloned in-memory */ }
 class JsonStore implements KeyValueStore { constructor(path: string); /* atomic JSON file */ }
+class SqliteStore implements KeyValueStore { constructor(path: string | { path: string; table?: string }); close(): void; }
+class RedisStore implements KeyValueStore { constructor(client: RedisCommands | { client: RedisCommands; prefix?: string }); }
+interface RedisCommands { get(key): Promise<string | null>; set(key, value, options?: { NX?: boolean; PX?: number }); del(key | keys); keys(pattern); pttl?(key); }
 function namespaced(store: KeyValueStore, prefix: string): KeyValueStore;
 
 interface PayloadStore<T> { put(value: T): Promise<string>; get(token: string): Promise<T | undefined>; delete(token: string): Promise<boolean>; }

@@ -111,7 +111,7 @@ command({
 [prefix commands](./prefix.md)). Use it directly for custom flows:
 
 ```ts
-const result = client.cooldowns.consume("vote", 5_000, {
+const result = await client.cooldowns.consume("vote", 5_000, {
   userId: "1",
   roleIds: [],
   guildId: null,
@@ -122,4 +122,27 @@ if (!result.allowed) console.log(`wait ${result.remaining}ms`);
 
 `consume` records the use and returns `{ allowed: true }` or
 `{ allowed: false, remaining }`. `peek` checks without recording; `reset` and
-`clear` drop tracked cooldowns.
+`clear` drop tracked cooldowns. The in-memory backend stays synchronous;
+store-backed backends return a Promise — dispatch always `await`s.
+
+## Shared / shard-safe clocks
+
+By default each process has its own map. Pass `cooldownStore` so restarts and
+shards share one clock:
+
+```ts
+import { SpearClient, SqliteStore, redisCooldownBackend } from "spearkit";
+
+// Restart-safe (SQLite). Two processes can still race a hit.
+const client = new SpearClient({
+  cooldownStore: new SqliteStore("data/cooldowns.sqlite"),
+});
+
+// Shard-safe: Redis SET NX PX, key lives only while cooling down.
+const sharded = new SpearClient({
+  cooldownStore: redisCooldownBackend(redis),
+});
+```
+
+A `KeyValueStore` is wrapped automatically. Use `redisCooldownBackend` when you
+need the atomic NX write rather than a timestamp get/set.

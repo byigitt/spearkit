@@ -2,17 +2,19 @@
 
 Almost every community bot needs to remember *something* per guild — a custom
 prefix, a mod-log channel, a welcome message — and reaches for a database on day
-one. spearkit ships a dependency-free `KeyValueStore` interface with two
-backends, plus a typed per-guild settings helper. Swap in Redis/SQL later by
-implementing the same interface.
+one. spearkit ships a dependency-free `KeyValueStore` interface with memory,
+JSON, SQLite (`node:sqlite`), and Redis (pass your own client) backends, plus
+a typed per-guild settings helper.
 
 ## Stores
 
 ```ts
-import { JsonStore, MemoryStore } from "spearkit";
+import { JsonStore, MemoryStore, RedisStore, SqliteStore } from "spearkit";
 
-const dev = new MemoryStore();             // in-memory, great for tests
-const prod = new JsonStore("data/db.json"); // durable JSON file
+const dev = new MemoryStore();                 // in-memory, great for tests
+const file = new JsonStore("data/db.json");    // durable JSON file
+const sqlite = new SqliteStore("data/bot.sqlite"); // Node 22.12+ `node:sqlite`
+const redis = new RedisStore(redisClient);     // your `redis` / wrapped ioredis
 ```
 
 Both implement `KeyValueStore`:
@@ -30,6 +32,12 @@ await store.clear();
 state. `JsonStore` serves reads from an in-memory cache and commits writes
 atomically (temp file + rename) through a queue — a crash mid-write can't corrupt
 the file, and concurrent writes don't interleave.
+
+`SqliteStore` uses Node's built-in `node:sqlite` (`DatabaseSync`) — no `better-sqlite3`
+package. Pass `":memory:"` in tests or a file path in production. `RedisStore`
+does **not** depend on ioredis; pass any client matching `RedisCommands`
+(`get` / `set` / `del` / `keys`). node-redis v4+ matches that surface. Wrap
+ioredis `set` if you need `{ NX, PX }` options for shard-safe cooldowns.
 
 ## Typed per-guild settings
 
