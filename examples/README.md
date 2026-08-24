@@ -40,6 +40,7 @@ spearkit discord.js` and the same imports work unchanged.
 | [`payload/`](./payload) | Short custom-id tokens for bulky component state. |
 | [`polls/`](./polls) | Validated native Discord polls. |
 | [`help/`](./help) | Generated, paginated `/help`. |
+| [`i18n/`](./i18n) | Discord locales, async overrides, and `ctx.t`. |
 | [`collectors/`](./collectors) | Await a reply or a modal submission inline. |
 | [`text/`](./text) | Split long output to the 2000-char limit; truncate. |
 | [`shutdown/`](./shutdown) | Close cleanly on `SIGINT`/`SIGTERM`. |

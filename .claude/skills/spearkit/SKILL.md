@@ -71,6 +71,8 @@ await client.deployCommands({ guildId: process.env.GUILD_ID }); // omit guildId 
 - **Generated command list** → `helpCommand`; **native vote** → `poll`.
 - **Reply** → `ctx.reply` / `replyEphemeral`; **>3s work** → `ctx.defer()` then `editReply`; **styled embed** → `ctx.success/error/info/warn`.
 - **Gateway events** → `event(...)`; **rate-limit** → `cooldown`; **role/permission/owner gate** → guards; **cron/interval** → `task` / `client.schedule`; **logs** → `client.logger` + sinks; **usage tracking** → `usage`; **typed env / `.env`** → `env.*`.
+- **Translated runtime replies** → `createI18n` + `new SpearClient({ i18n })` +
+  `await ctx.t(key, params)`.
 - **Reusable bundle** → `definePlugin` + `client.use`; **file-per-handler** → `client.load` (`{ typescript: true }` under tsx/bun); **scaffold** → `npx spearkit create`; **deploy** → `client.deployCommands` / `deployAllCommands`.
 - **Slash + prefix** → `hybridCommand`. **Bulky component state** → `createPayloadStore`.
 - **One failure policy** → `new SpearClient({ onHandlerError })`.

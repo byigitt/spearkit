@@ -98,6 +98,7 @@ Map the task to the API. Patterns and signatures are below and in `docs/`.
 | Track who used what | `new SpearClient({ usage })` + `MemoryUsageStore` / `JsonFileUsageStore` |
 | Handle failures across every routed surface | `new SpearClient({ onHandlerError })` |
 | Read typed env / load `.env` | `env.string/number/boolean/require` (auto-loaded on `start()`) |
+| Translate replies by Discord/guild locale | `new SpearClient({ i18n })` + `await ctx.t(key, params)` |
 | Shut down cleanly on SIGINT/SIGTERM | `client.enableGracefulShutdown({ onShutdown })` |
 | Permission / role-hierarchy preflight | `moderationCheck(...)`, `missingPermissions(...)`, `canActOn(...)`, `ctx.botMissing(...)` |
 | Wait for a reply / click / modal submission | `ctx.awaitMessageFrom(...)` / `ctx.awaitModal(...)` / `awaitComponent(...)` |
@@ -237,6 +238,8 @@ modals add `ctx.fields`.
 - **Usage tracking** — `new SpearClient({ usage: { store?, channel?, format? } })`;
   `MemoryUsageStore`, `JsonFileUsageStore`.
 - **Env** — `.env` auto-loads on `start()`; read with `env.string/number/boolean/require`.
+- **Runtime i18n** — `createI18n({ messages, defaultLocale, resolveLocale? })`;
+  configure `new SpearClient({ i18n })`, then `await ctx.t(key, params)`.
 - **Plugins** — `definePlugin({ name, setup(client) })`, then `await client.use(plugin)`.
 - **File-based loading** — `await client.load(dir)` (compiled JS by default) or
   `{ typescript: true }` under `tsx`/`bun`. Hybrid commands and context menus

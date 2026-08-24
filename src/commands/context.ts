@@ -14,6 +14,7 @@ import {
 } from "../collectors.js";
 import type { ModalSubmitInteraction } from "discord.js";
 import type { OptionChoice, OptionMap, ResolvedOptions } from "./options.js";
+import type { I18n, TranslationParams } from "../i18n.js";
 
 /**
  * The handler argument for a slash command. Wraps the discord.js interaction
@@ -72,6 +73,9 @@ export class AutocompleteContext {
   get guildId() {
     return this.interaction.guildId;
   }
+  get locale() {
+    return this.interaction.locale;
+  }
   get commandName(): string {
     return this.interaction.commandName;
   }
@@ -84,6 +88,30 @@ export class AutocompleteContext {
   /** Current partial value typed by the user. */
   get value(): string {
     return this.interaction.options.getFocused();
+  }
+
+  /** Translate autocomplete labels with the same locale policy as commands. */
+  t(key: string, params: TranslationParams = {}): Promise<string> {
+    const i18n = (
+      this.interaction.client as AutocompleteInteraction["client"] & {
+        i18n?: I18n;
+      }
+    ).i18n;
+    if (i18n === undefined) {
+      return Promise.reject(
+        new Error("spearkit: ctx.t() requires new SpearClient({ i18n })"),
+      );
+    }
+    return i18n.translateFor(
+      {
+        locale: this.interaction.locale,
+        guildLocale: this.interaction.guildLocale,
+        guildId: this.interaction.guildId,
+        userId: this.interaction.user.id,
+      },
+      key,
+      params,
+    );
   }
 
   /** Send autocomplete suggestions (capped at the discord limit of 25). */

@@ -29,11 +29,12 @@ components.
 20. [Logging](./logging.md) — structured, leveled, scoped logging.
 21. [Usage tracking](./usage.md) — record who used what (store + Discord channel).
 22. [Environment & dotenv](./env.md) — load `.env` and read typed env vars.
-23. [Graceful shutdown](./shutdown.md) — close cleanly on `SIGINT`/`SIGTERM`.
-24. [Plugins](./plugins.md) — bundling features into reusable units.
-25. [File-based loading](./loading.md) — one file per command/event/component.
-26. [Migrating from discord.js](./migration.md) — the drop-in path.
-27. [API reference](./api-reference.md) — every exported symbol.
+23. [Runtime i18n](./i18n.md) — Discord locales, fallback catalogs, `ctx.t`.
+24. [Graceful shutdown](./shutdown.md) — close cleanly on `SIGINT`/`SIGTERM`.
+25. [Plugins](./plugins.md) — bundling features into reusable units.
+26. [File-based loading](./loading.md) — one file per command/event/component.
+27. [Migrating from discord.js](./migration.md) — the drop-in path.
+28. [API reference](./api-reference.md) — every exported symbol.
 
 ## Why spearkit
 

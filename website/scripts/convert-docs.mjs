@@ -35,6 +35,7 @@ const map = {
   logging: { out: "guides/logging.mdx", route: "/docs/guides/logging" },
   usage: { out: "guides/usage.mdx", route: "/docs/guides/usage" },
   env: { out: "guides/env.mdx", route: "/docs/guides/env" },
+  i18n: { out: "guides/i18n.mdx", route: "/docs/guides/i18n" },
   collectors: { out: "guides/collectors.mdx", route: "/docs/guides/collectors" },
   store: { out: "guides/store.mdx", route: "/docs/guides/store" },
   messages: { out: "guides/messages.mdx", route: "/docs/guides/messages" },
@@ -150,7 +151,7 @@ async function main() {
     JSON.stringify(
       {
         title: "Guides",
-        pages: ["commands", "options", "components", "context-menus", "events", "context", "collectors", "guards", "permissions", "auto-defer", "client", "cooldown", "scheduler", "prefix", "logging", "errors", "messages", "usage", "store", "env", "plugins", "shutdown", "loading"],
+        pages: ["commands", "options", "components", "context-menus", "events", "context", "collectors", "guards", "permissions", "auto-defer", "client", "cooldown", "scheduler", "prefix", "logging", "errors", "messages", "usage", "store", "env", "i18n", "plugins", "shutdown", "loading"],
       },
       null,
       2,

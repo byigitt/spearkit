@@ -6,13 +6,14 @@ Bu dosya “ne eklenebilir?” listesi değil; **ne, neden, hangi Discord/d.js y
 
 **Kısıt:** Drop-in discord.js kalır. Yeni API’ler `import { … } from "spearkit"` ile gelir. `any` sızmaz. Handler’larda inference; `interactionCreate` switch yok.
 
-**Bugünkü taban (0.9.0):** discord.js `^14.21.0`, Node `>=22.12`. Label modals,
+**Bugünkü taban (0.10.0):** discord.js `^14.21.0`, Node `>=22.12`. Label modals,
 V2 layout helpers, `install`/`contexts`, `hybridCommand` shipped. Loader can
 load `.ts` (`{ typescript: true }`). `npx spearkit create`. `createPayloadStore`
 for custom-id tokens. `option.attachment({ fileTypes })`. Native `poll()`,
-generated `helpCommand()`, and client-wide `onHandlerError`.
+generated `helpCommand()`, client-wide `onHandlerError`, and dependency-free
+runtime i18n (`createI18n`, async locale resolver, `ctx.t`).
 
-Kalan: Faz 5 (Redis/SQLite adapter, shard cooldown, i18n, CI action).
+Kalan: Faz 5 (Redis/SQLite adapter, shard cooldown, CI action).
 
 ---
 
@@ -254,7 +255,7 @@ Custom-id 100 karakter, düz metin. `id: "page:{token}"` + `MemoryStore`/`JsonSt
 |------|--------|----------------|
 | Redis / SQLite `KeyValueStore` | Shard + restart; Sapphire scheduled-tasks BullMQ | `KeyValueStore` zaten var; `RedisStore` ayrı opsiyonel paket (core’a ioredis sokma) |
 | Shard-aware cooldown | Multi-process bot | CooldownManager store backend |
-| i18n | Komut *adı* localize; cevap metni yok | `ctx.locale` + `t(key)`; Sapphire `plugin-i18next` ilham, i18next’i core’a gömme |
+| ✅ i18n | Komut *adı* localize; cevap metni yok | `createI18n` + Discord fallback + async resolver + `ctx.t` |
 | ✅ Otomatik `/help` | Kayıtlı komutlardan | `helpCommand()` + paginator + live registries |
 | ✅ `poll()` helper | [Poll resource](https://docs.discord.com/developers/resources/poll) | Validated `PollData`; V2 mesajda poll **disabled** |
 | `option.attachment({ fileTypes })` | Changelog file type filter | `toAPIOption` alanları |
@@ -283,6 +284,7 @@ Custom-id 100 karakter, düz metin. `id: "page:{token}"` + `MemoryStore`/`JsonSt
 | **0.7.0** | Faz 3 (install/contexts) |
 | **0.8.0** | Faz 4 — TS loader, `spearkit create`, `createPayloadStore`, hybrid (already in 0.7) + `fileTypes` |
 | **0.9.0** | Faz 5 core — `poll`, `helpCommand`, client-wide `onHandlerError` |
+| **0.10.0** | Runtime i18n — inferred catalogs, Discord fallback, async guild/user resolver, `ctx.t` |
 | **1.0** | Yukarıdakiler + docs/llms/skill + e2e yeşil; PolyForm NC aynı kalabilir |
 
 Her faz: kod → `tests/` → `examples/` → `docs/` → `npm run docs:llms` → AGENTS.md / skill cheatsheet.

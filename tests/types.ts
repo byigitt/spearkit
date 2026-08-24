@@ -17,6 +17,21 @@ import {
   textInput,
   userSelectField,
 } from "../src/components/builders.js";
+import { createI18n } from "../src/i18n.js";
+
+// --- i18n key inference ----------------------------------------------------
+
+const translations = createI18n({
+  defaultLocale: "en",
+  messages: {
+    en: { hello: "Hello", goodbye: "Goodbye" },
+    tr: { hello: "Merhaba" },
+  },
+});
+translations.t("en", "hello");
+translations.t("tr", "goodbye"); // runtime fallback to default catalog
+// @ts-expect-error unknown translation key
+translations.t("en", "missing");
 
 // --- slash command option inference ---------------------------------------
 

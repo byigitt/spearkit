@@ -199,6 +199,7 @@ asEphemeral("hidden");
 | `channel` | The channel the interaction came from. |
 | `channelId` | The channel id. |
 | `locale` | The user's locale. |
+| `t(key, params?)` | Async runtime translation via `client.i18n`. |
 | `deferred` | Whether the interaction is already deferred. |
 | `replied` | Whether the interaction already received an initial response. |
 | `botPermissions` | The bot's resolved permissions in the channel (`PermissionsBitField`, zero-fetch). |

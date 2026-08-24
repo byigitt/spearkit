@@ -67,6 +67,7 @@ the full discord.js surface. For prose and edge cases, read the package's
 | Track who used what | `new SpearClient({ usage })` + `MemoryUsageStore` / `JsonFileUsageStore` |
 | Centralize routed-handler failures | `new SpearClient({ onHandlerError })` |
 | Read typed env / load `.env` | `env.string/number/boolean/require` (auto-loaded on `start()`) |
+| Translate runtime replies | `createI18n(...)` + `new SpearClient({ i18n })` + `await ctx.t(...)` |
 
 **Utilities (primitives)**
 
@@ -272,6 +273,15 @@ JsonFileUsageStore(path)
 loadEnv({ path?, override? }); parseEnv(content)
 env.string(k, fallback?) · env.number(k, fallback?) · env.boolean(k, fallback?) · env.require(k)
 // SpearClient auto-loads .env on start(); configure/disable via the `dotenv` option
+```
+
+## Runtime i18n
+
+```ts
+const i18n = createI18n({ messages, defaultLocale, fallbackLocale?, resolveLocale?, missing? })
+i18n.t(locale, key, params?)                 // sync, key-inferred
+await i18n.translateFor(target, key, params?) // async locale resolver
+new SpearClient({ i18n }); await ctx.t(key, params?)
 ```
 
 ## Plugins & loading

@@ -1,0 +1,103 @@
+---
+title: "Runtime internationalization"
+description: "Discord localizes command names separately through nameLocalizations and descriptionLocalizations. Runtime replies use the invoking user's interaction.locale; prefix messages fall…"
+---
+
+## Configure catalogs
+
+Catalogs are flat key/value maps. `createI18n` infers the union of message keys
+for direct `i18n.t(...)` calls:
+
+```ts
+import { SpearClient, createI18n } from "spearkit";
+
+const i18n = createI18n({
+  defaultLocale: "en-US",
+  messages: {
+    "en-US": {
+      "ping.reply": "Pong! {ms}ms",
+      "errors.denied": "You cannot do that.",
+    },
+    tr: {
+      "ping.reply": "Pong! {ms}ms",
+      "errors.denied": "Bunu yapamazsın.",
+    },
+  },
+});
+
+const client = new SpearClient({ i18n });
+```
+
+Locale matching is case-insensitive and normalizes `_` to `-`. Resolution order:
+
+1. exact locale (`tr-TR`);
+2. language catalog (`tr`);
+3. optional `fallbackLocale` and its language;
+4. `defaultLocale` and its language.
+
+Missing keys return the key itself unless `missing(key, locale)` is configured.
+Missing `{params}` remain visible instead of silently disappearing.
+
+## Translate in handlers
+
+Every interaction context, prefix context, and hybrid context exposes async
+`ctx.t(...)`:
+
+```ts
+const ping = command({
+  name: "ping",
+  description: "Check latency",
+  run: async (ctx) =>
+    ctx.reply(await ctx.t("ping.reply", { ms: ctx.client.ws.ping })),
+});
+```
+
+`ctx.t` is async because locale selection may read a guild/user settings store.
+Use `i18n.t(locale, key, params)` directly when the locale is already known and
+you want a synchronous result.
+
+## Per-guild or per-user locale
+
+`resolveLocale` runs before Discord's locale fallback and may be async:
+
+```ts
+const i18n = createI18n({
+  defaultLocale: "en-US",
+  messages,
+  resolveLocale: async ({ guildId, userId, locale, guildLocale }) => {
+    const userChoice = await userLanguages.get(userId);
+    if (userChoice) return userChoice;
+    if (guildId) return (await guildSettings.get(guildId)).locale;
+    return locale ?? guildLocale;
+  },
+});
+```
+
+The resolver receives `locale`, `guildLocale`, `guildId`, and `userId`.
+Interactions prefer the invoking user's locale by default. Prefix messages have
+no interaction locale, so they use `guild.preferredLocale` before the configured
+default.
+
+## Formatter messages
+
+Use a function for grammar, pluralization, or custom formatting:
+
+```ts
+const i18n = createI18n({
+  defaultLocale: "en",
+  messages: {
+    en: {
+      items: ({ count }) => `${count} item${count === 1 ? "" : "s"}`,
+    },
+  },
+});
+```
+
+spearkit intentionally does not bundle i18next or an ICU parser. Applications
+that need full ICU message syntax can still call their own translator from
+`resolveLocale`/handlers.
+
+Sources:
+
+- [Discord interaction object](https://docs.discord.com/developers/interactions/receiving-and-responding#interaction-object)
+- [discord.js `BaseInteraction.locale` / `guildLocale`](https://discord.js.org/docs/packages/discord.js/14.21.0/BaseInteraction:Class)

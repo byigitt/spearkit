@@ -33,6 +33,7 @@ export * from "./help.js";
 export * from "./poll.js";
 export * from "./logger.js";
 export * from "./env.js";
+export * from "./i18n.js";
 export * from "./cooldown.js";
 export * from "./scheduler.js";
 export * from "./prefix.js";

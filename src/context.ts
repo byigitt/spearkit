@@ -12,9 +12,11 @@ import {
 import type { Client } from "discord.js";
 import { awaitMessage, type AwaitMessageOptions } from "./collectors.js";
 import { Embeds, defaultEmbeds, type EmbedLevel, type EmbedPresetInput } from "./embeds.js";
+import type { I18n, TranslationParams } from "./i18n.js";
 
 /** A client (or anything client-shaped) that may expose a configured {@link Embeds}. */
 type EmbedHost = Client & { embeds?: Embeds };
+type I18nHost = Client & { i18n?: I18n };
 
 /** Reply options with an ergonomic `ephemeral` shortcut (mapped to flags). */
 export type ReplyData = InteractionReplyOptions & { ephemeral?: boolean };
@@ -161,6 +163,29 @@ export abstract class BaseContext<I extends RepliableInteraction = RepliableInte
   }
   get locale() {
     return this.interaction.locale;
+  }
+
+  /**
+   * Translate with the configured `client.i18n`. The locale may be resolved
+   * asynchronously (for example from per-guild settings).
+   */
+  t(key: string, params: TranslationParams = {}): Promise<string> {
+    const i18n = (this.interaction.client as I18nHost).i18n;
+    if (i18n === undefined) {
+      return Promise.reject(
+        new Error("spearkit: ctx.t() requires new SpearClient({ i18n })"),
+      );
+    }
+    return i18n.translateFor(
+      {
+        locale: this.interaction.locale,
+        guildLocale: this.interaction.guildLocale,
+        guildId: this.interaction.guildId,
+        userId: this.interaction.user.id,
+      },
+      key,
+      params,
+    );
   }
   /** Whether the interaction is already deferred. */
   get deferred() {

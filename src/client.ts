@@ -27,6 +27,7 @@ import {
   dispatchHandlerError,
   type HandlerErrorHandler,
 } from "./handler-errors.js";
+import { I18n, type I18nOptions } from "./i18n.js";
 
 /** Anything that can be handed to {@link SpearClient.register}. */
 export type Registerable =
@@ -94,6 +95,8 @@ export interface SpearOptions {
    * user-facing reply or `false` to suppress it.
    */
   onHandlerError?: HandlerErrorHandler;
+  /** Runtime translations exposed as `client.i18n` and `ctx.t(...)`. */
+  i18n?: I18n | I18nOptions;
 }
 
 /** Options for {@link SpearClient}: discord.js options plus {@link SpearOptions}. `intents` may be omitted. */
@@ -137,6 +140,8 @@ export class SpearClient extends Client {
   readonly embeds: Embeds;
   /** User- and message-context-menu command registry. */
   readonly contextMenus = new ContextMenuRegistry();
+  /** Configured runtime translations, if enabled. */
+  readonly i18n?: I18n;
   private readonly envConfig: false | LoadEnvOptions;
 
   constructor(options: SpearClientOptions = {}) {
@@ -151,12 +156,19 @@ export class SpearClient extends Client {
       guards,
       autoDefer,
       onHandlerError,
+      i18n,
       ...rest
     } = options;
     super({ ...rest, intents: intents ?? Intents.default });
     this.embeds = embeds instanceof Embeds ? embeds : new Embeds(embeds);
     this.envConfig = dotenv === false ? false : dotenv === undefined || dotenv === true ? {} : dotenv;
     this.logger = logger instanceof Logger ? logger : new Logger(logger);
+    this.i18n =
+      i18n === undefined
+        ? undefined
+        : i18n instanceof I18n
+          ? i18n
+          : new I18n(i18n);
     const defaultCooldown = cooldown !== undefined ? normalizeCooldown(cooldown) : undefined;
     const defaultAutoDefer = normalizeAutoDefer(autoDefer);
 

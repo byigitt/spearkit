@@ -1,4 +1,4 @@
-# spearkit v0.9.0 — full documentation for LLMs
+# spearkit v0.10.0 — full documentation for LLMs
 
 > discord.js++ — a developer-experience-first Discord library. Drop-in compatible with discord.js, with ergonomic events, slash commands, and interactive components.
 
@@ -118,11 +118,12 @@ components.
 20. [Logging](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/logging.md) — structured, leveled, scoped logging.
 21. [Usage tracking](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/usage.md) — record who used what (store + Discord channel).
 22. [Environment & dotenv](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/env.md) — load `.env` and read typed env vars.
-23. [Graceful shutdown](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/shutdown.md) — close cleanly on `SIGINT`/`SIGTERM`.
-24. [Plugins](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/plugins.md) — bundling features into reusable units.
-25. [File-based loading](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/loading.md) — one file per command/event/component.
-26. [Migrating from discord.js](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/migration.md) — the drop-in path.
-27. [API reference](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/api-reference.md) — every exported symbol.
+23. [Runtime i18n](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/i18n.md) — Discord locales, fallback catalogs, `ctx.t`.
+24. [Graceful shutdown](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/shutdown.md) — close cleanly on `SIGINT`/`SIGTERM`.
+25. [Plugins](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/plugins.md) — bundling features into reusable units.
+26. [File-based loading](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/loading.md) — one file per command/event/component.
+27. [Migrating from discord.js](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/migration.md) — the drop-in path.
+28. [API reference](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/api-reference.md) — every exported symbol.
 
 ## Why spearkit
 
@@ -519,7 +520,7 @@ const b = new SpearClient();
 The options type is exported as `SpearClientOptions` — `Partial<ClientOptions> &
 SpearOptions`. Every discord.js option (`partials`, `presence`, `sweepers`, …) is
 available, plus spearkit's own: `logger`, `dotenv`, `cooldown`, `prefix`, `usage`,
-`embeds`, `guards`, `autoDefer`, and `onHandlerError`.
+`embeds`, `guards`, `autoDefer`, `onHandlerError`, and `i18n`.
 
 `onHandlerError` is one policy for slash commands, components, context menus,
 and prefix commands. Return a string to override the safe user reply, `false`
@@ -574,6 +575,7 @@ Every client owns a set of registries and subsystems, each populated by
 | `client.events` | `EventRegistry` | Event listeners; attached to the client automatically. |
 | `client.components` | `ComponentRegistry` | Buttons, selects and modals; routed by custom-id namespace. |
 | `client.contextMenus` | `ContextMenuRegistry` | User / message context-menu ("Apps") commands. |
+| `client.i18n` | `I18n \| undefined` | Runtime translations used by `ctx.t`. |
 | `client.prefix` | `PrefixRegistry` | Prefix (text) commands, dispatched from `messageCreate`. |
 | `client.scheduler` | `TaskScheduler` | Cron / interval tasks; started on ready, stopped on `destroy`. |
 | `client.cooldowns` | `CooldownManager` | Shared rate-limit state across commands and prefix commands. |
@@ -2065,6 +2067,7 @@ asEphemeral("hidden");
 | `channel` | The channel the interaction came from. |
 | `channelId` | The channel id. |
 | `locale` | The user's locale. |
+| `t(key, params?)` | Async runtime translation via `client.i18n`. |
 | `deferred` | Whether the interaction is already deferred. |
 | `replied` | Whether the interaction already received an initial response. |
 | `botPermissions` | The bot's resolved permissions in the channel (`PermissionsBitField`, zero-fetch). |
@@ -3569,6 +3572,114 @@ new SpearClient({ dotenv: { path: ".env.production", override: true } });
 
 ---
 
+# Runtime internationalization
+
+Discord localizes command names separately through `nameLocalizations` and
+`descriptionLocalizations`. Runtime replies use the invoking user's
+`interaction.locale`; prefix messages fall back to the guild's preferred locale.
+spearkit's dependency-free `I18n` handles that response layer.
+
+## Configure catalogs
+
+Catalogs are flat key/value maps. `createI18n` infers the union of message keys
+for direct `i18n.t(...)` calls:
+
+```ts
+import { SpearClient, createI18n } from "spearkit";
+
+const i18n = createI18n({
+  defaultLocale: "en-US",
+  messages: {
+    "en-US": {
+      "ping.reply": "Pong! {ms}ms",
+      "errors.denied": "You cannot do that.",
+    },
+    tr: {
+      "ping.reply": "Pong! {ms}ms",
+      "errors.denied": "Bunu yapamazsın.",
+    },
+  },
+});
+
+const client = new SpearClient({ i18n });
+```
+
+Locale matching is case-insensitive and normalizes `_` to `-`. Resolution order:
+
+1. exact locale (`tr-TR`);
+2. language catalog (`tr`);
+3. optional `fallbackLocale` and its language;
+4. `defaultLocale` and its language.
+
+Missing keys return the key itself unless `missing(key, locale)` is configured.
+Missing `{params}` remain visible instead of silently disappearing.
+
+## Translate in handlers
+
+Every interaction context, prefix context, and hybrid context exposes async
+`ctx.t(...)`:
+
+```ts
+const ping = command({
+  name: "ping",
+  description: "Check latency",
+  run: async (ctx) =>
+    ctx.reply(await ctx.t("ping.reply", { ms: ctx.client.ws.ping })),
+});
+```
+
+`ctx.t` is async because locale selection may read a guild/user settings store.
+Use `i18n.t(locale, key, params)` directly when the locale is already known and
+you want a synchronous result.
+
+## Per-guild or per-user locale
+
+`resolveLocale` runs before Discord's locale fallback and may be async:
+
+```ts
+const i18n = createI18n({
+  defaultLocale: "en-US",
+  messages,
+  resolveLocale: async ({ guildId, userId, locale, guildLocale }) => {
+    const userChoice = await userLanguages.get(userId);
+    if (userChoice) return userChoice;
+    if (guildId) return (await guildSettings.get(guildId)).locale;
+    return locale ?? guildLocale;
+  },
+});
+```
+
+The resolver receives `locale`, `guildLocale`, `guildId`, and `userId`.
+Interactions prefer the invoking user's locale by default. Prefix messages have
+no interaction locale, so they use `guild.preferredLocale` before the configured
+default.
+
+## Formatter messages
+
+Use a function for grammar, pluralization, or custom formatting:
+
+```ts
+const i18n = createI18n({
+  defaultLocale: "en",
+  messages: {
+    en: {
+      items: ({ count }) => `${count} item${count === 1 ? "" : "s"}`,
+    },
+  },
+});
+```
+
+spearkit intentionally does not bundle i18next or an ICU parser. Applications
+that need full ICU message syntax can still call their own translator from
+`resolveLocale`/handlers.
+
+Sources:
+
+- [Discord interaction object](https://docs.discord.com/developers/interactions/receiving-and-responding#interaction-object)
+- [discord.js `BaseInteraction.locale` / `guildLocale`](https://discord.js.org/docs/packages/discord.js/14.21.0/BaseInteraction:Class)
+
+---
+
 # Plugins
 
 A plugin is a named, reusable bundle of commands, events and components. It lets
@@ -4173,6 +4284,7 @@ new SpearClient(options?: SpearClientOptions)
 | `usage` | `UsageTracker` | Usage tracker — records who used what. |
 | `embeds` | `Embeds` | Preset embed factory behind `ctx.success/error/...`. |
 | `contextMenus` | `ContextMenuRegistry` | User / message context-menu registry. |
+| `i18n` | `I18n \| undefined` | Runtime translations behind `ctx.t`. |
 | `register(...items: Registerable[])` | `this` | Route each item to the matching registry. |
 | `use(...plugins: SpearPlugin[])` | `Promise<this>` | Run each plugin's `setup`. |
 | `load(dir: string, options?: LoadOptions)` | `Promise<number>` | Import a directory and register its exports. Returns count. |
@@ -4200,6 +4312,7 @@ discord.js `ClientOptions` (with `intents` optional — it defaults to
 | `guards` | `readonly Guard[]` | Default guards run before every handler. |
 | `autoDefer` | `AutoDeferInput` | Default auto-defer for slash + context-menu handlers. |
 | `onHandlerError` | `HandlerErrorHandler` | One error policy for commands, components, context menus, and prefix commands. |
+| `i18n` | `I18n \| I18nOptions` | Runtime catalogs, locale fallback, and optional async resolver. |
 
 ### `const Intents`
 
@@ -4657,6 +4770,29 @@ function parseEnv(content: string): Record<string, string>;
 function loadEnv(options?: { path?: string; override?: boolean }): Record<string, string>;
 const env: { string(k, fallback?); number(k, fallback?); boolean(k, fallback?); require(k): string };
 // client auto-loads .env on start(); disable/configure via the dotenv option
+```
+
+### Runtime i18n — [guide](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/i18n.md)
+
+```ts
+type TranslationParam = string | number | boolean | Date | null | undefined;
+type TranslationParams = Readonly<Record<string, TranslationParam>>;
+type TranslationValue = string | ((params: TranslationParams) => string);
+interface LocaleTarget { locale?; guildLocale?; guildId?; userId: string; }
+interface I18nOptions {
+  messages: Record<string, Record<string, TranslationValue>>;
+  defaultLocale: string;
+  fallbackLocale?: string;
+  resolveLocale?: (target: LocaleTarget) => Awaitable<string | null | undefined>;
+  missing?: (key: string, locale: string) => string;
+}
+class I18n<K extends string = string> {
+  t(locale: string, key: K, params?: TranslationParams): string;
+  localeFor(target: LocaleTarget): Promise<string>;
+  translateFor(target: LocaleTarget, key: K, params?: TranslationParams): Promise<string>;
+}
+function createI18n<const M>(options: I18nOptions<M>): I18n<MessageKey<M>>;
+// new SpearClient({ i18n }); await ctx.t("key", params)
 ```
 
 ### Cooldowns — [guide](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/cooldown.md)

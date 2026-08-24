@@ -31,7 +31,7 @@ const b = new SpearClient();
 The options type is exported as `SpearClientOptions` — `Partial<ClientOptions> &
 SpearOptions`. Every discord.js option (`partials`, `presence`, `sweepers`, …) is
 available, plus spearkit's own: `logger`, `dotenv`, `cooldown`, `prefix`, `usage`,
-`embeds`, `guards`, `autoDefer`, and `onHandlerError`.
+`embeds`, `guards`, `autoDefer`, `onHandlerError`, and `i18n`.
 
 `onHandlerError` is one policy for slash commands, components, context menus,
 and prefix commands. Return a string to override the safe user reply, `false`
@@ -86,6 +86,7 @@ Every client owns a set of registries and subsystems, each populated by
 | `client.events` | `EventRegistry` | Event listeners; attached to the client automatically. |
 | `client.components` | `ComponentRegistry` | Buttons, selects and modals; routed by custom-id namespace. |
 | `client.contextMenus` | `ContextMenuRegistry` | User / message context-menu ("Apps") commands. |
+| `client.i18n` | `I18n \| undefined` | Runtime translations used by `ctx.t`. |
 | `client.prefix` | `PrefixRegistry` | Prefix (text) commands, dispatched from `messageCreate`. |
 | `client.scheduler` | `TaskScheduler` | Cron / interval tasks; started on ready, stopped on `destroy`. |
 | `client.cooldowns` | `CooldownManager` | Shared rate-limit state across commands and prefix commands. |

@@ -20,6 +20,7 @@ import type { UsageEvent } from "./usage.js";
 import { runGuards, type Guard, type GuardContext } from "./guards.js";
 import { defaultEmbeds, type Embeds } from "./embeds.js";
 import { PrefixArgsBuilder, prefixArgs, type PrefixArgsParser } from "./prefix-args.js";
+import type { I18n, TranslationParams } from "./i18n.js";
 import {
   formatCooldownMessage,
   normalizeCooldown,
@@ -141,6 +142,29 @@ export class PrefixContext<
   }
   get channelId(): string {
     return this.message.channelId;
+  }
+
+  /**
+   * Translate with `client.i18n`. Prefix messages have no interaction locale,
+   * so the guild preference (or custom resolver) is used.
+   */
+  t(key: string, params: TranslationParams = {}): Promise<string> {
+    const i18n = (this.message.client as Message["client"] & { i18n?: I18n })
+      .i18n;
+    if (i18n === undefined) {
+      return Promise.reject(
+        new Error("spearkit: ctx.t() requires new SpearClient({ i18n })"),
+      );
+    }
+    return i18n.translateFor(
+      {
+        guildLocale: this.message.guild?.preferredLocale,
+        guildId: this.message.guildId,
+        userId: this.message.author.id,
+      },
+      key,
+      params,
+    );
   }
 
   /** Reply to the triggering message. */

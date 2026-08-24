@@ -31,6 +31,7 @@ new SpearClient(options?: SpearClientOptions)
 | `usage` | `UsageTracker` | Usage tracker — records who used what. |
 | `embeds` | `Embeds` | Preset embed factory behind `ctx.success/error/...`. |
 | `contextMenus` | `ContextMenuRegistry` | User / message context-menu registry. |
+| `i18n` | `I18n \| undefined` | Runtime translations behind `ctx.t`. |
 | `register(...items: Registerable[])` | `this` | Route each item to the matching registry. |
 | `use(...plugins: SpearPlugin[])` | `Promise<this>` | Run each plugin's `setup`. |
 | `load(dir: string, options?: LoadOptions)` | `Promise<number>` | Import a directory and register its exports. Returns count. |
@@ -58,6 +59,7 @@ discord.js `ClientOptions` (with `intents` optional — it defaults to
 | `guards` | `readonly Guard[]` | Default guards run before every handler. |
 | `autoDefer` | `AutoDeferInput` | Default auto-defer for slash + context-menu handlers. |
 | `onHandlerError` | `HandlerErrorHandler` | One error policy for commands, components, context menus, and prefix commands. |
+| `i18n` | `I18n \| I18nOptions` | Runtime catalogs, locale fallback, and optional async resolver. |
 
 ### `const Intents`
 
@@ -515,6 +517,29 @@ function parseEnv(content: string): Record<string, string>;
 function loadEnv(options?: { path?: string; override?: boolean }): Record<string, string>;
 const env: { string(k, fallback?); number(k, fallback?); boolean(k, fallback?); require(k): string };
 // client auto-loads .env on start(); disable/configure via the dotenv option
+```
+
+### Runtime i18n — [guide](/docs/guides/i18n)
+
+```ts
+type TranslationParam = string | number | boolean | Date | null | undefined;
+type TranslationParams = Readonly<Record<string, TranslationParam>>;
+type TranslationValue = string | ((params: TranslationParams) => string);
+interface LocaleTarget { locale?; guildLocale?; guildId?; userId: string; }
+interface I18nOptions {
+  messages: Record<string, Record<string, TranslationValue>>;
+  defaultLocale: string;
+  fallbackLocale?: string;
+  resolveLocale?: (target: LocaleTarget) => Awaitable<string | null | undefined>;
+  missing?: (key: string, locale: string) => string;
+}
+class I18n<K extends string = string> {
+  t(locale: string, key: K, params?: TranslationParams): string;
+  localeFor(target: LocaleTarget): Promise<string>;
+  translateFor(target: LocaleTarget, key: K, params?: TranslationParams): Promise<string>;
+}
+function createI18n<const M>(options: I18nOptions<M>): I18n<MessageKey<M>>;
+// new SpearClient({ i18n }); await ctx.t("key", params)
 ```
 
 ### Cooldowns — [guide](/docs/guides/cooldown)

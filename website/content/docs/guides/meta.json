@@ -21,6 +21,7 @@
     "usage",
     "store",
     "env",
+    "i18n",
     "plugins",
     "shutdown",
     "loading"

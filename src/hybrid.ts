@@ -45,6 +45,7 @@ import { prefixCommand, PrefixCommand, PrefixContext } from "./prefix.js";
 import type { PrefixArgsBuilder } from "./prefix-args.js";
 import type { CommandScopeMeta } from "./scope.js";
 import type { ReplyInput } from "./context.js";
+import type { TranslationParams } from "./i18n.js";
 
 /** Reply input accepted by {@link HybridContext.reply}. */
 export type HybridReplyInput =
@@ -79,6 +80,7 @@ export interface HybridContext<TValues extends Record<string, unknown>> {
   readonly channelId: string | null;
   /** The underlying interaction (slash) or message (prefix). */
   readonly raw: ChatInputCommandInteraction | Message;
+  t(key: string, params?: TranslationParams): Promise<string>;
   reply(input: HybridReplyInput): Promise<InteractionResponse<boolean> | Message>;
 }
 
@@ -117,6 +119,9 @@ class SlashHybridView<O extends OptionMap> implements HybridContext<ResolvedOpti
   get raw(): ChatInputCommandInteraction {
     return this.ctx.interaction;
   }
+  t(key: string, params?: TranslationParams): Promise<string> {
+    return this.ctx.t(key, params);
+  }
   reply(input: HybridReplyInput): Promise<InteractionResponse<boolean>> {
     return this.ctx.reply(typeof input === "string" ? input : asSlashReply(input));
   }
@@ -153,6 +158,9 @@ class PrefixHybridView<TArgs extends Record<string, unknown>> implements HybridC
   }
   get raw(): Message {
     return this.ctx.message;
+  }
+  t(key: string, params?: TranslationParams): Promise<string> {
+    return this.ctx.t(key, params);
   }
   reply(input: HybridReplyInput): Promise<Message> {
     return this.ctx.reply(typeof input === "string" ? input : asPrefixReply(input));

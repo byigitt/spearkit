@@ -35,6 +35,19 @@ describe("SpearClient.register", () => {
   });
 });
 
+describe("SpearClient i18n", () => {
+  it("builds a translator from inline options", () => {
+    const client = new SpearClient({
+      i18n: {
+        defaultLocale: "en",
+        messages: { en: { hello: "Hello" } },
+      },
+    });
+    expect(client.i18n?.t("en", "hello")).toBe("Hello");
+    client.destroy();
+  });
+});
+
 describe("SpearClient.use", () => {
   it("runs plugin setup", async () => {
     const client = newClient();
