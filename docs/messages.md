@@ -33,3 +33,32 @@ import { truncate } from "spearkit";
 embed.setFooter({ text: truncate(reason, 100) });
 truncate("a very long reason", 10); // → "a very lo…"
 ```
+
+## Polls
+
+`poll()` returns an ordinary discord.js `PollData` payload, with readable option
+names and validation for Discord's limits:
+
+```ts
+import { poll } from "spearkit";
+
+await ctx.reply({
+  poll: poll({
+    question: "Ship it?",
+    answers: [{ text: "Yes", emoji: "✅" }, "Not yet"],
+    durationHours: 6, // 1–768; default 24
+    multiselect: false,
+  }),
+});
+```
+
+Questions allow 300 characters, answers 55 characters, and polls accept 2–10
+answers. Poll messages cannot be edited after creation. End one early with
+`message.poll?.end()` and fetch answer voters with
+`message.poll?.answers.get(id)?.fetchVoters()`.
+
+Polls cannot be combined with Components V2 (`MessageFlags.IsComponentsV2`).
+Discord apps can create and inspect polls, but cannot vote in them.
+
+Sources: [Discord Poll Resource](https://docs.discord.com/developers/resources/poll)
+and [discord.js `PollData`](https://discord.js.org/docs/packages/discord.js/14.21.0/PollData:Interface).

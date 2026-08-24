@@ -85,3 +85,30 @@ import { namespaced } from "spearkit";
 const tags = namespaced(store, "tags");
 await tags.set("hello", "world"); // stored under "tags:hello"
 ```
+
+## Payload tokens
+
+Discord custom-ids max out at 100 characters. `createPayloadStore` keeps the
+real payload in a `KeyValueStore` and puts a short token in `{param}`.
+
+```ts
+import { MemoryStore, button, createPayloadStore } from "spearkit";
+
+const tickets = createPayloadStore<{ opener: string; page: number }>({
+  store: new MemoryStore(),
+  ttlMs: 15 * 60 * 1000, // optional expiry
+});
+
+const next = button({
+  id: "page:{token}",
+  label: "Next",
+  run: async (ctx) => {
+    const state = await tickets.get(ctx.params.token);
+    if (state === undefined) return ctx.update("Expired.");
+    // ...
+  },
+});
+
+const token = await tickets.put({ opener: userId, page: 2 });
+next.build({ token });
+```

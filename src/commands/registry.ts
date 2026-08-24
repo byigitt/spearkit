@@ -27,6 +27,7 @@ import { explainDiscordError } from "../discord-errors.js";
 export type CommandErrorHandler = (
   error: Error,
   interaction: ChatInputCommandInteraction,
+  commandName: string,
 ) => Awaitable<void>;
 
 /** Options for pushing commands to discord. */
@@ -191,7 +192,7 @@ export class CommandRegistry {
         timestamp: new Date(),
       });
       if (this.errorHandler !== undefined) {
-        await this.errorHandler(err, interaction);
+        await this.errorHandler(err, interaction, command.name);
       } else {
         await this.defaultErrorReply(err, interaction);
       }

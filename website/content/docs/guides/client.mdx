@@ -29,7 +29,20 @@ const b = new SpearClient();
 The options type is exported as `SpearClientOptions` — `Partial<ClientOptions> &
 SpearOptions`. Every discord.js option (`partials`, `presence`, `sweepers`, …) is
 available, plus spearkit's own: `logger`, `dotenv`, `cooldown`, `prefix`, `usage`,
-`embeds`, `guards` and `autoDefer` (each covered in its own guide).
+`embeds`, `guards`, `autoDefer`, and `onHandlerError`.
+
+`onHandlerError` is one policy for slash commands, components, context menus,
+and prefix commands. Return a string to override the safe user reply, `false`
+to suppress it, or nothing to use the default:
+
+```ts
+const client = new SpearClient({
+  onHandlerError: ({ source, name, error }) => {
+    report(error, { source, name });
+    return "That action failed. Try again later.";
+  },
+});
+```
 
 ### Intents presets
 

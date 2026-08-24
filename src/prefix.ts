@@ -157,7 +157,11 @@ export class PrefixContext<
 }
 
 /** Error hook invoked when a prefix command handler throws. */
-export type PrefixErrorHandler = (error: Error, message: Message) => Awaitable<void>;
+export type PrefixErrorHandler = (
+  error: Error,
+  message: Message,
+  commandName: string,
+) => Awaitable<void>;
 
 interface ResolvedPrefixOptions {
   prefixes: string[];
@@ -394,7 +398,9 @@ export class PrefixRegistry {
         channelId: message.channelId,
         timestamp: new Date(),
       });
-      if (this.errorHandler !== undefined) await this.errorHandler(err, message);
+      if (this.errorHandler !== undefined) {
+        await this.errorHandler(err, message, command.name);
+      }
     }
     return true;
   }

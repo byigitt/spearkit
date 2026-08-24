@@ -57,6 +57,7 @@ discord.js `ClientOptions` (with `intents` optional — it defaults to
 | `embeds` | `Embeds \| EmbedsOptions` | Preset embed factory. |
 | `guards` | `readonly Guard[]` | Default guards run before every handler. |
 | `autoDefer` | `AutoDeferInput` | Default auto-defer for slash + context-menu handlers. |
+| `onHandlerError` | `HandlerErrorHandler` | One error policy for commands, components, context menus, and prefix commands. |
 
 ### `const Intents`
 
@@ -89,6 +90,8 @@ interface CommandConfig<O extends OptionMap, R> {
   options?: O;
   defaultMemberPermissions?: PermissionResolvable | null;
   nsfw?: boolean;
+  install?: readonly ("guild" | "user")[];
+  contexts?: readonly ("guild" | "botDm" | "privateChannel")[];
   guildOnly?: boolean;
   nameLocalizations?: LocalizationMap;
   descriptionLocalizations?: LocalizationMap;
@@ -111,6 +114,8 @@ interface CommandGroupConfig {
   groups?: Record<string, SubcommandGroup>;
   defaultMemberPermissions?: PermissionResolvable | null;
   nsfw?: boolean;
+  install?: readonly ("guild" | "user")[];
+  contexts?: readonly ("guild" | "botDm" | "privateChannel")[];
   guildOnly?: boolean;
   nameLocalizations?: LocalizationMap;
   descriptionLocalizations?: LocalizationMap;
@@ -214,7 +219,7 @@ literal union).
 | `option.channel(config)` | channel union | `channelTypes?` |
 | `option.role(config)` | `Role \| APIRole` | — |
 | `option.mentionable(config)` | user/role/member | — |
-| `option.attachment(config)` | `Attachment` | — |
+| `option.attachment(config)` | `Attachment` | `fileTypes` |
 
 Common config (`BaseConfig`):
 
@@ -309,8 +314,24 @@ Thrown errors and rejected promises are routed to the client's `error` event.
 | `channelSelect(config)` | `ChannelSelect<P>` | Channel select; takes `channelTypes?`. |
 | `mentionableSelect(config)` | `MentionableSelect<P>` | User + role select. |
 | `modal(config)` | `Modal<P>` | Modal with `fields`. |
-| `textInput(config)` | `TextInputDef` | A modal text-input field. |
+| `textInput(config)` | `TextInputDef` | A modal text-input field (submits `string`). |
+| `radioGroup(config)` | `RadioGroupDef` | Modal radio group; submits the picked option value. |
+| `checkboxGroup(config)` | `CheckboxGroupDef` | Modal checkbox group; submits picked values. |
+| `checkbox(config)` | `CheckboxDef` | Single modal checkbox; submits `boolean`. |
+| `fileUpload(config)` | `FileUploadDef` | Modal file upload; submits `Attachment[]`, takes `allowedFileTypes?`. |
+| `stringSelectField(config)` | `StringSelectFieldDef` | String select inside a modal; submits values. |
+| `userSelectField(config)` | `UserSelectFieldDef` | User select inside a modal; submits user ids. |
+| `roleSelectField(config)` | `RoleSelectFieldDef` | Role select inside a modal; submits role ids. |
+| `channelSelectField(config)` | `ChannelSelectFieldDef` | Channel select inside a modal; submits channel ids. |
+| `mentionableSelectField(config)` | `MentionableSelectFieldDef` | Mentionable select inside a modal; submits ids. |
 | `row(...components)` | `ActionRowBuilder<C>` | Wrap components in a row. |
+| `textDisplay(content)` | `TextDisplayBuilder` | Components V2 text block. |
+| `separator(config?)` | `SeparatorBuilder` | Components V2 spacing/divider. |
+| `section(config)` | `SectionBuilder` | Text + one button/thumbnail accessory. |
+| `mediaGallery(items)` | `MediaGalleryBuilder` | Grid of remote images/videos. |
+| `file(url, config?)` | `FileBuilder` | Attached-file block (`attachment://…`). |
+| `thumbnail(config)` | `ThumbnailBuilder` | Inline thumbnail (section accessory). |
+| `container(config)` | `ContainerBuilder` | Accent-coloured card holding V2 children. |
 
 Each registrable component (`Button`, `StringSelect`, …, `Modal`) extends its
 routing interface and adds `build(...args: BuildArgs<P>)`, which returns the
@@ -348,15 +369,20 @@ interface EntitySelectConfig<P extends string> {
 function textInput(config: {
   label: string;
   style?: TextInputStyleInput;     // "Short" | "Paragraph" | TextInputStyle
+  description?: string;
   placeholder?: string; required?: boolean; minLength?: number; maxLength?: number; value?: string;
 }): TextInputDef;
 
-interface ModalConfig<P extends string, F extends Record<string, TextInputDef>, R> {
+// Every field definition carries a phantom value type, so `ctx.fields` is
+// inferred per field: textInput -> string, radioGroup -> option-value union,
+// checkboxGroup -> value[], checkbox -> boolean, fileUpload -> Attachment[],
+// *SelectField -> string[].
+interface ModalConfig<P extends string, F extends ModalFieldMap, R> {
   id: P;
   title: string;
   fields: F;
   guards?: readonly Guard[];
-  run: (ctx: ModalContext<Params<P>, keyof F & string>) => Awaitable<R>;
+  run: (ctx: ModalContext<Params<P>, ResolvedModalFields<F>>) => Awaitable<R>;
 }
 ```
 
@@ -371,7 +397,7 @@ interface ModalConfig<P extends string, F extends Record<string, TextInputDef>, 
 | `RoleSelectContext<P>` | `values`, `roles` |
 | `ChannelSelectContext<P>` | `values`, `channels` |
 | `MentionableSelectContext<P>` | `values`, `users`, `roles`, `members` |
-| `ModalContext<P, F>` | `params`, `fields: Record<F, string>`, `customId` (+ BaseContext) |
+| `ModalContext<P, Fields>` | `params`, `fields` (typed per field definition), `customId` (+ BaseContext) |
 
 ### `class ComponentRegistry`
 
@@ -453,7 +479,11 @@ function definePlugin(plugin: SpearPlugin): SpearPlugin;
 ## Loading
 
 ```ts
-interface LoadOptions { extensions?: readonly string[]; recursive?: boolean; } // defaults: [.js,.mjs,.cjs], true
+interface LoadOptions {
+  extensions?: readonly string[]; // default [.js,.mjs,.cjs]
+  typescript?: boolean;           // also load .ts/.mts (tsx, bun, or Node type stripping)
+  recursive?: boolean;            // default true
+}
 function collectModules(dir: string, options?: LoadOptions): Promise<Registerable[]>;
 function loadInto(client: SpearClient, dir: string, options?: LoadOptions): Promise<number>;
 ```
@@ -520,6 +550,15 @@ class PrefixContext<TArgs> { message; commandName; args: string[]; rest: string;
 // reading others' content needs the privileged MessageContent intent (Intents.messages)
 ```
 
+### Hybrid commands — [guide](/docs/guides/hybrid)
+
+```ts
+function hybridCommand(config: { name; description; options?; args?; run; aliases?; ...slash meta }): HybridCommand;
+interface HybridCommand { name: string; slash: SlashCommand; prefix: PrefixCommand; }
+interface HybridContext { kind: "slash" | "prefix"; options; raw; reply; client; user; member; guild; guildId; channel; channelId; }
+// client.register(hybridCommand(...)) registers both halves
+```
+
 ### Usage tracking — [guide](/docs/guides/usage)
 
 ```ts
@@ -580,7 +619,7 @@ function guard<TCtx>(predicate: Guard<TCtx>): Guard<TCtx>;
 ### Context-menu commands — [guide](/docs/guides/context-menus)
 
 ```ts
-interface ContextMenuMeta { defaultMemberPermissions?: PermissionResolvable | null; nsfw?: boolean; guildOnly?: boolean; nameLocalizations?: LocalizationMap; cooldown?: CooldownInput; guards?: readonly Guard[]; autoDefer?: AutoDeferInput; }
+interface ContextMenuMeta { defaultMemberPermissions?: PermissionResolvable | null; nsfw?: boolean; install?: readonly ("guild" | "user")[]; contexts?: readonly ("guild" | "botDm" | "privateChannel")[]; guildOnly?: boolean; nameLocalizations?: LocalizationMap; cooldown?: CooldownInput; guards?: readonly Guard[]; autoDefer?: AutoDeferInput; }
 function userCommand<R>(config: ContextMenuMeta & { name: string; run: (ctx: UserContextMenuContext) => Awaitable<R> }): UserContextMenu;
 function messageCommand<R>(config: ContextMenuMeta & { name: string; run: (ctx: MessageContextMenuContext) => Awaitable<R> }): MessageContextMenu;
 // UserContextMenuContext adds ctx.targetUser, ctx.targetMember; MessageContextMenuContext adds ctx.targetMessage (+ BaseContext).
@@ -609,6 +648,44 @@ function prefixArgs(): PrefixArgsBuilder<{}>;
 function paginate<T>(interaction, items, { render, pageSize?, user?, timeoutMs?, controls?: "prev-next" | "first-prev-next-last", ephemeral?, namespace?, labels?: { first?; prev?; next?; last? } }): Promise<void>;
 function buildPaginatorPage<T>(items, page, options): Promise<{ payload; pages }>;
 function confirm(interaction, { body, title?, confirm?: { label?; style? }, cancel?: { label?; style? }, user?, timeoutMs?, ephemeral?, namespace? }): Promise<{ confirmed: boolean; reason: "confirm" | "cancel" | "timeout"; interaction? }>; // style: "Primary" | "Secondary" | "Success" | "Danger"
+```
+
+### Automatic help
+
+```ts
+type HelpSurface = "slash" | "prefix" | "userMenu" | "messageMenu";
+interface HelpEntry { name: string; description: string; surface: HelpSurface; }
+interface HelpCommandOptions {
+  name?: string; description?: string; title?: string; pageSize?: number;
+  includePrefix?: boolean; includeContextMenus?: boolean; ephemeral?: boolean;
+  transform?: (entries: readonly HelpEntry[], ctx: CommandContext) => Awaitable<readonly HelpEntry[]>;
+}
+function helpCommand(options?: HelpCommandOptions): SlashCommand;
+function buildHelpEntries(client, options?): HelpEntry[];
+```
+
+### Polls — [guide](/docs/guides/messages#polls)
+
+```ts
+type PollAnswerInput = string | { text: string; emoji?: EmojiIdentifierResolvable };
+interface PollConfig {
+  question: string;
+  answers: readonly PollAnswerInput[];
+  durationHours?: number; // 1–768; default 24
+  multiselect?: boolean;  // default false
+}
+function poll(config: PollConfig): PollData;
+```
+
+### Client-wide handler errors
+
+```ts
+type HandlerErrorEvent =
+  | { source: "command" | "component" | "contextMenu"; name: string; error: Error; interaction: RepliableInteraction }
+  | { source: "prefix"; name: string; error: Error; message: Message };
+type HandlerErrorHandler =
+  (event: HandlerErrorEvent) => Awaitable<string | false | void>;
+// string = override safe user reply; false = suppress reply; void = safe default
 ```
 
 ### Primitives
@@ -724,6 +801,10 @@ interface KeyValueStore {
 class MemoryStore implements KeyValueStore { /* deep-cloned in-memory */ }
 class JsonStore implements KeyValueStore { constructor(path: string); /* atomic JSON file */ }
 function namespaced(store: KeyValueStore, prefix: string): KeyValueStore;
+
+interface PayloadStore<T> { put(value: T): Promise<string>; get(token: string): Promise<T | undefined>; delete(token: string): Promise<boolean>; }
+interface CreatePayloadStoreOptions { store: KeyValueStore; namespace?: string; ttlMs?: number; }
+function createPayloadStore<T>(options: CreatePayloadStoreOptions): PayloadStore<T>;
 
 interface SettingsManager<T> { readonly defaults: T; readonly store: KeyValueStore; get(id): Promise<T>; set(id, patch: Partial<T>): Promise<T>; reset(id): Promise<void>; }
 interface CreateSettingsOptions<T> { store: KeyValueStore; defaults: T; namespace?: string; } // namespace default "settings"

@@ -7,6 +7,7 @@ import {
   type Awaitable,
   type ChatInputCommandInteraction,
   type CommandInteractionOption,
+  type FileUploadType,
   type LocalizationMap,
 } from "discord.js";
 import type { AutocompleteContext } from "./context.js";
@@ -67,6 +68,7 @@ export interface OptionDef<TValue extends OptionValue, TRequired extends boolean
   readonly minLength?: number;
   readonly maxLength?: number;
   readonly channelTypes?: readonly AllowedChannelType[];
+  readonly fileTypes?: readonly FileUploadType[];
   readonly autocomplete?: AutocompleteHandler;
   readonly nameLocalizations?: LocalizationMap;
   readonly descriptionLocalizations?: LocalizationMap;
@@ -119,6 +121,11 @@ interface NumericConfig extends BaseConfig {
 
 interface ChannelConfig extends BaseConfig {
   readonly channelTypes?: readonly AllowedChannelType[];
+}
+
+interface AttachmentConfig extends BaseConfig {
+  /** Restrict uploads to these kinds (Discord file-type filter). */
+  readonly fileTypes?: readonly FileUploadType[];
 }
 
 type ChoiceValue<C, Fallback extends string | number> = C extends {
@@ -177,7 +184,7 @@ export const option = {
   mentionable<const C extends BaseConfig>(config: C): OptionDef<MentionableValue, IsRequired<C>> {
     return makeOption(ApplicationCommandOptionType.Mentionable, config);
   },
-  attachment<const C extends BaseConfig>(config: C): OptionDef<AttachmentValue, IsRequired<C>> {
+  attachment<const C extends AttachmentConfig>(config: C): OptionDef<AttachmentValue, IsRequired<C>> {
     return makeOption(ApplicationCommandOptionType.Attachment, config);
   },
 } as const;
@@ -236,7 +243,11 @@ export function toAPIOption(name: string, def: AnyOptionDef): APIApplicationComm
     case ApplicationCommandOptionType.Mentionable:
       return { ...shared, type: ApplicationCommandOptionType.Mentionable };
     case ApplicationCommandOptionType.Attachment:
-      return { ...shared, type: ApplicationCommandOptionType.Attachment };
+      return {
+        ...shared,
+        type: ApplicationCommandOptionType.Attachment,
+        file_types: def.fileTypes ? [...def.fileTypes] : undefined,
+      };
     default:
       return { ...shared, type: ApplicationCommandOptionType.String };
   }

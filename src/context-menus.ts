@@ -89,6 +89,15 @@ export interface MessageContextMenu extends BaseContextMenuCommand {
 /** A registered context-menu command — discriminated by `kind`. */
 export type ContextMenuCommand = UserContextMenu | MessageContextMenu;
 
+/** Error hook invoked when a context-menu handler throws. */
+export type ContextMenuErrorHandler = (
+  error: Error,
+  interaction:
+    | UserContextMenuCommandInteraction
+    | MessageContextMenuCommandInteraction,
+  commandName: string,
+) => Awaitable<void>;
+
 
 /** Handler context for a user-target context menu. */
 export class UserContextMenuContext extends BaseContext<UserContextMenuCommandInteraction> {
@@ -173,6 +182,7 @@ export class ContextMenuRegistry {
   private defaultGuards: readonly Guard[] = [];
   private onUsage?: (event: UsageEvent) => void;
   private defaultAutoDefer?: AutoDeferConfig;
+  private errorHandler?: ContextMenuErrorHandler;
 
   /** Register one or more context-menu commands. */
   add(...commands: readonly ContextMenuCommand[]): this {
@@ -222,6 +232,12 @@ export class ContextMenuRegistry {
 
   setUsageHook(hook: (event: UsageEvent) => void): this {
     this.onUsage = hook;
+    return this;
+  }
+
+  /** Set the handler used when a context-menu command throws. */
+  onError(handler: ContextMenuErrorHandler): this {
+    this.errorHandler = handler;
     return this;
   }
 
@@ -305,18 +321,28 @@ export class ContextMenuRegistry {
         channelId: interaction.channelId,
         timestamp: new Date(),
       });
-      interaction.client.emit("error", err);
-      const content = explainDiscordError(err) ?? "Something went wrong.";
-      try {
-        if (interaction.deferred) {
-          await interaction.editReply({ content });
-        } else if (interaction.replied) {
-          await interaction.followUp({ content, flags: MessageFlags.Ephemeral });
-        } else {
-          await interaction.reply({ content, flags: MessageFlags.Ephemeral });
+      if (this.errorHandler !== undefined) {
+        await this.errorHandler(err, interaction, command.name);
+      } else {
+        interaction.client.emit("error", err);
+        const content = explainDiscordError(err) ?? "Something went wrong.";
+        try {
+          if (interaction.deferred) {
+            await interaction.editReply({ content });
+          } else if (interaction.replied) {
+            await interaction.followUp({
+              content,
+              flags: MessageFlags.Ephemeral,
+            });
+          } else {
+            await interaction.reply({
+              content,
+              flags: MessageFlags.Ephemeral,
+            });
+          }
+        } catch {
+          // Interaction likely expired.
         }
-      } catch {
-        // Interaction likely expired.
       }
     } finally {
       cancelAutoDefer?.();

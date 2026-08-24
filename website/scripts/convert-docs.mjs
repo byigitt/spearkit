@@ -31,6 +31,7 @@ const map = {
   cooldown: { out: "guides/cooldown.mdx", route: "/docs/guides/cooldown" },
   scheduler: { out: "guides/scheduler.mdx", route: "/docs/guides/scheduler" },
   prefix: { out: "guides/prefix.mdx", route: "/docs/guides/prefix" },
+  hybrid: { out: "guides/hybrid.mdx", route: "/docs/guides/hybrid" },
   logging: { out: "guides/logging.mdx", route: "/docs/guides/logging" },
   usage: { out: "guides/usage.mdx", route: "/docs/guides/usage" },
   env: { out: "guides/env.mdx", route: "/docs/guides/env" },

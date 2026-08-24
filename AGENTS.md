@@ -57,6 +57,7 @@ Map the task to the API. Patterns and signatures are below and in `docs/`.
 | Suggest values while the user types | `option.string({ autocomplete })` |
 | A right-click "Apps" action on a user/message | `userCommand` / `messageCommand` |
 | A classic `!text` command | `prefixCommand(...)` + `new SpearClient({ prefix })` |
+| Slash + prefix from one definition | `hybridCommand({ options, args, run })` |
 | Parse `!cmd` arguments into typed values | `args: (a) => a.snowflake().duration().rest()` → `ctx.options` |
 | Avoid `Unknown interaction` (10062) on slow work | `command({ autoDefer: true })` / `new SpearClient({ autoDefer: true })` |
 
@@ -69,9 +70,11 @@ Map the task to the API. Patterns and signatures are below and in `docs/`.
 | A dropdown of fixed options | `stringSelect` |
 | Pick users / roles / channels / mentionables | `userSelect` / `roleSelect` / `channelSelect` / `mentionableSelect` |
 | A form with typed fields | `modal` + `textInput` / `radioGroup` / `checkboxGroup` / `checkbox` / `fileUpload` / `*SelectField` |
-| Carry data through a component | custom-id params `id: "x:{id}"` → `ctx.params.id` |
+| Carry data through a component | custom-id params `id: "x:{id}"` → `ctx.params.id`; bulky state → `createPayloadStore` |
 | A paged list with next/prev | `paginate(...)` |
 | An "Are you sure?" yes/no gate | `confirm(...)` |
+| Generate `/help` from registered commands | `helpCommand(...)` |
+| Send a native Discord poll | `poll({ question, answers, ... })` |
 
 **Replies & UX**
 
@@ -93,6 +96,7 @@ Map the task to the API. Patterns and signatures are below and in `docs/`.
 | Delay once / staged follow-ups / recover on restart | `client.scheduler.delay` / `followUp` / `reconcile` |
 | Structured logs to file/webhook | `client.logger` + `consoleSink` / `jsonlSink` / `webhookSink` |
 | Track who used what | `new SpearClient({ usage })` + `MemoryUsageStore` / `JsonFileUsageStore` |
+| Handle failures across every routed surface | `new SpearClient({ onHandlerError })` |
 | Read typed env / load `.env` | `env.string/number/boolean/require` (auto-loaded on `start()`) |
 | Shut down cleanly on SIGINT/SIGTERM | `client.enableGracefulShutdown({ onShutdown })` |
 | Permission / role-hierarchy preflight | `moderationCheck(...)`, `missingPermissions(...)`, `canActOn(...)`, `ctx.botMissing(...)` |
@@ -234,8 +238,12 @@ modals add `ctx.fields`.
   `MemoryUsageStore`, `JsonFileUsageStore`.
 - **Env** — `.env` auto-loads on `start()`; read with `env.string/number/boolean/require`.
 - **Plugins** — `definePlugin({ name, setup(client) })`, then `await client.use(plugin)`.
-- **File-based loading** — `await client.load(dir)`. Imports **compiled JS**
-  (default extensions `.js/.mjs/.cjs`), so build before running compiled output.
+- **File-based loading** — `await client.load(dir)` (compiled JS by default) or
+  `{ typescript: true }` under `tsx`/`bun`. Hybrid commands and context menus
+  are picked up too.
+- **Hybrid commands** — `hybridCommand({ name, description, options, args, run })`.
+- **Payload tokens** — `createPayloadStore({ store })` for state that does not
+  fit in a 100-char custom-id.
 - **Primitives** — `KeyedLock`, `safeFetch.{member,channel,message,user,guild,role,try}`,
   `formatDuration`/`parseDuration`/`discordTimestamp`/`relativeTimestamp`,
   `MemoryCache`, `loadConfig`.

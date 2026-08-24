@@ -35,9 +35,9 @@ await client.deployCommands({ guildId: process.env.GUILD_ID });
 For every imported file, spearkit walks **all** of its exports — default *and*
 named — and registers each value that is a command (`command`, `commandGroup`),
 an event (`event`), a component (`button`, `stringSelect`, `modal`, …), a
-scheduled task (`task`) or a prefix command (`prefixCommand`). Other exports
-(helpers, constants, types) are ignored, and context-menu commands are **not**
-auto-detected — register those explicitly. So both of these are picked up:
+scheduled task (`task`), a prefix command (`prefixCommand`), a hybrid command
+(`hybridCommand`), or a context-menu command (`userCommand` / `messageCommand`).
+Other exports (helpers, constants, types) are ignored. So both of these are picked up:
 
 ```ts
 // default export
@@ -54,22 +54,27 @@ export const vote = button({ id: "vote:{choice}", label: "Vote", run: (ctx) => c
 ```ts
 interface LoadOptions {
   extensions?: readonly string[]; // default: [".js", ".mjs", ".cjs"]
+  typescript?: boolean;           // default: false — also import .ts / .mts
   recursive?: boolean;            // default: true
 }
 ```
 
 - **`extensions`** — which file extensions to import. By default the loader reads
-  `.js`, `.mjs` and `.cjs` — i.e. **compiled JavaScript**, not `.ts` source.
+  `.js`, `.mjs` and `.cjs` — i.e. **compiled JavaScript**.
+- **`typescript`** — include `.ts` and `.mts`. Requires a runtime that can load
+  TypeScript (`tsx`, `bun`, or Node with type stripping). Otherwise you get a
+  clear error instead of a raw `ERR_UNKNOWN_FILE_EXTENSION`.
 - **`recursive`** — by default the loader descends into subdirectories. Pass
   `recursive: false` to load only the top level.
 
 ```ts
 await client.load(`${here}features`, { recursive: false });
+await client.load(`${here}src`, { typescript: true });
 ```
 
-> The loader imports compiled JavaScript. **Build your TypeScript first**, then run
-> (and load) the emitted output — `npx tsc && node dist/index.js`. Loading a
-> directory of `.ts` source files will not match the default extensions.
+> Default extensions are compiled JavaScript. **Build first**, then load the
+> emitted output — `npx tsc && node dist/index.js`. For a TypeScript source tree
+> under `tsx` or `bun`, pass `{ typescript: true }`.
 
 ## Standalone helpers
 

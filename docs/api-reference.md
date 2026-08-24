@@ -57,6 +57,7 @@ discord.js `ClientOptions` (with `intents` optional — it defaults to
 | `embeds` | `Embeds \| EmbedsOptions` | Preset embed factory. |
 | `guards` | `readonly Guard[]` | Default guards run before every handler. |
 | `autoDefer` | `AutoDeferInput` | Default auto-defer for slash + context-menu handlers. |
+| `onHandlerError` | `HandlerErrorHandler` | One error policy for commands, components, context menus, and prefix commands. |
 
 ### `const Intents`
 
@@ -218,7 +219,7 @@ literal union).
 | `option.channel(config)` | channel union | `channelTypes?` |
 | `option.role(config)` | `Role \| APIRole` | — |
 | `option.mentionable(config)` | user/role/member | — |
-| `option.attachment(config)` | `Attachment` | — |
+| `option.attachment(config)` | `Attachment` | `fileTypes` |
 
 Common config (`BaseConfig`):
 
@@ -478,7 +479,11 @@ function definePlugin(plugin: SpearPlugin): SpearPlugin;
 ## Loading
 
 ```ts
-interface LoadOptions { extensions?: readonly string[]; recursive?: boolean; } // defaults: [.js,.mjs,.cjs], true
+interface LoadOptions {
+  extensions?: readonly string[]; // default [.js,.mjs,.cjs]
+  typescript?: boolean;           // also load .ts/.mts (tsx, bun, or Node type stripping)
+  recursive?: boolean;            // default true
+}
 function collectModules(dir: string, options?: LoadOptions): Promise<Registerable[]>;
 function loadInto(client: SpearClient, dir: string, options?: LoadOptions): Promise<number>;
 ```
@@ -543,6 +548,15 @@ function prefixCommand<TArgs, R>(config: { name: string; aliases?: readonly stri
 class PrefixContext<TArgs> { message; commandName; args: string[]; rest: string; options: TArgs; client; author; member; guild; guildId; channel; channelId; reply(content); send(content); }
 // new SpearClient({ prefix: "!" | string[] | { prefix, mention?, ignoreBots?, caseInsensitive? } }); client.prefix
 // reading others' content needs the privileged MessageContent intent (Intents.messages)
+```
+
+### Hybrid commands — [guide](./hybrid.md)
+
+```ts
+function hybridCommand(config: { name; description; options?; args?; run; aliases?; ...slash meta }): HybridCommand;
+interface HybridCommand { name: string; slash: SlashCommand; prefix: PrefixCommand; }
+interface HybridContext { kind: "slash" | "prefix"; options; raw; reply; client; user; member; guild; guildId; channel; channelId; }
+// client.register(hybridCommand(...)) registers both halves
 ```
 
 ### Usage tracking — [guide](./usage.md)
@@ -634,6 +648,44 @@ function prefixArgs(): PrefixArgsBuilder<{}>;
 function paginate<T>(interaction, items, { render, pageSize?, user?, timeoutMs?, controls?: "prev-next" | "first-prev-next-last", ephemeral?, namespace?, labels?: { first?; prev?; next?; last? } }): Promise<void>;
 function buildPaginatorPage<T>(items, page, options): Promise<{ payload; pages }>;
 function confirm(interaction, { body, title?, confirm?: { label?; style? }, cancel?: { label?; style? }, user?, timeoutMs?, ephemeral?, namespace? }): Promise<{ confirmed: boolean; reason: "confirm" | "cancel" | "timeout"; interaction? }>; // style: "Primary" | "Secondary" | "Success" | "Danger"
+```
+
+### Automatic help
+
+```ts
+type HelpSurface = "slash" | "prefix" | "userMenu" | "messageMenu";
+interface HelpEntry { name: string; description: string; surface: HelpSurface; }
+interface HelpCommandOptions {
+  name?: string; description?: string; title?: string; pageSize?: number;
+  includePrefix?: boolean; includeContextMenus?: boolean; ephemeral?: boolean;
+  transform?: (entries: readonly HelpEntry[], ctx: CommandContext) => Awaitable<readonly HelpEntry[]>;
+}
+function helpCommand(options?: HelpCommandOptions): SlashCommand;
+function buildHelpEntries(client, options?): HelpEntry[];
+```
+
+### Polls — [guide](./messages.md#polls)
+
+```ts
+type PollAnswerInput = string | { text: string; emoji?: EmojiIdentifierResolvable };
+interface PollConfig {
+  question: string;
+  answers: readonly PollAnswerInput[];
+  durationHours?: number; // 1–768; default 24
+  multiselect?: boolean;  // default false
+}
+function poll(config: PollConfig): PollData;
+```
+
+### Client-wide handler errors
+
+```ts
+type HandlerErrorEvent =
+  | { source: "command" | "component" | "contextMenu"; name: string; error: Error; interaction: RepliableInteraction }
+  | { source: "prefix"; name: string; error: Error; message: Message };
+type HandlerErrorHandler =
+  (event: HandlerErrorEvent) => Awaitable<string | false | void>;
+// string = override safe user reply; false = suppress reply; void = safe default
 ```
 
 ### Primitives
@@ -749,6 +801,10 @@ interface KeyValueStore {
 class MemoryStore implements KeyValueStore { /* deep-cloned in-memory */ }
 class JsonStore implements KeyValueStore { constructor(path: string); /* atomic JSON file */ }
 function namespaced(store: KeyValueStore, prefix: string): KeyValueStore;
+
+interface PayloadStore<T> { put(value: T): Promise<string>; get(token: string): Promise<T | undefined>; delete(token: string): Promise<boolean>; }
+interface CreatePayloadStoreOptions { store: KeyValueStore; namespace?: string; ttlMs?: number; }
+function createPayloadStore<T>(options: CreatePayloadStoreOptions): PayloadStore<T>;
 
 interface SettingsManager<T> { readonly defaults: T; readonly store: KeyValueStore; get(id): Promise<T>; set(id, patch: Partial<T>): Promise<T>; reset(id): Promise<void>; }
 interface CreateSettingsOptions<T> { store: KeyValueStore; defaults: T; namespace?: string; } // namespace default "settings"

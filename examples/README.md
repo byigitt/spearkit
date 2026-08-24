@@ -36,7 +36,10 @@ spearkit discord.js` and the same imports work unchanged.
 | [`auto-defer/`](./auto-defer) | Beat the 3-second `Unknown interaction` (10062) error. |
 | [`errors/`](./errors) | Recognise and recover from `DiscordAPIError`. |
 | [`permissions/`](./permissions) | Moderation permission + role-hierarchy preflight. |
-| [`store/`](./store) | Per-guild settings + dynamic prefix, persisted to JSON. |
+| [`hybrid/`](./hybrid) | One command for slash + prefix. |
+| [`payload/`](./payload) | Short custom-id tokens for bulky component state. |
+| [`polls/`](./polls) | Validated native Discord polls. |
+| [`help/`](./help) | Generated, paginated `/help`. |
 | [`collectors/`](./collectors) | Await a reply or a modal submission inline. |
 | [`text/`](./text) | Split long output to the 2000-char limit; truncate. |
 | [`shutdown/`](./shutdown) | Close cleanly on `SIGINT`/`SIGTERM`. |
@@ -60,5 +63,5 @@ npx tsx examples/getting-started/bot.ts
 npx tsc && node examples/getting-started/bot.js
 ```
 
-`file-based-loading` uses `client.load()`, which imports compiled JavaScript —
-build it before running the compiled `index.js`.
+`file-based-loading` uses `client.load()`. Default is compiled JavaScript;
+pass `{ typescript: true }` when running under `tsx`/`bun`.

@@ -12,6 +12,12 @@ custom-id params and modal fields are all inferred.
 npm install spearkit discord.js
 ```
 
+Scaffold a starter bot:
+
+```bash
+npx spearkit create my-bot
+```
+
 ## Batteries included
 
 - **Type-safe slash commands**, options, subcommands, autocomplete, buttons, selects and modals — no `interactionCreate` switch.
@@ -26,6 +32,8 @@ npm install spearkit discord.js
 - **Context-menu commands** — `userCommand` / `messageCommand` with typed `targetUser` / `targetMessage` ([guide](./docs/context-menus.md)).
 - **Preset embeds** — `ctx.success/info/warn/error` and `client.embeds` factory with configurable colors/icons ([API ref](./docs/api-reference.md#embeds--preset-replies)).
 - **Pagination & confirmation** — `paginate(...)` and `confirm(...)` button flows with user-only filter and timeout.
+- **Automatic help** — `helpCommand(...)` lists live slash, prefix and context-menu commands.
+- **Native polls** — `poll(...)` validates Discord poll limits and returns `PollData`.
 - **Typed prefix args** — `prefixCommand({ args: a => a.snowflake("target").duration("d").rest("reason"), run: ctx => ctx.options })`.
 - **Primitives** — `KeyedLock`, `safeFetch.{member,channel,...}`, `formatDuration`/`parseDuration`/`discordTimestamp`, `MemoryCache` (TTL + counters + rate limit), `loadConfig` (JSON/JSON5/YAML).
 - **Logger transports** — multi-sink (`consoleSink`, `jsonlSink`, `webhookSink`); per-level routing.
@@ -34,9 +42,11 @@ npm install spearkit discord.js
 - **Auto-defer** — `command({ autoDefer: true })` / `new SpearClient({ autoDefer: true })` to dodge `Unknown interaction` (10062) on slow handlers ([API ref](./docs/api-reference.md#auto-defer)).
 - **Graceful shutdown** — `client.enableGracefulShutdown({ onShutdown })` for clean `SIGINT`/`SIGTERM` teardown ([API ref](./docs/api-reference.md#graceful-shutdown)).
 - **Permissions & moderation** — `moderationCheck`, `missingPermissions`, `canActOn`, `ctx.botMissing(...)` role-hierarchy/permission preflights ([API ref](./docs/api-reference.md#permissions--moderation)).
-- **Persistent storage** — `MemoryStore`/`JsonStore` key-value stores + typed per-guild `createSettings(...)` ([API ref](./docs/api-reference.md#persistent-storage)).
+- **Persistent storage** — `MemoryStore`/`JsonStore` + `createSettings(...)` + `createPayloadStore` for short custom-id tokens ([API ref](./docs/api-reference.md#persistent-storage)).
+- **Hybrid commands** — one `hybridCommand` for slash + prefix ([guide](./docs/hybrid.md)).
 - **Collectors** — `ctx.awaitMessageFrom(...)`, `ctx.awaitModal(...)`, `awaitComponent(...)` without hand-rolled collectors ([API ref](./docs/api-reference.md#collectors)).
 - **Discord error helpers** — `isDiscordError(err, DiscordErrorCode.UnknownMessage)`, `explainDiscordError(...)` ([API ref](./docs/api-reference.md#discord-errors)).
+- **One handler-error policy** — `new SpearClient({ onHandlerError })` covers every routed surface.
 - **Dynamic prefixes** — per-guild prefix resolution via `prefix: { dynamic }` ([guide](./docs/prefix.md#dynamic-per-guild-prefixes)).
 
 ## Documentation

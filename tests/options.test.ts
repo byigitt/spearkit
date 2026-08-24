@@ -63,6 +63,12 @@ describe("toAPIOption", () => {
     expect(toAPIOption("a", option.attachment({ description: "a" })).type).toBe(
       ApplicationCommandOptionType.Attachment,
     );
+    expect(
+      toAPIOption("shot", option.attachment({ description: "s", fileTypes: ["image", ".png"] })),
+    ).toMatchObject({
+      type: ApplicationCommandOptionType.Attachment,
+      file_types: ["image", ".png"],
+    });
   });
 });
 

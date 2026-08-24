@@ -229,6 +229,7 @@ client.prefix.onError((error, message) => {
 ## See also
 
 - [Commands](./commands.md) — slash commands.
+- [Hybrid commands](./hybrid.md) — one definition for slash + prefix.
 - [Cooldowns](./cooldown.md) — the shared rate limiter.
 - [Usage tracking](./usage.md) — record who runs which prefix commands.
 - [Client](./client.md) — the `prefix` option and intent presets.

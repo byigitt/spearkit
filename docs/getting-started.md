@@ -13,6 +13,16 @@ spearkit sits alongside discord.js, so install both:
 npm install spearkit discord.js
 ```
 
+Or scaffold a folder:
+
+```bash
+npx spearkit create my-bot
+cd my-bot
+# copy .env.example → .env, set DISCORD_TOKEN and GUILD_ID
+npm install
+npm start
+```
+
 Everything in your code imports from `"spearkit"` — including the plain discord.js
 symbols, which spearkit re-exports unchanged.
 

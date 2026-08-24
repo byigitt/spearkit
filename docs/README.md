@@ -22,17 +22,18 @@ components.
 13. [Cooldowns](./cooldown.md) — per-user/role/guild rate limiting.
 14. [Scheduled tasks](./scheduler.md) — cron and interval jobs.
 15. [Prefix commands](./prefix.md) — classic `!text` commands.
-16. [Collectors](./collectors.md) — await messages, modals and component clicks.
-17. [Key-value store & settings](./store.md) — persist per-guild config + dynamic prefix.
-18. [Messages & limits](./messages.md) — split long output, truncate text.
-19. [Logging](./logging.md) — structured, leveled, scoped logging.
-20. [Usage tracking](./usage.md) — record who used what (store + Discord channel).
-21. [Environment & dotenv](./env.md) — load `.env` and read typed env vars.
-22. [Graceful shutdown](./shutdown.md) — close cleanly on `SIGINT`/`SIGTERM`.
-23. [Plugins](./plugins.md) — bundling features into reusable units.
-24. [File-based loading](./loading.md) — one file per command/event/component.
-25. [Migrating from discord.js](./migration.md) — the drop-in path.
-26. [API reference](./api-reference.md) — every exported symbol.
+16. [Hybrid commands](./hybrid.md) — one definition for slash + prefix.
+17. [Collectors](./collectors.md) — await messages, modals and component clicks.
+18. [Key-value store & settings](./store.md) — persist per-guild config + dynamic prefix.
+19. [Messages & limits](./messages.md) — split long output, truncate text.
+20. [Logging](./logging.md) — structured, leveled, scoped logging.
+21. [Usage tracking](./usage.md) — record who used what (store + Discord channel).
+22. [Environment & dotenv](./env.md) — load `.env` and read typed env vars.
+23. [Graceful shutdown](./shutdown.md) — close cleanly on `SIGINT`/`SIGTERM`.
+24. [Plugins](./plugins.md) — bundling features into reusable units.
+25. [File-based loading](./loading.md) — one file per command/event/component.
+26. [Migrating from discord.js](./migration.md) — the drop-in path.
+27. [API reference](./api-reference.md) — every exported symbol.
 
 ## Why spearkit
 

@@ -180,18 +180,43 @@ registry.toJSON();      // REST payloads for all commands
 
 ### Error handling
 
-If a handler throws, spearkit catches it. By default it emits the client's `error`
-event and replies with an ephemeral "something went wrong" message. Override
-that:
+If a routed handler throws, spearkit logs it and sends a safe response. Configure
+one policy for slash commands, components, context menus, and prefix commands:
 
 ```ts
-client.commands.onError((error, interaction) => {
-  console.error(`/${interaction.commandName} failed`, error);
-  if (!interaction.replied && !interaction.deferred) {
-    return interaction.reply({ content: "Command failed.", ephemeral: true });
-  }
+const client = new SpearClient({
+  onHandlerError: ({ source, name, error }) => {
+    report(error, { source, name });
+    return "That action failed. Try again later."; // override safe reply
+    // return false; // suppress automatic reply
+  },
 });
 ```
+
+Individual registries still expose `.onError(...)` for advanced overrides.
+
+## Automatic help
+
+`helpCommand()` reads the live slash, prefix, and context-menu registries and
+renders a user-scoped paginator:
+
+```ts
+import { helpCommand } from "spearkit";
+
+client.register(
+  ping,
+  settings,
+  helpCommand({
+    title: "Bot commands",
+    pageSize: 8,
+    // transform: (entries) => entries.filter(canShow),
+  }),
+);
+```
+
+The help command excludes itself. Set `includePrefix: false` or
+`includeContextMenus: false` to limit surfaces. `transform` can filter or reorder
+entries per invocation.
 
 ## Deployment
 

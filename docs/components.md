@@ -46,7 +46,8 @@ page.build({ id: "42", dir: "next" }); // custom-id "page:42:next"
 
 spearkit percent-escapes param values, so they may safely contain `:`. Custom-ids
 are limited to 100 characters (`MAX_CUSTOM_ID_LENGTH`); `build()` throws if you
-exceed it.
+exceed it. For larger state, store the payload with [`createPayloadStore`](./store.md#payload-tokens)
+and put only the token in `{param}`.
 
 For advanced use, the codec is exported directly: `compilePattern`,
 `buildCustomId`, `parseCustomId`, and `paramsFromValues`.

@@ -20,8 +20,13 @@ import { UsageTracker, type UsageEvent, type UsageOptions } from "./usage.js";
 import { Embeds, type EmbedsOptions } from "./embeds.js";
 import type { Guard } from "./guards.js";
 import { ContextMenuRegistry, type ContextMenuCommand } from "./context-menus.js";
+import type { HybridCommand } from "./hybrid.js";
 import { normalizeAutoDefer, type AutoDeferInput } from "./auto-defer.js";
 import { gracefulShutdown, type GracefulShutdownOptions } from "./shutdown.js";
+import {
+  dispatchHandlerError,
+  type HandlerErrorHandler,
+} from "./handler-errors.js";
 
 /** Anything that can be handed to {@link SpearClient.register}. */
 export type Registerable =
@@ -30,7 +35,8 @@ export type Registerable =
   | ComponentDef
   | ScheduledTask
   | PrefixCommand
-  | ContextMenuCommand;
+  | ContextMenuCommand
+  | HybridCommand;
 
 const allIntents = Object.values(GatewayIntentBits).filter(
   (value): value is GatewayIntentBits => typeof value === "number",
@@ -83,6 +89,11 @@ export interface SpearOptions {
    * deferring automatically just before Discord's 3-second window closes.
    */
   autoDefer?: AutoDeferInput;
+  /**
+   * Observe every routed handler failure. Return a string to override the safe
+   * user-facing reply or `false` to suppress it.
+   */
+  onHandlerError?: HandlerErrorHandler;
 }
 
 /** Options for {@link SpearClient}: discord.js options plus {@link SpearOptions}. `intents` may be omitted. */
@@ -101,6 +112,10 @@ export type SpearClientOptions = Partial<ClientOptions> & SpearOptions;
  * await client.deployAllCommands({ guildId: "123" });
  * ```
  */
+function isHybridCommand(item: Registerable): item is HybridCommand {
+  return "slash" in item && "prefix" in item;
+}
+
 export class SpearClient extends Client {
   /** Slash command registry and dispatcher. */
   readonly commands = new CommandRegistry();
@@ -125,7 +140,19 @@ export class SpearClient extends Client {
   private readonly envConfig: false | LoadEnvOptions;
 
   constructor(options: SpearClientOptions = {}) {
-    const { intents, logger, dotenv, cooldown, prefix, usage, embeds, guards, autoDefer, ...rest } = options;
+    const {
+      intents,
+      logger,
+      dotenv,
+      cooldown,
+      prefix,
+      usage,
+      embeds,
+      guards,
+      autoDefer,
+      onHandlerError,
+      ...rest
+    } = options;
     super({ ...rest, intents: intents ?? Intents.default });
     this.embeds = embeds instanceof Embeds ? embeds : new Embeds(embeds);
     this.envConfig = dotenv === false ? false : dotenv === undefined || dotenv === true ? {} : dotenv;
@@ -144,6 +171,39 @@ export class SpearClient extends Client {
     this.prefix.setCooldowns(this.cooldowns, defaultCooldown);
     if (prefix !== undefined) this.prefix.setOptions(prefix);
     this.scheduler.setLogger(this.logger.child("scheduler"));
+
+    this.commands.onError((error, interaction, name) =>
+      dispatchHandlerError({
+        event: { source: "command", name, error, interaction },
+        handler: onHandlerError,
+        logger: this.logger,
+        embeds: this.embeds,
+      }),
+    );
+    this.components.onError((error, interaction, name) =>
+      dispatchHandlerError({
+        event: { source: "component", name, error, interaction },
+        handler: onHandlerError,
+        logger: this.logger,
+        embeds: this.embeds,
+      }),
+    );
+    this.contextMenus.onError((error, interaction, name) =>
+      dispatchHandlerError({
+        event: { source: "contextMenu", name, error, interaction },
+        handler: onHandlerError,
+        logger: this.logger,
+        embeds: this.embeds,
+      }),
+    );
+    this.prefix.onError((error, message, name) =>
+      dispatchHandlerError({
+        event: { source: "prefix", name, error, message },
+        handler: onHandlerError,
+        logger: this.logger,
+        embeds: this.embeds,
+      }),
+    );
 
     if (guards !== undefined && guards.length > 0) {
       this.commands.setDefaultGuards(guards);
@@ -180,6 +240,9 @@ export class SpearClient extends Client {
     for (const item of items) {
       if (item instanceof SlashCommand) {
         this.commands.add(item);
+      } else if (isHybridCommand(item)) {
+        this.commands.add(item.slash);
+        this.prefix.add(item.prefix);
       } else if ("attach" in item) {
         this.events.add(item);
       } else if (item.kind === "task") {

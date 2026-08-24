@@ -68,9 +68,12 @@ await client.deployCommands({ guildId: process.env.GUILD_ID }); // omit guildId 
 - **Right-click on a user/message** → `userCommand` / `messageCommand`; **`!text` command** → `prefixCommand` (+ typed `args`).
 - **Button** → `button`; **URL button** → `linkButton`; **dropdown** → `stringSelect`; **pick user/role/channel/mentionable** → `userSelect` / `roleSelect` / `channelSelect` / `mentionableSelect`; **form** → `modal` + fields (`textInput`, `radioGroup`, `checkboxGroup`, `checkbox`, `fileUpload`, `*SelectField`); **carry data** → custom-id `{param}`.
 - **Paged list** → `paginate`; **yes/no gate** → `confirm`.
+- **Generated command list** → `helpCommand`; **native vote** → `poll`.
 - **Reply** → `ctx.reply` / `replyEphemeral`; **>3s work** → `ctx.defer()` then `editReply`; **styled embed** → `ctx.success/error/info/warn`.
 - **Gateway events** → `event(...)`; **rate-limit** → `cooldown`; **role/permission/owner gate** → guards; **cron/interval** → `task` / `client.schedule`; **logs** → `client.logger` + sinks; **usage tracking** → `usage`; **typed env / `.env`** → `env.*`.
-- **Reusable bundle** → `definePlugin` + `client.use`; **file-per-handler** → `client.load`; **deploy** → `client.deployCommands` / `deployAllCommands`.
+- **Reusable bundle** → `definePlugin` + `client.use`; **file-per-handler** → `client.load` (`{ typescript: true }` under tsx/bun); **scaffold** → `npx spearkit create`; **deploy** → `client.deployCommands` / `deployAllCommands`.
+- **Slash + prefix** → `hybridCommand`. **Bulky component state** → `createPayloadStore`.
+- **One failure policy** → `new SpearClient({ onHandlerError })`.
 - **Primitives** — per-key lock → `KeyedLock`; null-safe fetch → `safeFetch.*`; durations → `formatDuration` / `parseDuration`; timestamps → `discordTimestamp`; cache / rate-limit → `MemoryCache`; config files → `loadConfig`.
 
 ## Recipes

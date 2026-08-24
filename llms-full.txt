@@ -1,4 +1,4 @@
-# spearkit v0.7.0 — full documentation for LLMs
+# spearkit v0.9.0 — full documentation for LLMs
 
 > discord.js++ — a developer-experience-first Discord library. Drop-in compatible with discord.js, with ergonomic events, slash commands, and interactive components.
 
@@ -111,17 +111,18 @@ components.
 13. [Cooldowns](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/cooldown.md) — per-user/role/guild rate limiting.
 14. [Scheduled tasks](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/scheduler.md) — cron and interval jobs.
 15. [Prefix commands](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/prefix.md) — classic `!text` commands.
-16. [Collectors](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/collectors.md) — await messages, modals and component clicks.
-17. [Key-value store & settings](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/store.md) — persist per-guild config + dynamic prefix.
-18. [Messages & limits](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/messages.md) — split long output, truncate text.
-19. [Logging](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/logging.md) — structured, leveled, scoped logging.
-20. [Usage tracking](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/usage.md) — record who used what (store + Discord channel).
-21. [Environment & dotenv](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/env.md) — load `.env` and read typed env vars.
-22. [Graceful shutdown](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/shutdown.md) — close cleanly on `SIGINT`/`SIGTERM`.
-23. [Plugins](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/plugins.md) — bundling features into reusable units.
-24. [File-based loading](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/loading.md) — one file per command/event/component.
-25. [Migrating from discord.js](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/migration.md) — the drop-in path.
-26. [API reference](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/api-reference.md) — every exported symbol.
+16. [Hybrid commands](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/hybrid.md) — one definition for slash + prefix.
+17. [Collectors](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/collectors.md) — await messages, modals and component clicks.
+18. [Key-value store & settings](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/store.md) — persist per-guild config + dynamic prefix.
+19. [Messages & limits](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/messages.md) — split long output, truncate text.
+20. [Logging](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/logging.md) — structured, leveled, scoped logging.
+21. [Usage tracking](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/usage.md) — record who used what (store + Discord channel).
+22. [Environment & dotenv](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/env.md) — load `.env` and read typed env vars.
+23. [Graceful shutdown](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/shutdown.md) — close cleanly on `SIGINT`/`SIGTERM`.
+24. [Plugins](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/plugins.md) — bundling features into reusable units.
+25. [File-based loading](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/loading.md) — one file per command/event/component.
+26. [Migrating from discord.js](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/migration.md) — the drop-in path.
+27. [API reference](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/api-reference.md) — every exported symbol.
 
 ## Why spearkit
 
@@ -175,6 +176,16 @@ spearkit sits alongside discord.js, so install both:
 
 ```bash
 npm install spearkit discord.js
+```
+
+Or scaffold a folder:
+
+```bash
+npx spearkit create my-bot
+cd my-bot
+# copy .env.example → .env, set DISCORD_TOKEN and GUILD_ID
+npm install
+npm start
 ```
 
 Everything in your code imports from `"spearkit"` — including the plain discord.js
@@ -508,7 +519,20 @@ const b = new SpearClient();
 The options type is exported as `SpearClientOptions` — `Partial<ClientOptions> &
 SpearOptions`. Every discord.js option (`partials`, `presence`, `sweepers`, …) is
 available, plus spearkit's own: `logger`, `dotenv`, `cooldown`, `prefix`, `usage`,
-`embeds`, `guards` and `autoDefer` (each covered in its own guide).
+`embeds`, `guards`, `autoDefer`, and `onHandlerError`.
+
+`onHandlerError` is one policy for slash commands, components, context menus,
+and prefix commands. Return a string to override the safe user reply, `false`
+to suppress it, or nothing to use the default:
+
+```ts
+const client = new SpearClient({
+  onHandlerError: ({ source, name, error }) => {
+    report(error, { source, name });
+    return "That action failed. Try again later.";
+  },
+});
+```
 
 ### Intents presets
 
@@ -905,18 +929,43 @@ registry.toJSON();      // REST payloads for all commands
 
 ### Error handling
 
-If a handler throws, spearkit catches it. By default it emits the client's `error`
-event and replies with an ephemeral "something went wrong" message. Override
-that:
+If a routed handler throws, spearkit logs it and sends a safe response. Configure
+one policy for slash commands, components, context menus, and prefix commands:
 
 ```ts
-client.commands.onError((error, interaction) => {
-  console.error(`/${interaction.commandName} failed`, error);
-  if (!interaction.replied && !interaction.deferred) {
-    return interaction.reply({ content: "Command failed.", ephemeral: true });
-  }
+const client = new SpearClient({
+  onHandlerError: ({ source, name, error }) => {
+    report(error, { source, name });
+    return "That action failed. Try again later."; // override safe reply
+    // return false; // suppress automatic reply
+  },
 });
 ```
+
+Individual registries still expose `.onError(...)` for advanced overrides.
+
+## Automatic help
+
+`helpCommand()` reads the live slash, prefix, and context-menu registries and
+renders a user-scoped paginator:
+
+```ts
+import { helpCommand } from "spearkit";
+
+client.register(
+  ping,
+  settings,
+  helpCommand({
+    title: "Bot commands",
+    pageSize: 8,
+    // transform: (entries) => entries.filter(canShow),
+  }),
+);
+```
+
+The help command excludes itself. Set `includePrefix: false` or
+`includeContextMenus: false` to limit surfaces. `transform` can filter or reorder
+entries per invocation.
 
 ## Deployment
 
@@ -992,7 +1041,7 @@ command({
 | `option.channel(config)` | channel union | `channelTypes` |
 | `option.role(config)` | `Role \| APIRole` | — |
 | `option.mentionable(config)` | user / role / member | — |
-| `option.attachment(config)` | `Attachment` | — |
+| `option.attachment(config)` | `Attachment` | `fileTypes` (`"image"` / `"audio"` / `"video"` / `".png"`) |
 
 Every builder accepts the common config:
 
@@ -1171,7 +1220,8 @@ page.build({ id: "42", dir: "next" }); // custom-id "page:42:next"
 
 spearkit percent-escapes param values, so they may safely contain `:`. Custom-ids
 are limited to 100 characters (`MAX_CUSTOM_ID_LENGTH`); `build()` throws if you
-exceed it.
+exceed it. For larger state, store the payload with [`createPayloadStore`](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/store.md#payload-tokens)
+and put only the token in `{param}`.
 
 For advanced use, the codec is exported directly: `compilePattern`,
 `buildCustomId`, `parseCustomId`, and `paramsFromValues`.
@@ -2880,9 +2930,44 @@ client.prefix.onError((error, message) => {
 ## See also
 
 - [Commands](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/commands.md) — slash commands.
+- [Hybrid commands](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/hybrid.md) — one definition for slash + prefix.
 - [Cooldowns](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/cooldown.md) — the shared rate limiter.
 - [Usage tracking](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/usage.md) — record who runs which prefix commands.
 - [Client](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/client.md) — the `prefix` option and intent presets.
+
+---
+
+# Hybrid commands
+
+One definition, two surfaces: a slash command (typed `options`) and a prefix
+command (typed `args`) that share a handler. Use this when a bot still has `!`
+users but you don't want two copies of the same logic.
+
+Enable prefix dispatch on the client (`prefix: "!"`) and register the hybrid
+once — `client.register(ping)` adds both halves.
+
+```ts
+import { Intents, SpearClient, hybridCommand, option } from "spearkit";
+
+const client = new SpearClient({ intents: Intents.messages, prefix: "!" });
+
+const ping = hybridCommand({
+  name: "echo",
+  description: "Repeat text",
+  options: { text: option.string({ description: "What to echo", required: true }) },
+  args: (a) => a.string("text"),
+  run: (ctx) => ctx.reply(`${ctx.options.text} (${ctx.kind})`),
+});
+
+client.register(ping);
+```
+
+`ctx.kind` is `"slash"` or `"prefix"`. `ctx.options` is the slash option map on
+slash runs and the parsed args on prefix runs. Matching names on both schemas
+lets one `run` serve both; branch on `ctx.kind` when the surfaces must differ.
+
+`install` / `contexts` / `guildOnly` apply to the slash half. Prefix still needs
+the `MessageContent` intent (`Intents.messages`) to read other users' messages.
 
 ---
 
@@ -3762,6 +3847,33 @@ const tags = namespaced(store, "tags");
 await tags.set("hello", "world"); // stored under "tags:hello"
 ```
 
+## Payload tokens
+
+Discord custom-ids max out at 100 characters. `createPayloadStore` keeps the
+real payload in a `KeyValueStore` and puts a short token in `{param}`.
+
+```ts
+import { MemoryStore, button, createPayloadStore } from "spearkit";
+
+const tickets = createPayloadStore<{ opener: string; page: number }>({
+  store: new MemoryStore(),
+  ttlMs: 15 * 60 * 1000, // optional expiry
+});
+
+const next = button({
+  id: "page:{token}",
+  label: "Next",
+  run: async (ctx) => {
+    const state = await tickets.get(ctx.params.token);
+    if (state === undefined) return ctx.update("Expired.");
+    // ...
+  },
+});
+
+const token = await tickets.put({ opener: userId, page: 2 });
+next.build({ token });
+```
+
 ---
 
 # Messages & limits
@@ -3799,6 +3911,35 @@ import { truncate } from "spearkit";
 embed.setFooter({ text: truncate(reason, 100) });
 truncate("a very long reason", 10); // → "a very lo…"
 ```
+
+## Polls
+
+`poll()` returns an ordinary discord.js `PollData` payload, with readable option
+names and validation for Discord's limits:
+
+```ts
+import { poll } from "spearkit";
+
+await ctx.reply({
+  poll: poll({
+    question: "Ship it?",
+    answers: [{ text: "Yes", emoji: "✅" }, "Not yet"],
+    durationHours: 6, // 1–768; default 24
+    multiselect: false,
+  }),
+});
+```
+
+Questions allow 300 characters, answers 55 characters, and polls accept 2–10
+answers. Poll messages cannot be edited after creation. End one early with
+`message.poll?.end()` and fetch answer voters with
+`message.poll?.answers.get(id)?.fetchVoters()`.
+
+Polls cannot be combined with Components V2 (`MessageFlags.IsComponentsV2`).
+Discord apps can create and inspect polls, but cannot vote in them.
+
+Sources: [Discord Poll Resource](https://docs.discord.com/developers/resources/poll)
+and [discord.js `PollData`](https://discord.js.org/docs/packages/discord.js/14.21.0/PollData:Interface).
 
 ---
 
@@ -3852,7 +3993,7 @@ Shutdown runs **once** — repeated signals during teardown are ignored.
 Instead of importing and registering every handler by hand, you can keep one
 handler per file and let spearkit discover them. The loader imports a directory,
 inspects each module's exports, and registers everything that is a command,
-event, component, scheduled task or prefix command.
+event, component, scheduled task, prefix command, hybrid command or context menu.
 
 ## `client.load`
 
@@ -3886,9 +4027,9 @@ await client.deployCommands({ guildId: process.env.GUILD_ID });
 For every imported file, spearkit walks **all** of its exports — default *and*
 named — and registers each value that is a command (`command`, `commandGroup`),
 an event (`event`), a component (`button`, `stringSelect`, `modal`, …), a
-scheduled task (`task`) or a prefix command (`prefixCommand`). Other exports
-(helpers, constants, types) are ignored, and context-menu commands are **not**
-auto-detected — register those explicitly. So both of these are picked up:
+scheduled task (`task`), a prefix command (`prefixCommand`), a hybrid command
+(`hybridCommand`), or a context-menu command (`userCommand` / `messageCommand`).
+Other exports (helpers, constants, types) are ignored. So both of these are picked up:
 
 ```ts
 // default export
@@ -3905,22 +4046,27 @@ export const vote = button({ id: "vote:{choice}", label: "Vote", run: (ctx) => c
 ```ts
 interface LoadOptions {
   extensions?: readonly string[]; // default: [".js", ".mjs", ".cjs"]
+  typescript?: boolean;           // default: false — also import .ts / .mts
   recursive?: boolean;            // default: true
 }
 ```
 
 - **`extensions`** — which file extensions to import. By default the loader reads
-  `.js`, `.mjs` and `.cjs` — i.e. **compiled JavaScript**, not `.ts` source.
+  `.js`, `.mjs` and `.cjs` — i.e. **compiled JavaScript**.
+- **`typescript`** — include `.ts` and `.mts`. Requires a runtime that can load
+  TypeScript (`tsx`, `bun`, or Node with type stripping). Otherwise you get a
+  clear error instead of a raw `ERR_UNKNOWN_FILE_EXTENSION`.
 - **`recursive`** — by default the loader descends into subdirectories. Pass
   `recursive: false` to load only the top level.
 
 ```ts
 await client.load(`${here}features`, { recursive: false });
+await client.load(`${here}src`, { typescript: true });
 ```
 
-> The loader imports compiled JavaScript. **Build your TypeScript first**, then run
-> (and load) the emitted output — `npx tsc && node dist/index.js`. Loading a
-> directory of `.ts` source files will not match the default extensions.
+> Default extensions are compiled JavaScript. **Build first**, then load the
+> emitted output — `npx tsc && node dist/index.js`. For a TypeScript source tree
+> under `tsx` or `bun`, pass `{ typescript: true }`.
 
 ## Standalone helpers
 
@@ -4053,6 +4199,7 @@ discord.js `ClientOptions` (with `intents` optional — it defaults to
 | `embeds` | `Embeds \| EmbedsOptions` | Preset embed factory. |
 | `guards` | `readonly Guard[]` | Default guards run before every handler. |
 | `autoDefer` | `AutoDeferInput` | Default auto-defer for slash + context-menu handlers. |
+| `onHandlerError` | `HandlerErrorHandler` | One error policy for commands, components, context menus, and prefix commands. |
 
 ### `const Intents`
 
@@ -4214,7 +4361,7 @@ literal union).
 | `option.channel(config)` | channel union | `channelTypes?` |
 | `option.role(config)` | `Role \| APIRole` | — |
 | `option.mentionable(config)` | user/role/member | — |
-| `option.attachment(config)` | `Attachment` | — |
+| `option.attachment(config)` | `Attachment` | `fileTypes` |
 
 Common config (`BaseConfig`):
 
@@ -4474,7 +4621,11 @@ function definePlugin(plugin: SpearPlugin): SpearPlugin;
 ## Loading
 
 ```ts
-interface LoadOptions { extensions?: readonly string[]; recursive?: boolean; } // defaults: [.js,.mjs,.cjs], true
+interface LoadOptions {
+  extensions?: readonly string[]; // default [.js,.mjs,.cjs]
+  typescript?: boolean;           // also load .ts/.mts (tsx, bun, or Node type stripping)
+  recursive?: boolean;            // default true
+}
 function collectModules(dir: string, options?: LoadOptions): Promise<Registerable[]>;
 function loadInto(client: SpearClient, dir: string, options?: LoadOptions): Promise<number>;
 ```
@@ -4539,6 +4690,15 @@ function prefixCommand<TArgs, R>(config: { name: string; aliases?: readonly stri
 class PrefixContext<TArgs> { message; commandName; args: string[]; rest: string; options: TArgs; client; author; member; guild; guildId; channel; channelId; reply(content); send(content); }
 // new SpearClient({ prefix: "!" | string[] | { prefix, mention?, ignoreBots?, caseInsensitive? } }); client.prefix
 // reading others' content needs the privileged MessageContent intent (Intents.messages)
+```
+
+### Hybrid commands — [guide](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/hybrid.md)
+
+```ts
+function hybridCommand(config: { name; description; options?; args?; run; aliases?; ...slash meta }): HybridCommand;
+interface HybridCommand { name: string; slash: SlashCommand; prefix: PrefixCommand; }
+interface HybridContext { kind: "slash" | "prefix"; options; raw; reply; client; user; member; guild; guildId; channel; channelId; }
+// client.register(hybridCommand(...)) registers both halves
 ```
 
 ### Usage tracking — [guide](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/usage.md)
@@ -4630,6 +4790,44 @@ function prefixArgs(): PrefixArgsBuilder<{}>;
 function paginate<T>(interaction, items, { render, pageSize?, user?, timeoutMs?, controls?: "prev-next" | "first-prev-next-last", ephemeral?, namespace?, labels?: { first?; prev?; next?; last? } }): Promise<void>;
 function buildPaginatorPage<T>(items, page, options): Promise<{ payload; pages }>;
 function confirm(interaction, { body, title?, confirm?: { label?; style? }, cancel?: { label?; style? }, user?, timeoutMs?, ephemeral?, namespace? }): Promise<{ confirmed: boolean; reason: "confirm" | "cancel" | "timeout"; interaction? }>; // style: "Primary" | "Secondary" | "Success" | "Danger"
+```
+
+### Automatic help
+
+```ts
+type HelpSurface = "slash" | "prefix" | "userMenu" | "messageMenu";
+interface HelpEntry { name: string; description: string; surface: HelpSurface; }
+interface HelpCommandOptions {
+  name?: string; description?: string; title?: string; pageSize?: number;
+  includePrefix?: boolean; includeContextMenus?: boolean; ephemeral?: boolean;
+  transform?: (entries: readonly HelpEntry[], ctx: CommandContext) => Awaitable<readonly HelpEntry[]>;
+}
+function helpCommand(options?: HelpCommandOptions): SlashCommand;
+function buildHelpEntries(client, options?): HelpEntry[];
+```
+
+### Polls — [guide](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/messages.md#polls)
+
+```ts
+type PollAnswerInput = string | { text: string; emoji?: EmojiIdentifierResolvable };
+interface PollConfig {
+  question: string;
+  answers: readonly PollAnswerInput[];
+  durationHours?: number; // 1–768; default 24
+  multiselect?: boolean;  // default false
+}
+function poll(config: PollConfig): PollData;
+```
+
+### Client-wide handler errors
+
+```ts
+type HandlerErrorEvent =
+  | { source: "command" | "component" | "contextMenu"; name: string; error: Error; interaction: RepliableInteraction }
+  | { source: "prefix"; name: string; error: Error; message: Message };
+type HandlerErrorHandler =
+  (event: HandlerErrorEvent) => Awaitable<string | false | void>;
+// string = override safe user reply; false = suppress reply; void = safe default
 ```
 
 ### Primitives
@@ -4745,6 +4943,10 @@ interface KeyValueStore {
 class MemoryStore implements KeyValueStore { /* deep-cloned in-memory */ }
 class JsonStore implements KeyValueStore { constructor(path: string); /* atomic JSON file */ }
 function namespaced(store: KeyValueStore, prefix: string): KeyValueStore;
+
+interface PayloadStore<T> { put(value: T): Promise<string>; get(token: string): Promise<T | undefined>; delete(token: string): Promise<boolean>; }
+interface CreatePayloadStoreOptions { store: KeyValueStore; namespace?: string; ttlMs?: number; }
+function createPayloadStore<T>(options: CreatePayloadStoreOptions): PayloadStore<T>;
 
 interface SettingsManager<T> { readonly defaults: T; readonly store: KeyValueStore; get(id): Promise<T>; set(id, patch: Partial<T>): Promise<T>; reset(id): Promise<void>; }
 interface CreateSettingsOptions<T> { store: KeyValueStore; defaults: T; namespace?: string; } // namespace default "settings"

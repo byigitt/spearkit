@@ -78,6 +78,7 @@ export type ComponentDef =
 export type ComponentErrorHandler = (
   error: Error,
   interaction: RepliableInteraction,
+  namespace: string,
 ) => Awaitable<void>;
 
 function toError(value: unknown): Error {
@@ -246,7 +247,7 @@ export class ComponentRegistry {
         timestamp: new Date(),
       });
       if (this.errorHandler !== undefined) {
-        await this.errorHandler(err, interaction);
+        await this.errorHandler(err, interaction, route.namespace);
       } else {
         interaction.client.emit("error", err);
         const content = explainDiscordError(err) ?? "Something went wrong.";

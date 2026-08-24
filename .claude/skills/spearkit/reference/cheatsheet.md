@@ -27,6 +27,7 @@ the full discord.js surface. For prose and edge cases, read the package's
 | Suggest values while the user types | `option.string({ autocomplete })` |
 | A right-click "Apps" action on a user/message | `userCommand` / `messageCommand` |
 | A classic `!text` command | `prefixCommand(...)` + `new SpearClient({ prefix })` |
+| Slash + prefix from one definition | `hybridCommand({ options, args, run })` |
 | Parse `!cmd` arguments into typed values | `args: (a) => a.snowflake().duration().rest()` → `ctx.options` |
 
 **Interactivity (components)**
@@ -38,9 +39,11 @@ the full discord.js surface. For prose and edge cases, read the package's
 | A dropdown of fixed options | `stringSelect` |
 | Pick users / roles / channels / mentionables | `userSelect` / `roleSelect` / `channelSelect` / `mentionableSelect` |
 | A form with text fields | `modal` + `textInput` |
-| Carry data through a component | custom-id params `id: "x:{id}"` → `ctx.params.id` |
+| Carry data through a component | custom-id params `id: "x:{id}"` → `ctx.params.id`; bulky state → `createPayloadStore` |
 | A paged list with next/prev | `paginate(...)` |
 | An "Are you sure?" yes/no gate | `confirm(...)` |
+| Generate `/help` from registries | `helpCommand(...)` |
+| Send a native poll | `poll({ question, answers })` |
 
 **Replies & UX**
 
@@ -62,6 +65,7 @@ the full discord.js surface. For prose and edge cases, read the package's
 | Delay once / staged follow-ups / recover on restart | `client.scheduler.delay` / `followUp` / `reconcile` |
 | Structured logs to file/webhook | `client.logger` + `consoleSink` / `jsonlSink` / `webhookSink` |
 | Track who used what | `new SpearClient({ usage })` + `MemoryUsageStore` / `JsonFileUsageStore` |
+| Centralize routed-handler failures | `new SpearClient({ onHandlerError })` |
 | Read typed env / load `.env` | `env.string/number/boolean/require` (auto-loaded on `start()`) |
 
 **Utilities (primitives)**
@@ -84,7 +88,7 @@ client.events     // EventRegistry
 client.components // ComponentRegistry
 client.register(...items)            // route SlashCommand | EventDef | ComponentDef | PrefixCommand | ContextMenu | ScheduledTask
 client.use(...plugins): Promise<this>
-client.load(dir, options?): Promise<number>            // imports compiled JS (.js/.mjs/.cjs)
+client.load(dir, options?): Promise<number>            // JS by default; { typescript: true } for .ts
 client.start(token?): Promise<this>                    // login; falls back to DISCORD_TOKEN
 client.deployCommands({ guildId? }): Promise<DeployResult>      // after start()
 client.deployAllCommands({ guildId?, applicationId?, strategy?: "diff", dryRun? }) // slash + context menus
@@ -114,7 +118,7 @@ option.user(...)     // User
 option.channel({ ..., channelTypes? }) // channel union
 option.role(...)     // Role | APIRole
 option.mentionable(...) // user/role/member
-option.attachment(...)  // Attachment
+option.attachment({ ..., fileTypes? })  // Attachment; fileTypes: "image"|"audio"|"video"|".png"
 
 // choices: { name, value, nameLocalizations? }[]   (value narrows the resolved type to a literal union)
 // autocomplete: (ctx: AutocompleteContext) => Awaitable<OptionChoice[]>   ctx.value / ctx.respond(...)
@@ -209,6 +213,14 @@ prefixCommand({ args: (a) => a.snowflake("target").duration("d").rest("reason"),
 // reading other users' content requires the privileged MessageContent intent (Intents.messages)
 ```
 
+## Hybrid commands
+
+```ts
+hybridCommand({ name, description, options?, args?, run, aliases?, install?, contexts?, ... })
+// ctx.kind: "slash" | "prefix"; ctx.options is slash options or prefix args
+// client.register(hybrid) registers both halves; prefix still needs Intents.messages
+```
+
 ## Context menus
 
 ```ts
@@ -267,7 +279,7 @@ env.string(k, fallback?) · env.number(k, fallback?) · env.boolean(k, fallback?
 ```ts
 definePlugin({ name, setup(client) }); await client.use(plugin)
 collectModules(dir, options?); loadInto(client, dir, options?)
-client.load(dir, { extensions?: readonly string[], recursive? })  // defaults [.js,.mjs,.cjs], true
+client.load(dir, { extensions?, typescript?, recursive? })  // defaults [.js,.mjs,.cjs], false, true
 ```
 
 ## Primitives
@@ -303,6 +315,7 @@ moderationCheck({ moderator, target, me?, action? }) -> { ok: true } | { ok: fal
 // Persistent storage + per-guild settings
 new MemoryStore(); new JsonStore(path)   // KeyValueStore: get/set/has/delete/keys/clear
 namespaced(store, prefix)
+createPayloadStore({ store, namespace?, ttlMs? }) -> { put, get, delete }
 createSettings({ store, defaults, namespace? }) -> { defaults, store, get(id), set(id, patch), reset(id) }
 
 // Collectors (all resolve null on timeout)
