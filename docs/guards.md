@@ -57,6 +57,7 @@ omitted, a sensible default message is used (shown below).
 | `requireAnyRole(roleIds, reason?)` | the member holds **any** of `roleIds` | `"You don't have permission to use this."` |
 | `requireAllRoles(roleIds, reason?)` | the member holds **every** id in `roleIds` | `"You're missing one of the required roles."` |
 | `requireOwner(ownerIds, reason?)` | the user id is in `ownerIds` | `"This is owner-only."` |
+| `requireBotOwner(reason?)` | `client.owners` or the application owner | `"This is owner-only."` |
 | `requireUserPermissions(permission, reason?)` | the member has the Discord `permission` | `"You don't have permission to use this."` |
 | `requireBotPermissions(permission, reason?)` | the bot's member has the Discord `permission` | `"I don't have permission to do that here."` |
 

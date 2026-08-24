@@ -32,7 +32,9 @@ new SpearClient(options?: SpearClientOptions)
 | `embeds` | `Embeds` | Preset embed factory behind `ctx.success/error/...`. |
 | `contextMenus` | `ContextMenuRegistry` | User / message context-menu registry. |
 | `i18n` | `I18n \| undefined` | Runtime translations behind `ctx.t`. |
+| `owners` | `readonly string[]` | Bot-owner ids for `requireBotOwner`. |
 | `register(...items: Registerable[])` | `this` | Route each item to the matching registry. |
+| `inviteUrl(options?)` | `string` | OAuth2 invite link (after ready). |
 | `use(...plugins: SpearPlugin[])` | `Promise<this>` | Run each plugin's `setup`. |
 | `load(dir: string, options?: LoadOptions)` | `Promise<number>` | Import a directory and register its exports. Returns count. |
 | `start(token?: string)` | `Promise<this>` | Log in (falls back to `DISCORD_TOKEN`). |
@@ -61,6 +63,7 @@ discord.js `ClientOptions` (with `intents` optional — it defaults to
 | `onHandlerError` | `HandlerErrorHandler` | One error policy for commands, components, context menus, and prefix commands. |
 | `i18n` | `I18n \| I18nOptions` | Runtime catalogs, locale fallback, and optional async resolver. |
 | `cooldownStore` | `CooldownBackend \| KeyValueStore` | Persist cooldowns across restarts and shards. |
+| `owners` | `readonly string[]` | Bot-owner ids for `requireBotOwner()`. |
 
 ### `const Intents`
 
@@ -543,6 +546,20 @@ function createI18n<const M>(options: I18nOptions<M>): I18n<MessageKey<M>>;
 // new SpearClient({ i18n }); await ctx.t("key", params)
 ```
 
+### Everyday helpers — [guide](/docs/guides/dx)
+
+```ts
+function choices(map: Record<string, string | number>): OptionChoice[];
+function choices(...values: string[]): OptionChoice[];
+function filterChoices(items, query, options?: { limit?: number }): OptionChoice[];
+function inviteUrl(options: { clientId; permissions?; scopes?; guildId?; disableGuildSelect? }): string;
+function parseSnowflake/parseUserId/parseRoleId/parseChannelId(input: string): string | null;
+function parseCustomEmoji(input: string): { name; id; animated } | null;
+function slashMention(name, commandId, subcommand?): string;
+// ctx.sendLong / ctx.dm / ctx.withTyping / ctx.progress / ctx.suggest
+// command({ enabled: false }); new SpearClient({ owners }); requireBotOwner()
+```
+
 ### Cooldowns — [guide](/docs/guides/cooldown)
 
 ```ts
@@ -639,6 +656,7 @@ function dmOnly(reason?: string): Guard;
 function requireAnyRole(roleIds: readonly string[], reason?: string): Guard;
 function requireAllRoles(roleIds: readonly string[], reason?: string): Guard;
 function requireOwner(ownerIds: readonly string[], reason?: string): Guard;
+function requireBotOwner(reason?: string): Guard;
 function requireUserPermissions(permission: PermissionResolvable, reason?: string): Guard;
 function requireBotPermissions(permission: PermissionResolvable, reason?: string): Guard;
 function guard<TCtx>(predicate: Guard<TCtx>): Guard<TCtx>;

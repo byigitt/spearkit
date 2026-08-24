@@ -188,6 +188,7 @@ export interface HybridCommandConfig<
   cooldown?: CooldownInput;
   guards?: readonly Guard[];
   autoDefer?: AutoDeferInput;
+  enabled?: boolean;
   run: (ctx: HybridContext<ResolvedOptions<O> | TArgs>) => Awaitable<R>;
 }
 
@@ -222,6 +223,7 @@ export function hybridCommand<
     cooldown: config.cooldown,
     guards: config.guards,
     autoDefer: config.autoDefer,
+    enabled: config.enabled,
     run: async (ctx) => {
       await config.run(new SlashHybridView(ctx));
     },
@@ -234,6 +236,7 @@ export function hybridCommand<
     cooldown: config.cooldown,
     guards: config.guards,
     args: config.args,
+    enabled: config.enabled,
     run: async (ctx) => {
       await config.run(new PrefixHybridView(ctx));
     },

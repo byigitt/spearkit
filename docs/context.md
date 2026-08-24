@@ -200,6 +200,10 @@ asEphemeral("hidden");
 | `channelId` | The channel id. |
 | `locale` | The user's locale. |
 | `t(key, params?)` | Async runtime translation via `client.i18n`. |
+| `sendLong(text)` | Split to 2000-char chunks and send/follow-up. |
+| `dm(input)` | DM the invoker; `null` if DMs are closed. |
+| `withTyping(fn)` | Keep the typing indicator alive during `fn`. |
+| `progress(text)` | Post a line, then `update`/`done` via edit. |
 | `deferred` | Whether the interaction is already deferred. |
 | `replied` | Whether the interaction already received an initial response. |
 | `botPermissions` | The bot's resolved permissions in the channel (`PermissionsBitField`, zero-fetch). |

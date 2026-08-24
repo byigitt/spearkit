@@ -153,9 +153,14 @@ The autocomplete handler receives an `AutocompleteContext`:
 | `ctx.commandName` | The command being completed. |
 | `ctx.client` / `ctx.user` / `ctx.guild` / `ctx.guildId` | Accessors. |
 | `ctx.respond(choices)` | Send suggestions (capped at discord's 25). |
+| `ctx.suggest(items)` | Filter by `ctx.value` and respond (max 25). |
+
+`choices({ Easy: "easy" })` / `choices("red", "blue")` build option choice
+arrays. `filterChoices(items, query)` is the same matching `suggest` uses.
 
 Returning the choices array (as above) is enough — spearkit calls `respond` for
-you. Returning `[]` shows no suggestions.
+you. Returning `[]` shows no suggestions. `autocomplete: (ctx) => ctx.suggest(list)`
+is also valid (`suggest` responds itself).
 
 ## See also
 

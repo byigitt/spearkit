@@ -5,6 +5,7 @@ import {
   type InteractionReplyOptions,
   type InteractionResponse,
   type Message,
+  type MessageCreateOptions,
   type PermissionResolvable,
   type PermissionsString,
   type RepliableInteraction,
@@ -13,6 +14,15 @@ import type { Client } from "discord.js";
 import { awaitMessage, type AwaitMessageOptions } from "./collectors.js";
 import { Embeds, defaultEmbeds, type EmbedLevel, type EmbedPresetInput } from "./embeds.js";
 import type { I18n, TranslationParams } from "./i18n.js";
+import { chunkMessage } from "./format.js";
+
+/** Handle returned by {@link BaseContext.progress}. */
+export interface ProgressHandle {
+  /** Replace the progress message. */
+  update(text: string): Promise<void>;
+  /** Final replacement (same as {@link update}, named for call sites). */
+  done(text: string): Promise<void>;
+}
 
 /** A client (or anything client-shaped) that may expose a configured {@link Embeds}. */
 type EmbedHost = Client & { embeds?: Embeds };
@@ -275,6 +285,53 @@ export abstract class BaseContext<I extends RepliableInteraction = RepliableInte
       time: options.time,
       filter: (message) => message.author.id === userId && (extra?.(message) ?? true),
     });
+  }
+
+  /**
+   * Send `text` in 2000-character chunks. The first chunk uses {@link send};
+   * the rest are follow-ups.
+   */
+  async sendLong(text: string): Promise<void> {
+    const parts = chunkMessage(text);
+    if (parts.length === 0) return;
+    await this.send(parts[0] as string);
+    for (const part of parts.slice(1)) await this.followUp(part);
+  }
+
+  /** DM the invoking user. Resolves `null` if their DMs are closed. */
+  async dm(input: string | MessageCreateOptions): Promise<Message | null> {
+    try {
+      return await this.user.send(typeof input === "string" ? { content: input } : input);
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Keep the channel typing indicator alive while `fn` runs (Discord expires
+   * typing after ~10s).
+   */
+  async withTyping<T>(fn: () => Promise<T>): Promise<T> {
+    const channel = this.interaction.channel;
+    if (channel === null || !("sendTyping" in channel)) return fn();
+    await channel.sendTyping().catch(() => undefined);
+    const timer = setInterval(() => {
+      void channel.sendTyping().catch(() => undefined);
+    }, 8_000);
+    try {
+      return await fn();
+    } finally {
+      clearInterval(timer);
+    }
+  }
+
+  /** Post an initial progress line, then edit it as work proceeds. */
+  async progress(initial: string): Promise<ProgressHandle> {
+    await this.send(initial);
+    return {
+      update: (text) => this.editReply(text).then(() => undefined),
+      done: (text) => this.editReply(text).then(() => undefined),
+    };
   }
 
   /** Get the configured {@link Embeds} factory — `client.embeds` or the default. */

@@ -19,6 +19,8 @@ await ctx.reply(parts[0] ?? "(empty)");
 for (const part of parts.slice(1)) await ctx.followUp(part);
 ```
 
+Or let the context do it: `await ctx.sendLong(hugeLog)`.
+
 Pass `{ max }` to target a smaller budget (e.g. inside a code block or embed
 description). `MESSAGE_CHARACTER_LIMIT` (2000) is exported as the default.
 

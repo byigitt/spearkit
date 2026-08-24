@@ -83,6 +83,20 @@ describe("built-in predicates", () => {
     expect(await requireOwner(["u9"])(ctx({ user: { id: "u1" } as never }))).toMatchObject({ allowed: false });
   });
 
+  it("requireBotOwner uses client.owners", async () => {
+    const { requireBotOwner } = await import("../src/guards.js");
+    const ownersCtx = ctx({
+      client: { owners: ["u1"], application: null } as never,
+      user: { id: "u1" } as never,
+    });
+    expect(await requireBotOwner()(ownersCtx)).toBe(true);
+    expect(
+      await requireBotOwner()(
+        ctx({ client: { owners: ["u9"], application: null } as never, user: { id: "u1" } as never }),
+      ),
+    ).toMatchObject({ allowed: false });
+  });
+
   it("requireUserPermissions with PermissionsBitField and string permissions", async () => {
     const bf = new PermissionsBitField(PermissionFlagsBits.BanMembers);
     expect(

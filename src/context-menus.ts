@@ -52,6 +52,8 @@ interface ContextMenuMeta extends CommandScopeMeta {
   guards?: readonly Guard[];
   /** Auto-`deferReply()` if the handler is slow, preventing `Unknown interaction`. */
   autoDefer?: AutoDeferInput;
+  /** Skip registration when `false`. Default `true`. */
+  enabled?: boolean;
 }
 
 /** Configuration for {@link userCommand}. */
@@ -71,6 +73,7 @@ export interface BaseContextMenuCommand {
   readonly cooldown?: CooldownConfig;
   readonly guards?: readonly Guard[];
   readonly autoDefer?: AutoDeferConfig;
+  readonly enabled: boolean;
   toJSON(): RESTPostAPIContextMenuApplicationCommandsJSONBody;
 }
 
@@ -148,6 +151,7 @@ export function userCommand<R = void>(config: UserCommandConfig<R>): UserContext
     cooldown,
     guards: config.guards,
     autoDefer: normalizeAutoDefer(config.autoDefer),
+    enabled: config.enabled !== false,
     toJSON: () => baseJSON(config, scope, ApplicationCommandType.User),
     execute: async (interaction) => {
       await config.run(new UserContextMenuContext(interaction));
@@ -165,6 +169,7 @@ export function messageCommand<R = void>(config: MessageCommandConfig<R>): Messa
     cooldown,
     guards: config.guards,
     autoDefer: normalizeAutoDefer(config.autoDefer),
+    enabled: config.enabled !== false,
     toJSON: () => baseJSON(config, scope, ApplicationCommandType.Message),
     execute: async (interaction) => {
       await config.run(new MessageContextMenuContext(interaction));

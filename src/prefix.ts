@@ -21,6 +21,7 @@ import { runGuards, type Guard, type GuardContext } from "./guards.js";
 import { defaultEmbeds, type Embeds } from "./embeds.js";
 import { PrefixArgsBuilder, prefixArgs, type PrefixArgsParser } from "./prefix-args.js";
 import type { I18n, TranslationParams } from "./i18n.js";
+import { chunkMessage } from "./format.js";
 import {
   formatCooldownMessage,
   normalizeCooldown,
@@ -66,6 +67,8 @@ export interface PrefixCommandConfig<
   guards?: readonly Guard[];
   /** Typed argument schema; `ctx.options` will be shaped from this. */
   args?: (builder: PrefixArgsBuilder<{}>) => PrefixArgsBuilder<TArgs>;
+  /** Skip registration when `false`. Default `true`. */
+  enabled?: boolean;
   /** Handler invoked with a {@link PrefixContext} typed by `args`. */
   run: (ctx: PrefixContext<TArgs>) => Awaitable<R>;
 }
@@ -79,6 +82,7 @@ export interface PrefixCommand {
   readonly cooldown?: CooldownConfig;
   readonly guards?: readonly Guard[];
   readonly parser?: PrefixArgsParser<Record<string, unknown>>;
+  readonly enabled: boolean;
   readonly run: (ctx: PrefixContext) => Promise<void>;
 }
 
@@ -99,6 +103,7 @@ export function prefixCommand<
     cooldown: config.cooldown !== undefined ? normalizeCooldown(config.cooldown) : undefined,
     guards: config.guards,
     parser,
+    enabled: config.enabled !== false,
     run: async (ctx) => {
       await config.run(ctx as PrefixContext<TArgs>);
     },
@@ -177,6 +182,40 @@ export class PrefixContext<
     const channel = this.message.channel;
     if ("send" in channel) return channel.send(content);
     return undefined;
+  }
+
+  async sendLong(text: string): Promise<void> {
+    const parts = chunkMessage(text);
+    if (parts.length === 0) return;
+    const first = parts[0] as string;
+    await this.reply(first);
+    const channel = this.message.channel;
+    if (!("send" in channel)) return;
+    for (const part of parts.slice(1)) await channel.send(part);
+  }
+
+  async dm(input: string | MessageCreateOptions): Promise<Message | null> {
+    try {
+      return await this.message.author.send(
+        typeof input === "string" ? { content: input } : input,
+      );
+    } catch {
+      return null;
+    }
+  }
+
+  async withTyping<T>(fn: () => Promise<T>): Promise<T> {
+    const channel = this.message.channel;
+    if (!("sendTyping" in channel)) return fn();
+    await channel.sendTyping().catch(() => undefined);
+    const timer = setInterval(() => {
+      void channel.sendTyping().catch(() => undefined);
+    }, 8_000);
+    try {
+      return await fn();
+    } finally {
+      clearInterval(timer);
+    }
   }
 }
 

@@ -1,4 +1,4 @@
-# spearkit v0.11.0 — full documentation for LLMs
+# spearkit v0.12.0 — full documentation for LLMs
 
 > discord.js++ — a developer-experience-first Discord library. Drop-in compatible with discord.js, with ergonomic events, slash commands, and interactive components.
 
@@ -119,11 +119,12 @@ components.
 21. [Usage tracking](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/usage.md) — record who used what (store + Discord channel).
 22. [Environment & dotenv](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/env.md) — load `.env` and read typed env vars.
 23. [Runtime i18n](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/i18n.md) — Discord locales, fallback catalogs, `ctx.t`.
-24. [Graceful shutdown](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/shutdown.md) — close cleanly on `SIGINT`/`SIGTERM`.
-25. [Plugins](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/plugins.md) — bundling features into reusable units.
-26. [File-based loading](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/loading.md) — one file per command/event/component.
-27. [Migrating from discord.js](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/migration.md) — the drop-in path.
-28. [API reference](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/api-reference.md) — every exported symbol.
+24. [Everyday helpers](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/dx.md) — choices, long replies, DMs, invite URL, mentions.
+25. [Graceful shutdown](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/shutdown.md) — close cleanly on `SIGINT`/`SIGTERM`.
+26. [Plugins](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/plugins.md) — bundling features into reusable units.
+27. [File-based loading](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/loading.md) — one file per command/event/component.
+28. [Migrating from discord.js](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/migration.md) — the drop-in path.
+29. [API reference](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/api-reference.md) — every exported symbol.
 
 ## Why spearkit
 
@@ -520,7 +521,7 @@ const b = new SpearClient();
 The options type is exported as `SpearClientOptions` — `Partial<ClientOptions> &
 SpearOptions`. Every discord.js option (`partials`, `presence`, `sweepers`, …) is
 available, plus spearkit's own: `logger`, `dotenv`, `cooldown`, `prefix`, `usage`,
-`embeds`, `guards`, `autoDefer`, `onHandlerError`, `i18n`, and `cooldownStore`.
+`embeds`, `guards`, `autoDefer`, `onHandlerError`, `i18n`, `cooldownStore`, and `owners`.
 
 `onHandlerError` is one policy for slash commands, components, context menus,
 and prefix commands. Return a string to override the safe user reply, `false`
@@ -1163,9 +1164,14 @@ The autocomplete handler receives an `AutocompleteContext`:
 | `ctx.commandName` | The command being completed. |
 | `ctx.client` / `ctx.user` / `ctx.guild` / `ctx.guildId` | Accessors. |
 | `ctx.respond(choices)` | Send suggestions (capped at discord's 25). |
+| `ctx.suggest(items)` | Filter by `ctx.value` and respond (max 25). |
+
+`choices({ Easy: "easy" })` / `choices("red", "blue")` build option choice
+arrays. `filterChoices(items, query)` is the same matching `suggest` uses.
 
 Returning the choices array (as above) is enough — spearkit calls `respond` for
-you. Returning `[]` shows no suggestions.
+you. Returning `[]` shows no suggestions. `autocomplete: (ctx) => ctx.suggest(list)`
+is also valid (`suggest` responds itself).
 
 ## See also
 
@@ -2068,6 +2074,10 @@ asEphemeral("hidden");
 | `channelId` | The channel id. |
 | `locale` | The user's locale. |
 | `t(key, params?)` | Async runtime translation via `client.i18n`. |
+| `sendLong(text)` | Split to 2000-char chunks and send/follow-up. |
+| `dm(input)` | DM the invoker; `null` if DMs are closed. |
+| `withTyping(fn)` | Keep the typing indicator alive during `fn`. |
+| `progress(text)` | Post a line, then `update`/`done` via edit. |
 | `deferred` | Whether the interaction is already deferred. |
 | `replied` | Whether the interaction already received an initial response. |
 | `botPermissions` | The bot's resolved permissions in the channel (`PermissionsBitField`, zero-fetch). |
@@ -2222,6 +2232,7 @@ omitted, a sensible default message is used (shown below).
 | `requireAnyRole(roleIds, reason?)` | the member holds **any** of `roleIds` | `"You don't have permission to use this."` |
 | `requireAllRoles(roleIds, reason?)` | the member holds **every** id in `roleIds` | `"You're missing one of the required roles."` |
 | `requireOwner(ownerIds, reason?)` | the user id is in `ownerIds` | `"This is owner-only."` |
+| `requireBotOwner(reason?)` | `client.owners` or the application owner | `"This is owner-only."` |
 | `requireUserPermissions(permission, reason?)` | the member has the Discord `permission` | `"You don't have permission to use this."` |
 | `requireBotPermissions(permission, reason?)` | the bot's member has the Discord `permission` | `"I don't have permission to do that here."` |
 
@@ -3703,6 +3714,99 @@ Sources:
 
 ---
 
+# Everyday helpers
+
+Small utilities for the tasks every bot copies from Stack Overflow: invite
+links, autocomplete lists, mention parsing, and long replies.
+
+## Choices and autocomplete
+
+```ts
+import { choices, command, filterChoices, option } from "spearkit";
+
+const fruit = ["apple", "apricot", "banana"];
+
+command({
+  name: "pick",
+  description: "Pick a fruit",
+  options: {
+    fruit: option.string({
+      description: "Fruit",
+      required: true,
+      autocomplete: (ctx) => ctx.suggest(fruit), // or return filterChoices(fruit, ctx.value)
+    }),
+    difficulty: option.string({
+      description: "How hard",
+      choices: choices({ Easy: "easy", Hard: "hard" }),
+    }),
+  },
+  run: (ctx) => ctx.reply(ctx.options.fruit),
+});
+```
+
+`choices("red", "blue")` uses the same string for Discord's name and value.
+`filterChoices` / `ctx.suggest` cap at 25 (Discord's autocomplete limit).
+
+## Long replies, DMs, typing, progress
+
+```ts
+await ctx.sendLong(hugeLog);          // 2000-char chunks, follow-ups after the first
+const dm = await ctx.dm("Secret");    // null if the user has DMs closed
+await ctx.withTyping(async () => {
+  await doSlowWork();
+});
+const progress = await ctx.progress("Working…");
+await progress.update("Almost…");
+await progress.done("Done.");
+```
+
+Prefix handlers get `sendLong`, `dm`, and `withTyping` as well.
+
+## Invite URL
+
+```ts
+import { inviteUrl } from "spearkit";
+
+inviteUrl({ clientId: "123", permissions: ["BanMembers"] });
+// after ready:
+client.inviteUrl({ permissions: ["BanMembers"] });
+```
+
+Default scopes are `bot` and `applications.commands`.
+
+## Mentions
+
+```ts
+parseUserId("<@123>");           // "123"
+parseRoleId("<@&123>");
+parseChannelId("<#123>");
+parseCustomEmoji("<a:wave:123>"); // { animated, name, id }
+slashMention("play", "cmdId", "song"); // </play song:cmdId>
+```
+
+## Park a command
+
+`command({ enabled: false, ... })` (also prefix / hybrid / context menus) stays
+in source but is skipped by `client.register` and therefore not deployed.
+
+## Bot owners
+
+```ts
+const client = new SpearClient({ owners: ["your-user-id"] });
+
+command({
+  name: "shutdown",
+  description: "Stop the process",
+  guards: [requireBotOwner()],
+  run: (ctx) => ctx.reply("Bye."),
+});
+```
+
+`requireBotOwner` also allows the Discord application owner. `requireOwner(["id"])`
+still takes an explicit list.
+
+---
+
 # Plugins
 
 A plugin is a named, reusable bundle of commands, events and components. It lets
@@ -4039,6 +4143,8 @@ await ctx.reply(parts[0] ?? "(empty)");
 for (const part of parts.slice(1)) await ctx.followUp(part);
 ```
 
+Or let the context do it: `await ctx.sendLong(hugeLog)`.
+
 Pass `{ max }` to target a smaller budget (e.g. inside a code block or embed
 description). `MESSAGE_CHARACTER_LIMIT` (2000) is exported as the default.
 
@@ -4316,7 +4422,9 @@ new SpearClient(options?: SpearClientOptions)
 | `embeds` | `Embeds` | Preset embed factory behind `ctx.success/error/...`. |
 | `contextMenus` | `ContextMenuRegistry` | User / message context-menu registry. |
 | `i18n` | `I18n \| undefined` | Runtime translations behind `ctx.t`. |
+| `owners` | `readonly string[]` | Bot-owner ids for `requireBotOwner`. |
 | `register(...items: Registerable[])` | `this` | Route each item to the matching registry. |
+| `inviteUrl(options?)` | `string` | OAuth2 invite link (after ready). |
 | `use(...plugins: SpearPlugin[])` | `Promise<this>` | Run each plugin's `setup`. |
 | `load(dir: string, options?: LoadOptions)` | `Promise<number>` | Import a directory and register its exports. Returns count. |
 | `start(token?: string)` | `Promise<this>` | Log in (falls back to `DISCORD_TOKEN`). |
@@ -4345,6 +4453,7 @@ discord.js `ClientOptions` (with `intents` optional — it defaults to
 | `onHandlerError` | `HandlerErrorHandler` | One error policy for commands, components, context menus, and prefix commands. |
 | `i18n` | `I18n \| I18nOptions` | Runtime catalogs, locale fallback, and optional async resolver. |
 | `cooldownStore` | `CooldownBackend \| KeyValueStore` | Persist cooldowns across restarts and shards. |
+| `owners` | `readonly string[]` | Bot-owner ids for `requireBotOwner()`. |
 
 ### `const Intents`
 
@@ -4827,6 +4936,20 @@ function createI18n<const M>(options: I18nOptions<M>): I18n<MessageKey<M>>;
 // new SpearClient({ i18n }); await ctx.t("key", params)
 ```
 
+### Everyday helpers — [guide](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/dx.md)
+
+```ts
+function choices(map: Record<string, string | number>): OptionChoice[];
+function choices(...values: string[]): OptionChoice[];
+function filterChoices(items, query, options?: { limit?: number }): OptionChoice[];
+function inviteUrl(options: { clientId; permissions?; scopes?; guildId?; disableGuildSelect? }): string;
+function parseSnowflake/parseUserId/parseRoleId/parseChannelId(input: string): string | null;
+function parseCustomEmoji(input: string): { name; id; animated } | null;
+function slashMention(name, commandId, subcommand?): string;
+// ctx.sendLong / ctx.dm / ctx.withTyping / ctx.progress / ctx.suggest
+// command({ enabled: false }); new SpearClient({ owners }); requireBotOwner()
+```
+
 ### Cooldowns — [guide](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/cooldown.md)
 
 ```ts
@@ -4923,6 +5046,7 @@ function dmOnly(reason?: string): Guard;
 function requireAnyRole(roleIds: readonly string[], reason?: string): Guard;
 function requireAllRoles(roleIds: readonly string[], reason?: string): Guard;
 function requireOwner(ownerIds: readonly string[], reason?: string): Guard;
+function requireBotOwner(reason?: string): Guard;
 function requireUserPermissions(permission: PermissionResolvable, reason?: string): Guard;
 function requireBotPermissions(permission: PermissionResolvable, reason?: string): Guard;
 function guard<TCtx>(predicate: Guard<TCtx>): Guard<TCtx>;

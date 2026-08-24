@@ -6,14 +6,13 @@ Bu dosya “ne eklenebilir?” listesi değil; **ne, neden, hangi Discord/d.js y
 
 **Kısıt:** Drop-in discord.js kalır. Yeni API’ler `import { … } from "spearkit"` ile gelir. `any` sızmaz. Handler’larda inference; `interactionCreate` switch yok.
 
-**Bugünkü taban (0.11.0):** discord.js `^14.21.0`, Node `>=22.12`. Label modals,
-V2 layout helpers, `install`/`contexts`, `hybridCommand` shipped. Loader can
-load `.ts` (`{ typescript: true }`). `npx spearkit create`. `createPayloadStore`
-for custom-id tokens. `option.attachment({ fileTypes })`. Native `poll()`,
-generated `helpCommand()`, client-wide `onHandlerError`, runtime i18n, SQLite/Redis
-stores, and shard-safe cooldown backends.
+**Bugünkü taban (0.12.0):** discord.js `^14.21.0`, Node `>=22.12`. Label modals,
+V2 layout, install/contexts, hybrid, TS loader, create CLI, payload tokens,
+polls, help, handler errors, i18n, SQLite/Redis stores, shard cooldowns, and
+everyday DX (`sendLong`, `dm`, `withTyping`, `progress`, `choices`/`suggest`,
+`inviteUrl`, mention parsers, `enabled: false`, `requireBotOwner`).
 
-Kalan: Faz 5’te Voice core’a alınmaz.
+Kalan: Voice core’a alınmaz. 1.0 = docs/e2e cilası.
 
 ---
 
@@ -286,6 +285,7 @@ Custom-id 100 karakter, düz metin. `id: "page:{token}"` + `MemoryStore`/`JsonSt
 | **0.9.0** | Faz 5 core — `poll`, `helpCommand`, client-wide `onHandlerError` |
 | **0.10.0** | Runtime i18n — inferred catalogs, Discord fallback, async guild/user resolver, `ctx.t` |
 | **0.11.0** | SqliteStore, RedisStore, shared cooldown backends, deploy GitHub Action example |
+| **0.12.0** | Everyday DX — sendLong, dm, typing, progress, choices/suggest, inviteUrl, mentions, enabled, requireBotOwner |
 | **1.0** | Yukarıdakiler + docs/llms/skill + e2e yeşil; PolyForm NC aynı kalabilir |
 
 Her faz: kod → `tests/` → `examples/` → `docs/` → `npm run docs:llms` → AGENTS.md / skill cheatsheet.

@@ -42,6 +42,7 @@ spearkit discord.js` and the same imports work unchanged.
 | [`polls/`](./polls) | Validated native Discord polls. |
 | [`help/`](./help) | Generated, paginated `/help`. |
 | [`i18n/`](./i18n) | Discord locales, async overrides, and `ctx.t`. |
+| [`dx/`](./dx) | Choices, autocomplete suggest, long replies. |
 | [`collectors/`](./collectors) | Await a reply or a modal submission inline. |
 | [`text/`](./text) | Split long output to the 2000-char limit; truncate. |
 | [`shutdown/`](./shutdown) | Close cleanly on `SIGINT`/`SIGTERM`. |

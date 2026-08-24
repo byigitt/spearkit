@@ -99,6 +99,11 @@ Map the task to the API. Patterns and signatures are below and in `docs/`.
 | Handle failures across every routed surface | `new SpearClient({ onHandlerError })` |
 | Read typed env / load `.env` | `env.string/number/boolean/require` (auto-loaded on `start()`) |
 | Translate replies by Discord/guild locale | `new SpearClient({ i18n })` + `await ctx.t(key, params)` |
+| Split a long reply / DM / typing / progress | `ctx.sendLong` / `ctx.dm` / `ctx.withTyping` / `ctx.progress` |
+| Autocomplete from a list | `ctx.suggest(items)` or `choices({ A: "a" })` |
+| Invite URL | `inviteUrl({ clientId })` or `client.inviteUrl()` after ready |
+| Park a command in source | `command({ enabled: false, ... })` |
+| Owner-only commands | `new SpearClient({ owners })` + `requireBotOwner()` |
 | Shut down cleanly on SIGINT/SIGTERM | `client.enableGracefulShutdown({ onShutdown })` |
 | Permission / role-hierarchy preflight | `moderationCheck(...)`, `missingPermissions(...)`, `canActOn(...)`, `ctx.botMissing(...)` |
 | Wait for a reply / click / modal submission | `ctx.awaitMessageFrom(...)` / `ctx.awaitModal(...)` / `awaitComponent(...)` |
@@ -240,6 +245,8 @@ modals add `ctx.fields`.
 - **Env** — `.env` auto-loads on `start()`; read with `env.string/number/boolean/require`.
 - **Runtime i18n** — `createI18n({ messages, defaultLocale, resolveLocale? })`;
   configure `new SpearClient({ i18n })`, then `await ctx.t(key, params)`.
+- **Everyday helpers** — `ctx.sendLong` / `ctx.dm` / `ctx.withTyping` /
+  `ctx.progress` / `ctx.suggest` / `choices()` / `inviteUrl` / `parseUserId`.
 - **Plugins** — `definePlugin({ name, setup(client) })`, then `await client.use(plugin)`.
 - **File-based loading** — `await client.load(dir)` (compiled JS by default) or
   `{ typescript: true }` under `tsx`/`bun`. Hybrid commands and context menus

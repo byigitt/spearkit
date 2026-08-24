@@ -34,6 +34,17 @@ describe("SpearClient.register", () => {
     expect(client.components.size).toBe(1);
     client.destroy();
   });
+
+  it("skips commands parked with enabled: false", () => {
+    const client = newClient();
+    client.register(
+      command({ name: "live", description: "d", run: () => {} }),
+      command({ name: "wip", description: "d", enabled: false, run: () => {} }),
+    );
+    expect(client.commands.size).toBe(1);
+    expect(client.commands.get("live")).toBeDefined();
+    client.destroy();
+  });
 });
 
 describe("SpearClient i18n", () => {

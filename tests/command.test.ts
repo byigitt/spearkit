@@ -72,6 +72,13 @@ describe("command().toJSON", () => {
     expect(both.integration_types).toEqual([0, 1]);
   });
 
+  it("enabled defaults to true and can be parked", () => {
+    expect(command({ name: "on", description: "d", run: () => {} }).enabled).toBe(true);
+    expect(
+      command({ name: "off", description: "d", enabled: false, run: () => {} }).enabled,
+    ).toBe(false);
+  });
+
   it("throws when guildOnly conflicts with an explicit contexts list", () => {
     expect(() =>
       command({

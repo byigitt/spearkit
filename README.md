@@ -28,6 +28,7 @@ npx spearkit create my-bot
 - **Usage tracking** — record who used what to a database and/or a Discord channel ([guide](./docs/usage.md)).
 - **dotenv built in** — auto-load `.env` and read typed env vars ([guide](./docs/env.md)).
 - **Runtime i18n** — Discord locale fallback, async guild/user overrides, and `ctx.t(...)` ([guide](./docs/i18n.md)).
+- **Everyday helpers** — `sendLong`, `dm`, `suggest`/`choices`, invite URLs, mention parsing ([guide](./docs/dx.md)).
 - **Plugins & file-based loading** for organising larger bots.
 - **Guards** — declarative `requireAnyRole`/`requireUserPermissions`/`guildOnly`/`requireOwner` preconditions on commands, components and prefix commands ([guide](./docs/guards.md)).
 - **Context-menu commands** — `userCommand` / `messageCommand` with typed `targetUser` / `targetMessage` ([guide](./docs/context-menus.md)).

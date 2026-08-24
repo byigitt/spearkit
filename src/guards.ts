@@ -124,6 +124,33 @@ export function requireOwner(
   return (ctx) => (set.has(ctx.user.id) ? true : denied(reason));
 }
 
+type OwnerHost = Client & { owners?: readonly string[] };
+
+function applicationOwnerId(client: Client): string | undefined {
+  const owner = client.application?.owner;
+  if (owner == null) return undefined;
+  if ("ownerId" in owner && typeof owner.ownerId === "string") return owner.ownerId;
+  if ("id" in owner) return owner.id;
+  return undefined;
+}
+
+/**
+ * Require the invoking user to be a configured bot owner
+ * (`new SpearClient({ owners })`) or the Discord application owner.
+ */
+export function requireBotOwner(reason: string = "This is owner-only."): Guard {
+  return (ctx) => {
+    const configured = (ctx.client as OwnerHost).owners ?? [];
+    const appOwnerId = applicationOwnerId(ctx.client);
+    const allowed = new Set<string>([
+      ...configured,
+      ...(appOwnerId === undefined ? [] : [appOwnerId]),
+    ]);
+    if (allowed.size === 0) return denied(reason);
+    return allowed.has(ctx.user.id) ? true : denied(reason);
+  };
+}
+
 /** Require the invoking member to hold a Discord permission flag. */
 export function requireUserPermissions(
   permission: PermissionResolvable,

@@ -68,6 +68,8 @@ the full discord.js surface. For prose and edge cases, read the package's
 | Centralize routed-handler failures | `new SpearClient({ onHandlerError })` |
 | Read typed env / load `.env` | `env.string/number/boolean/require` (auto-loaded on `start()`) |
 | Translate runtime replies | `createI18n(...)` + `new SpearClient({ i18n })` + `await ctx.t(...)` |
+| Long reply / DM / typing | `ctx.sendLong` / `ctx.dm` / `ctx.withTyping` / `ctx.progress` |
+| Autocomplete from a list | `ctx.suggest(items)` · `choices({ A: "a" })` · `filterChoices` |
 
 **Utilities (primitives)**
 
@@ -283,6 +285,16 @@ const i18n = createI18n({ messages, defaultLocale, fallbackLocale?, resolveLocal
 i18n.t(locale, key, params?)                 // sync, key-inferred
 await i18n.translateFor(target, key, params?) // async locale resolver
 new SpearClient({ i18n }); await ctx.t(key, params?)
+```
+
+## Everyday helpers
+
+```ts
+choices({ Easy: "easy" }) · choices("a", "b") · filterChoices(items, query)
+ctx.suggest(items) · ctx.sendLong(text) · ctx.dm(text) · ctx.withTyping(fn) · ctx.progress(text)
+inviteUrl({ clientId, permissions? }) · client.inviteUrl()
+parseUserId / parseRoleId / parseChannelId / parseCustomEmoji / slashMention
+command({ enabled: false }) · new SpearClient({ owners }) · requireBotOwner()
 ```
 
 ## Plugins & loading

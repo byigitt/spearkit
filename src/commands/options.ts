@@ -50,7 +50,7 @@ export interface OptionChoice<V extends string | number = string | number> {
 /** Provides autocomplete suggestions for an option as the user types. */
 export type AutocompleteHandler<V extends string | number = string | number> = (
   ctx: AutocompleteContext,
-) => Awaitable<OptionChoice<V>[]>;
+) => Awaitable<OptionChoice<V>[] | void>;
 
 /**
  * A fully-described slash command option. The two type parameters are phantom

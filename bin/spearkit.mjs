@@ -13,6 +13,7 @@ const TEMPLATE = join(PKG_ROOT, "templates", "bot");
 
 function usage() {
   console.error("Usage: spearkit create <directory>");
+  console.error("       spearkit --version");
   process.exit(1);
 }
 
@@ -60,7 +61,13 @@ async function create(target) {
   console.log("  npm start");
 }
 
-const [cmd, dir] = process.argv.slice(2);
+const args = process.argv.slice(2);
+if (args[0] === "--version" || args[0] === "-v") {
+  const pkg = JSON.parse(await readFile(join(PKG_ROOT, "package.json"), "utf8"));
+  console.log(pkg.version);
+  process.exit(0);
+}
+const [cmd, dir] = args;
 if (cmd !== "create" || dir === undefined || dir.length === 0) usage();
 create(dir).catch((error) => {
   console.error(error instanceof Error ? error.message : error);

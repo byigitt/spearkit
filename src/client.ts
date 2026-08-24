@@ -33,6 +33,7 @@ import {
   type HandlerErrorHandler,
 } from "./handler-errors.js";
 import { I18n, type I18nOptions } from "./i18n.js";
+import { inviteUrl, type InviteUrlOptions } from "./invite.js";
 
 /** Anything that can be handed to {@link SpearClient.register}. */
 export type Registerable =
@@ -107,6 +108,11 @@ export interface SpearOptions {
   onHandlerError?: HandlerErrorHandler;
   /** Runtime translations exposed as `client.i18n` and `ctx.t(...)`. */
   i18n?: I18n | I18nOptions;
+  /**
+   * Bot-owner user ids used by {@link requireBotOwner}. Also readable as
+   * `client.owners`.
+   */
+  owners?: readonly string[];
 }
 
 /** Options for {@link SpearClient}: discord.js options plus {@link SpearOptions}. `intents` may be omitted. */
@@ -152,6 +158,8 @@ export class SpearClient extends Client {
   readonly contextMenus = new ContextMenuRegistry();
   /** Configured runtime translations, if enabled. */
   readonly i18n?: I18n;
+  /** User ids treated as bot owners by {@link requireBotOwner}. */
+  readonly owners: readonly string[];
   private readonly envConfig: false | LoadEnvOptions;
 
   constructor(options: SpearClientOptions = {}) {
@@ -168,6 +176,7 @@ export class SpearClient extends Client {
       autoDefer,
       onHandlerError,
       i18n,
+      owners,
       ...rest
     } = options;
     super({ ...rest, intents: intents ?? Intents.default });
@@ -181,6 +190,7 @@ export class SpearClient extends Client {
         : i18n instanceof I18n
           ? i18n
           : new I18n(i18n);
+    this.owners = owners ?? [];
     const defaultCooldown = cooldown !== undefined ? normalizeCooldown(cooldown) : undefined;
     const defaultAutoDefer = normalizeAutoDefer(autoDefer);
 
@@ -263,20 +273,20 @@ export class SpearClient extends Client {
   register(...items: Registerable[]): this {
     for (const item of items) {
       if (item instanceof SlashCommand) {
-        this.commands.add(item);
+        if (item.enabled) this.commands.add(item);
       } else if (isHybridCommand(item)) {
-        this.commands.add(item.slash);
-        this.prefix.add(item.prefix);
+        if (item.slash.enabled) this.commands.add(item.slash);
+        if (item.prefix.enabled) this.prefix.add(item.prefix);
       } else if ("attach" in item) {
         this.events.add(item);
       } else if (item.kind === "task") {
         this.scheduler.add(item);
       } else if (item.kind === "prefixCommand") {
-        this.prefix.add(item);
+        if (item.enabled) this.prefix.add(item);
       } else if (item.kind === "userMenu") {
-        this.contextMenus.add(item);
+        if (item.enabled) this.contextMenus.add(item);
       } else if (item.kind === "messageMenu") {
-        this.contextMenus.add(item);
+        if (item.enabled) this.contextMenus.add(item);
       } else {
         this.components.add(item);
       }
@@ -312,6 +322,18 @@ export class SpearClient extends Client {
     }
     await this.login(resolved);
     return this;
+  }
+
+  /**
+   * OAuth2 invite URL for this application. Call after the client is ready
+   * (needs the application / user id).
+   */
+  inviteUrl(options: Omit<InviteUrlOptions, "clientId"> = {}): string {
+    const clientId = this.application?.id ?? this.user?.id;
+    if (clientId == null) {
+      throw new Error("spearkit: inviteUrl() must run after the client is ready");
+    }
+    return inviteUrl({ ...options, clientId });
   }
 
   /**

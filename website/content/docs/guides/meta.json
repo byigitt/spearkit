@@ -22,6 +22,7 @@
     "store",
     "env",
     "i18n",
+    "dx",
     "plugins",
     "shutdown",
     "loading"

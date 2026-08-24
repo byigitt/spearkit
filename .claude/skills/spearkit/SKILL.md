@@ -73,6 +73,10 @@ await client.deployCommands({ guildId: process.env.GUILD_ID }); // omit guildId 
 - **Gateway events** → `event(...)`; **rate-limit** → `cooldown`; **role/permission/owner gate** → guards; **cron/interval** → `task` / `client.schedule`; **logs** → `client.logger` + sinks; **usage tracking** → `usage`; **typed env / `.env`** → `env.*`.
 - **Translated runtime replies** → `createI18n` + `new SpearClient({ i18n })` +
   `await ctx.t(key, params)`.
+- **Long replies / DM / typing / progress** → `ctx.sendLong` / `ctx.dm` /
+  `ctx.withTyping` / `ctx.progress`. Autocomplete lists → `ctx.suggest` / `choices()`.
+- **Owner-only** → `new SpearClient({ owners })` + `requireBotOwner()`. Park a
+  command → `enabled: false`.
 - **Reusable bundle** → `definePlugin` + `client.use`; **file-per-handler** → `client.load` (`{ typescript: true }` under tsx/bun); **scaffold** → `npx spearkit create`; **deploy** → `client.deployCommands` / `deployAllCommands`.
 - **Slash + prefix** → `hybridCommand`. **Bulky component state** → `createPayloadStore`.
 - **One failure policy** → `new SpearClient({ onHandlerError })`.

@@ -27,4 +27,9 @@ describe("spearkit create", () => {
     expect(src).toContain("from \"spearkit\"");
     expect(src).toContain("SpearClient");
   });
+
+  it("prints the package version", async () => {
+    const { stdout } = await exec(process.execPath, [cli, "--version"]);
+    expect(stdout.trim()).toMatch(/^\d+\.\d+\.\d+$/);
+  });
 });

@@ -15,6 +15,7 @@ import {
 import type { ModalSubmitInteraction } from "discord.js";
 import type { OptionChoice, OptionMap, ResolvedOptions } from "./options.js";
 import type { I18n, TranslationParams } from "../i18n.js";
+import { filterChoices, type FilterChoicesOptions } from "../choices.js";
 
 /**
  * The handler argument for a slash command. Wraps the discord.js interaction
@@ -123,5 +124,16 @@ export class AutocompleteContext {
         name_localizations: c.nameLocalizations,
       })),
     );
+  }
+
+  /**
+   * Filter `items` by the focused value and respond. Empty query returns the
+   * first 25 entries.
+   */
+  suggest(
+    items: readonly OptionChoice<string | number>[] | readonly string[],
+    options?: FilterChoicesOptions,
+  ): Promise<void> {
+    return this.respond(filterChoices(items, this.value, options));
   }
 }

@@ -39,6 +39,11 @@ interface CommonMeta extends CommandScopeMeta {
   descriptionLocalizations?: LocalizationMap;
   /** Rate-limit this command. A number is a duration in ms; see {@link CooldownConfig}. */
   cooldown?: CooldownInput;
+  /**
+   * Skip `client.register` / deploy when `false`. Use to park a command in
+   * source without shipping it. Default `true`.
+   */
+  enabled?: boolean;
   /** Preconditions evaluated before the handler runs. */
   guards?: readonly Guard[];
   /**
@@ -109,6 +114,7 @@ interface SlashCommandSpec {
   cooldown?: CooldownConfig;
   guards?: readonly Guard[];
   autoDefer?: AutoDeferConfig;
+  enabled?: boolean;
 }
 
 /**
@@ -130,6 +136,8 @@ export class SlashCommand {
   readonly guards?: readonly Guard[];
   /** Resolved auto-defer configuration for this command, if any. */
   readonly autoDefer?: AutoDeferConfig;
+  /** When `false`, {@link SpearClient.register} skips this command. Default `true`. */
+  readonly enabled: boolean;
 
   /** @internal */
   constructor(spec: SlashCommandSpec) {
@@ -141,6 +149,7 @@ export class SlashCommand {
     this.cooldown = spec.cooldown;
     this.guards = spec.guards;
     this.autoDefer = spec.autoDefer;
+    this.enabled = spec.enabled !== false;
   }
 
   /** Serialise to the discord REST chat-input command payload. */
@@ -182,7 +191,7 @@ function makeAutocompleter(
     }
     const ctx = new AutocompleteContext(interaction);
     const choices = await def.autocomplete(ctx);
-    if (!interaction.responded) await ctx.respond(choices);
+    if (!interaction.responded) await ctx.respond(choices ?? []);
   };
 }
 
@@ -265,6 +274,7 @@ export function command<O extends OptionMap = Record<string, never>, R = void>(
     cooldown: config.cooldown !== undefined ? normalizeCooldown(config.cooldown) : undefined,
     guards: config.guards,
     autoDefer: normalizeAutoDefer(config.autoDefer),
+    enabled: config.enabled,
   });
 }
 
@@ -355,5 +365,6 @@ export function commandGroup(config: CommandGroupConfig): SlashCommand {
     cooldown: config.cooldown !== undefined ? normalizeCooldown(config.cooldown) : undefined,
     guards: config.guards,
     autoDefer: normalizeAutoDefer(config.autoDefer),
+    enabled: config.enabled,
   });
 }
