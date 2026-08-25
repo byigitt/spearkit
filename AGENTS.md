@@ -115,6 +115,10 @@ Map the task to the API. Patterns and signatures are below and in `docs/`.
 | Want to… | Reach for |
 | --- | --- |
 | Stop concurrent runs per key (e.g. per user) | `KeyedLock` |
+| Bound expensive concurrent work | `WorkQueue({ concurrency, maxQueued })` |
+| Run gateway shards locally | `startShards(compiledEntry)` |
+| Assign shards across hosts | `shardOptionsFromEnv()` / `shardListForWorker(...)` |
+| Container probes | `startHealthServer({ client, checks })` |
 | Fetch that returns `null` instead of throwing | `safeFetch.{member,channel,message,user,guild,role}` |
 | Format/parse `"1h30m"` durations | `formatDuration` / `parseDuration` |
 | Render `<t:…>` Discord timestamps | `discordTimestamp` / `relativeTimestamp` |
@@ -241,7 +245,8 @@ modals add `ctx.fields`.
   `const { confirmed } = await confirm(interaction, { body, confirm?, cancel?, user?, timeoutMs?, ephemeral? })`.
 - **Logging** — `client.logger`; configure via `new SpearClient({ logger: { level, transports: [consoleSink, jsonlSink(path), webhookSink({ url })] } })`.
 - **Usage tracking** — `new SpearClient({ usage: { store?, channel?, format? } })`;
-  `MemoryUsageStore`, `JsonFileUsageStore`.
+  `MemoryUsageStore`, `JsonFileUsageStore`; wrap high-volume sinks with
+  `BufferedUsageStore`.
 - **Env** — `.env` auto-loads on `start()`; read with `env.string/number/boolean/require`.
 - **Runtime i18n** — `createI18n({ messages, defaultLocale, resolveLocale? })`;
   configure `new SpearClient({ i18n })`, then `await ctx.t(key, params)`.
@@ -257,6 +262,9 @@ modals add `ctx.fields`.
 - **Primitives** — `KeyedLock`, `safeFetch.{member,channel,message,user,guild,role,try}`,
   `formatDuration`/`parseDuration`/`discordTimestamp`/`relativeTimestamp`,
   `MemoryCache`, `loadConfig`.
+- **Scaling** — `startShards` for one machine; `shardOptionsFromEnv` for
+  multi-host assignment; `WorkQueue` for backpressure; `startHealthServer` for
+  liveness/readiness; `fetchShardStats` for operational snapshots.
 - **Auto-defer** — `command({ autoDefer: true | { ephemeral?, delayMs? } })` or
   `new SpearClient({ autoDefer: true })`; auto-`deferReply()` before Discord's 3s
   window so slow handlers don't 10062. Respond via `ctx.send`/`ctx.editReply`.

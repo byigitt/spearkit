@@ -580,6 +580,38 @@ function formatCooldownMessage(config: CooldownConfig, remainingMs: number): str
 // command({ cooldown }); new SpearClient({ cooldown, cooldownStore }); client.cooldowns
 ```
 
+### Scaling — [guide](/docs/guides/scaling)
+
+```ts
+interface StartShardsOptions extends Omit<ShardingManagerOptions, "token"> {
+  token?: string;
+  spawn?: MultipleShardSpawnOptions;
+  onShardCreate?: (shard: Shard) => void;
+}
+function startShards(file: string, options?: StartShardsOptions): Promise<ShardingManager>;
+function shardIdForGuild(guildId: string, totalShards: number): number;
+function shardListForWorker(totalShards: number, workerIndex: number, workerCount: number): number[];
+function shardOptionsFromEnv(env?): Pick<ClientOptions, "shards" | "shardCount">;
+function fetchShardStats(client: Client): Promise<ShardStatsReport>;
+
+class WorkQueue {
+  constructor(options?: { concurrency?: number; maxQueued?: number });
+  readonly active: number; readonly queued: number; readonly pending: number;
+  run<T>(job: () => Awaitable<T>): Promise<T>;
+  onIdle(): Promise<void>;
+  close(error?: Error): void;
+}
+class QueueFullError extends Error {}
+
+function startHealthServer(options?: {
+  port?: number;
+  host?: string;
+  client?: Client;
+  checks?: Record<string, () => Awaitable<boolean>>;
+}): Promise<HealthServerHandle>;
+// GET /healthz · /readyz · /stats
+```
+
 ### Scheduled tasks — [guide](/docs/guides/scheduler)
 
 ```ts
@@ -616,8 +648,10 @@ type UsageOutcome = "success" | "error";
 type UsageMetaValue = string | number | boolean | null;
 function formatUsage(event: UsageEvent): string; // default channel-line renderer
 interface UsageStore { record(event): Awaitable<void>; all(): Awaitable<readonly UsageEvent[]>; }
-class MemoryUsageStore { record; all; size; byUser(id); clear; }
-class JsonFileUsageStore { constructor(path: string); record; all; }
+interface BatchUsageStore extends UsageStore { recordMany(events): Awaitable<void>; }
+class BufferedUsageStore { constructor(downstream, { batchSize?, flushIntervalMs?, maxBuffered?, onDrop?, onError? }); record; all; flush; close; size; dropped; }
+class MemoryUsageStore implements BatchUsageStore { record; recordMany; all; size; byUser(id); clear; }
+class JsonFileUsageStore implements BatchUsageStore { constructor(path: string); record; recordMany; all; }
 class UsageTracker { setStore(store); reportTo(channelId, format?); track(event); store; enabled; }
 // new SpearClient({ usage: { store?, channel?, format? } }); client.usage
 ```

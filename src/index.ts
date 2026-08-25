@@ -15,6 +15,7 @@ export * from "./lock.js";
 export * from "./safe-fetch.js";
 export * from "./format.js";
 export * from "./cache.js";
+export * from "./scale.js";
 export * from "./config.js";
 export * from "./store.js";
 export * from "./sqlite-store.js";

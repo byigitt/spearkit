@@ -22,6 +22,7 @@ spearkit discord.js` and the same imports work unchanged.
 | [`plugins/`](./plugins) | Bundling features into reusable plugins. |
 | [`file-based-loading/`](./file-based-loading) | One file per handler, loaded with `client.load()`. |
 | [`cooldown/`](./cooldown) | Per-user/role/guild rate limiting and shared stores. |
+| [`scaling/`](./scaling) | Multi-host shards and bounded expensive work. |
 | [`store/`](./store) | JSON, SQLite, and Redis key-value stores. |
 | [`scheduler/`](./scheduler) | Cron and interval scheduled tasks. |
 | [`prefix/`](./prefix) | Classic `!text` prefix commands. |

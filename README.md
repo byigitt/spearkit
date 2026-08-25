@@ -22,6 +22,7 @@ npx spearkit create my-bot
 
 - **Type-safe slash commands**, options, subcommands, autocomplete, buttons, selects and modals — no `interactionCreate` switch.
 - **Cooldowns** — per user/guild/channel/global, with per-role/per-user exemptions, overrides, and optional shared `cooldownStore` ([guide](./docs/cooldown.md)).
+- **Scale when needed** — local/multi-host shards, bounded work queues, health probes, and shard stats ([guide](./docs/scaling.md)).
 - **Scheduled tasks** — cron and interval jobs, started on ready ([guide](./docs/scheduler.md)).
 - **Prefix commands** — classic `!text` commands that share cooldowns ([guide](./docs/prefix.md)).
 - **Structured logging** — leveled, scoped, pluggable; every error flows through it ([guide](./docs/logging.md)).

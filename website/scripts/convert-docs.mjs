@@ -29,6 +29,7 @@ const map = {
   plugins: { out: "guides/plugins.mdx", route: "/docs/guides/plugins" },
   loading: { out: "guides/loading.mdx", route: "/docs/guides/loading" },
   cooldown: { out: "guides/cooldown.mdx", route: "/docs/guides/cooldown" },
+  scaling: { out: "guides/scaling.mdx", route: "/docs/guides/scaling" },
   scheduler: { out: "guides/scheduler.mdx", route: "/docs/guides/scheduler" },
   prefix: { out: "guides/prefix.mdx", route: "/docs/guides/prefix" },
   hybrid: { out: "guides/hybrid.mdx", route: "/docs/guides/hybrid" },
@@ -152,7 +153,7 @@ async function main() {
     JSON.stringify(
       {
         title: "Guides",
-        pages: ["commands", "options", "components", "context-menus", "events", "context", "collectors", "guards", "permissions", "auto-defer", "client", "cooldown", "scheduler", "prefix", "logging", "errors", "messages", "usage", "store", "env", "i18n", "dx", "plugins", "shutdown", "loading"],
+        pages: ["commands", "options", "components", "context-menus", "events", "context", "collectors", "guards", "permissions", "auto-defer", "client", "cooldown", "scaling", "scheduler", "prefix", "logging", "errors", "messages", "usage", "store", "env", "i18n", "dx", "plugins", "shutdown", "loading"],
       },
       null,
       2,

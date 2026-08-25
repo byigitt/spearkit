@@ -54,8 +54,117 @@ export interface UsageStore {
   all(): Awaitable<readonly UsageEvent[]>;
 }
 
+/** Optional bulk-write extension used by {@link BufferedUsageStore}. */
+export interface BatchUsageStore extends UsageStore {
+  /** Persist several events in one database/file round-trip. */
+  recordMany(events: readonly UsageEvent[]): Awaitable<void>;
+}
+
+/** Options for {@link BufferedUsageStore}. */
+export interface BufferedUsageStoreOptions {
+  /** Events per downstream write. Default 100. */
+  batchSize?: number;
+  /** Periodic flush interval. Default 1000ms; `0` disables. */
+  flushIntervalMs?: number;
+  /** Hard in-memory bound. Default 10,000. Oldest events drop first. */
+  maxBuffered?: number;
+  /** Observe dropped telemetry events. */
+  onDrop?: (count: number) => void;
+  /** Observe background flush errors. */
+  onError?: (error: unknown) => void;
+}
+
+/**
+ * Bounded, batched wrapper for high-volume usage telemetry.
+ *
+ * Handler dispatch remains fire-and-forget, but one event no longer means one
+ * database/file call. Downstreams implementing {@link BatchUsageStore} receive
+ * real bulk writes; other stores are written sequentially inside each batch.
+ */
+export class BufferedUsageStore implements UsageStore {
+  private readonly batchSize: number;
+  private readonly maxBuffered: number;
+  private readonly buffer: UsageEvent[] = [];
+  private readonly timer?: ReturnType<typeof setInterval>;
+  private flushChain: Promise<void> = Promise.resolve();
+  private droppedCount = 0;
+
+  constructor(
+    private readonly downstream: UsageStore,
+    private readonly options: BufferedUsageStoreOptions = {},
+  ) {
+    this.batchSize = options.batchSize ?? 100;
+    this.maxBuffered = options.maxBuffered ?? 10_000;
+    if (!Number.isInteger(this.batchSize) || this.batchSize <= 0) {
+      throw new RangeError(
+        "spearkit: BufferedUsageStore batchSize must be a positive integer",
+      );
+    }
+    if (!Number.isInteger(this.maxBuffered) || this.maxBuffered <= 0) {
+      throw new RangeError(
+        "spearkit: BufferedUsageStore maxBuffered must be a positive integer",
+      );
+    }
+    const interval = options.flushIntervalMs ?? 1000;
+    if (interval > 0) {
+      this.timer = setInterval(() => {
+        void this.flush().catch((error) => options.onError?.(error));
+      }, interval);
+      this.timer.unref?.();
+    }
+  }
+
+  /** Events waiting for a downstream write. */
+  get size(): number {
+    return this.buffer.length;
+  }
+
+  /** Total events discarded because the buffer hit `maxBuffered`. */
+  get dropped(): number {
+    return this.droppedCount;
+  }
+
+  record(event: UsageEvent): void {
+    if (this.buffer.length >= this.maxBuffered) {
+      this.buffer.shift();
+      this.droppedCount += 1;
+      this.options.onDrop?.(this.droppedCount);
+    }
+    this.buffer.push(event);
+    if (this.buffer.length >= this.batchSize) {
+      void this.flush().catch((error) => this.options.onError?.(error));
+    }
+  }
+
+  async all(): Promise<readonly UsageEvent[]> {
+    await this.flush();
+    return this.downstream.all();
+  }
+
+  /** Drain all currently buffered events through serialized batches. */
+  flush(): Promise<void> {
+    this.flushChain = this.flushChain.catch(() => undefined).then(async () => {
+      while (this.buffer.length > 0) {
+        const batch = this.buffer.splice(0, this.batchSize);
+        if ("recordMany" in this.downstream) {
+          await (this.downstream as BatchUsageStore).recordMany(batch);
+        } else {
+          for (const event of batch) await this.downstream.record(event);
+        }
+      }
+    });
+    return this.flushChain;
+  }
+
+  /** Stop the timer and flush remaining events. */
+  async close(): Promise<void> {
+    if (this.timer !== undefined) clearInterval(this.timer);
+    await this.flush();
+  }
+}
+
 /** In-memory store; great for tests and dashboards. Optionally capped. */
-export class MemoryUsageStore implements UsageStore {
+export class MemoryUsageStore implements BatchUsageStore {
   private readonly events: UsageEvent[] = [];
 
   constructor(private readonly limit: number = Number.POSITIVE_INFINITY) {}
@@ -63,6 +172,10 @@ export class MemoryUsageStore implements UsageStore {
   record(event: UsageEvent): void {
     this.events.push(event);
     if (this.events.length > this.limit) this.events.splice(0, this.events.length - this.limit);
+  }
+
+  recordMany(events: readonly UsageEvent[]): void {
+    for (const event of events) this.record(event);
   }
 
   all(): readonly UsageEvent[] {
@@ -100,13 +213,26 @@ interface SerializedEvent {
  * File-backed store using newline-delimited JSON (`.jsonl`). Appends one line
  * per event — durable, human-inspectable, and dependency-free.
  */
-export class JsonFileUsageStore implements UsageStore {
+export class JsonFileUsageStore implements BatchUsageStore {
   constructor(private readonly path: string) {}
 
   async record(event: UsageEvent): Promise<void> {
-    const line = `${JSON.stringify({ ...event, timestamp: event.timestamp.toISOString() })}\n`;
+    await this.recordMany([event]);
+  }
+
+  async recordMany(events: readonly UsageEvent[]): Promise<void> {
+    if (events.length === 0) return;
+    const lines = events
+      .map(
+        (event) =>
+          JSON.stringify({
+            ...event,
+            timestamp: event.timestamp.toISOString(),
+          }),
+      )
+      .join("\n");
     await mkdir(dirname(this.path), { recursive: true });
-    await appendFile(this.path, line, "utf8");
+    await appendFile(this.path, `${lines}\n`, "utf8");
   }
 
   async all(): Promise<readonly UsageEvent[]> {

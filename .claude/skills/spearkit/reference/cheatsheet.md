@@ -266,6 +266,7 @@ new SpearClient({ logger: { level: "debug" } })   // client.logger
 new SpearClient({ usage: { store?, channel?, format? } })   // client.usage
 MemoryUsageStore  // record, all, size, byUser(id), clear
 JsonFileUsageStore(path)
+BufferedUsageStore(store, { batchSize?, flushIntervalMs?, maxBuffered? }) // flush, close, dropped
 // UsageEvent { type: "command"|"prefix"|"component"|"event", name, userId?, userTag?, guildId?, channelId?,
 //              detail?, outcome?: "success"|"error", durationMs?, errorMessage?, options?, timestamp }
 ```
@@ -317,6 +318,18 @@ discordTimestamp(date, style?: "t"|"T"|"d"|"D"|"f"|"F"|"R"); relativeTimestamp(d
 new MemoryCache()  // CacheStore: get/set/delete/has/increment/rateLimit/clear (TTL + counters + fixed-window rate limit)
 loadConfig({ file, parser?, schema?, encoding? }); loadConfigAsync(opts)   // JSON/JSON5/YAML
 lookup(table, resourceName?) -> (key) => value
+```
+
+## Scaling
+
+```ts
+await startShards("./dist/bot.js", { mode?: "process" | "worker" })
+new SpearClient({ ...shardOptionsFromEnv() })
+shardListForWorker(total, workerIndex, workerCount)
+shardIdForGuild(guildId, totalShards)
+new WorkQueue({ concurrency, maxQueued }).run(job)
+await startHealthServer({ client, checks }) // /healthz /readyz /stats
+await fetchShardStats(client)
 ```
 
 ## Reliability, permissions, storage & collectors

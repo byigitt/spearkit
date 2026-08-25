@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import type { SpearClient } from "../src/client.js";
 import {
+  BufferedUsageStore,
   JsonFileUsageStore,
   MemoryUsageStore,
   UsageTracker,
@@ -46,6 +47,47 @@ describe("MemoryUsageStore", () => {
     store.record(ev({ name: "b" }));
     store.record(ev({ name: "c" }));
     expect(store.all().map((e) => e.name)).toEqual(["b", "c"]);
+  });
+});
+
+describe("BufferedUsageStore", () => {
+  it("batches writes and stays bounded during bursts", async () => {
+    const downstream = new MemoryUsageStore();
+    let dropped = 0;
+    const store = new BufferedUsageStore(downstream, {
+      batchSize: 10,
+      flushIntervalMs: 0,
+      maxBuffered: 3,
+      onDrop: () => {
+        dropped += 1;
+      },
+    });
+    store.record(ev({ name: "one" }));
+    store.record(ev({ name: "two" }));
+    store.record(ev({ name: "three" }));
+    store.record(ev({ name: "four" }));
+    expect(store.size).toBe(3);
+    expect(store.dropped).toBe(1);
+    expect(dropped).toBe(1);
+    await store.close();
+    expect(downstream.all().map((event) => event.name)).toEqual([
+      "two",
+      "three",
+      "four",
+    ]);
+  });
+
+  it("flushes automatically at batch size", async () => {
+    const downstream = new MemoryUsageStore();
+    const store = new BufferedUsageStore(downstream, {
+      batchSize: 2,
+      flushIntervalMs: 0,
+    });
+    store.record(ev({ name: "one" }));
+    store.record(ev({ name: "two" }));
+    await store.flush();
+    expect(downstream.all().map((event) => event.name)).toEqual(["one", "two"]);
+    await store.close();
   });
 });
 

@@ -6,11 +6,12 @@ Bu dosya “ne eklenebilir?” listesi değil; **ne, neden, hangi Discord/d.js y
 
 **Kısıt:** Drop-in discord.js kalır. Yeni API’ler `import { … } from "spearkit"` ile gelir. `any` sızmaz. Handler’larda inference; `interactionCreate` switch yok.
 
-**Bugünkü taban (0.12.0):** discord.js `^14.21.0`, Node `>=22.12`. Label modals,
+**Bugünkü taban (0.13.0):** discord.js `^14.21.0`, Node `>=22.12`. Label modals,
 V2 layout, install/contexts, hybrid, TS loader, create CLI, payload tokens,
 polls, help, handler errors, i18n, SQLite/Redis stores, shard cooldowns, and
 everyday DX (`sendLong`, `dm`, `withTyping`, `progress`, `choices`/`suggest`,
-`inviteUrl`, mention parsers, `enabled: false`, `requireBotOwner`).
+`inviteUrl`, mention parsers, `enabled: false`, `requireBotOwner`) plus opt-in
+scale primitives (local/multi-host shards, backpressure, probes, shard stats).
 
 Kalan: Voice core’a alınmaz. 1.0 = docs/e2e cilası.
 
@@ -264,6 +265,27 @@ Custom-id 100 karakter, düz metin. `id: "page:{token}"` + `MemoryStore`/`JsonSt
 
 ---
 
+## Faz 6 — Büyük bot runtime (opt-in)
+
+Küçük bot varsayılanı tek process ve sıfır ek altyapıdır. Büyük bot aynı
+handler tanımlarını korur; runtime çevresine ölçek katmanlarını ekler.
+
+| Konu | API |
+|------|-----|
+| Tek makine shard orchestration | `startShards(compiledEntry)` |
+| Çok host shard atama | `shardOptionsFromEnv`, `shardListForWorker` |
+| Guild → shard routing | `shardIdForGuild` |
+| Backpressure | `WorkQueue({ concurrency, maxQueued })` |
+| Container probes | `startHealthServer` (`/healthz`, `/readyz`, `/stats`) |
+| Operasyon görünürlüğü | `fetchShardStats` |
+
+`ShardingManager` yalnızca aynı makinedeki process/worker’ları yönetir. Çok
+makine yerleşimi Kubernetes/Nomad/ECS/systemd işidir; spearkit cluster
+orchestrator uydurmaz. Kalıcı iş kuyruğu da core seçimi değildir (BullMQ/SQS/
+RabbitMQ/Kafka uygulamanın teslimat semantiğine göre seçilir).
+
+---
+
 ## Bilinçli olarak yapma
 
 - Nest/Sapphire-style piece store + DI
@@ -286,6 +308,7 @@ Custom-id 100 karakter, düz metin. `id: "page:{token}"` + `MemoryStore`/`JsonSt
 | **0.10.0** | Runtime i18n — inferred catalogs, Discord fallback, async guild/user resolver, `ctx.t` |
 | **0.11.0** | SqliteStore, RedisStore, shared cooldown backends, deploy GitHub Action example |
 | **0.12.0** | Everyday DX — sendLong, dm, typing, progress, choices/suggest, inviteUrl, mentions, enabled, requireBotOwner |
+| **0.13.0** | Scale runtime — shards, multi-host assignment, WorkQueue backpressure, health/readiness, stats |
 | **1.0** | Yukarıdakiler + docs/llms/skill + e2e yeşil; PolyForm NC aynı kalabilir |
 
 Her faz: kod → `tests/` → `examples/` → `docs/` → `npm run docs:llms` → AGENTS.md / skill cheatsheet.

@@ -111,6 +111,30 @@ const events = await store.all(); // readonly UsageEvent[]
 The directory is created on demand. Because `all()` is async here (it reads from
 disk), always `await` it.
 
+### BufferedUsageStore (high volume)
+
+Wrap any store so bursts become bounded batches instead of one database/file
+call per interaction:
+
+```ts
+const usageStore = new BufferedUsageStore(databaseUsageStore, {
+  batchSize: 250,
+  flushIntervalMs: 1_000,
+  maxBuffered: 25_000,
+  onDrop: (total) => metrics.usageDropped.set(total),
+});
+
+const client = new SpearClient({ usage: { store: usageStore } });
+client.enableGracefulShutdown({
+  onShutdown: () => usageStore.close(),
+});
+```
+
+Implement `BatchUsageStore.recordMany(events)` on a database adapter for one
+bulk insert per batch. `MemoryUsageStore` and `JsonFileUsageStore` already do.
+The buffer drops oldest telemetry when full rather than growing without bound;
+observe `store.dropped` / `onDrop`.
+
 ## Querying the store
 
 `client.usage.store` is the store you configured — query it directly. Note that

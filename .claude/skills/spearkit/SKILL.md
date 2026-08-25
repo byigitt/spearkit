@@ -80,6 +80,8 @@ await client.deployCommands({ guildId: process.env.GUILD_ID }); // omit guildId 
 - **Reusable bundle** → `definePlugin` + `client.use`; **file-per-handler** → `client.load` (`{ typescript: true }` under tsx/bun); **scaffold** → `npx spearkit create`; **deploy** → `client.deployCommands` / `deployAllCommands`.
 - **Slash + prefix** → `hybridCommand`. **Bulky component state** → `createPayloadStore`.
 - **One failure policy** → `new SpearClient({ onHandlerError })`.
+- **Scale out** → `startShards` (one host), `shardOptionsFromEnv` (many
+  hosts), `WorkQueue` (backpressure), `startHealthServer` (container probes).
 - **Primitives** — per-key lock → `KeyedLock`; null-safe fetch → `safeFetch.*`; durations → `formatDuration` / `parseDuration`; timestamps → `discordTimestamp`; cache / rate-limit → `MemoryCache`; config files → `loadConfig`.
 
 ## Recipes
