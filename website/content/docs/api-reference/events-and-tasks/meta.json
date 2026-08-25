@@ -1,0 +1,11 @@
+{
+  "title": "Events and tasks",
+  "description": "Gateway events, scheduled work, and graceful shutdown.",
+  "pages": [
+    "index",
+    "functions",
+    "classes",
+    "interfaces",
+    "type-aliases"
+  ]
+}

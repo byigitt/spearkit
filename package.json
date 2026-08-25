@@ -45,6 +45,8 @@
     "llms-full.txt",
     "AGENTS.md",
     "docs",
+    "examples",
+    "mcp",
     ".claude/skills"
   ],
   "scripts": {

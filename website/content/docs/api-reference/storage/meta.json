@@ -1,0 +1,10 @@
+{
+  "title": "Storage and configuration",
+  "description": "Key-value stores, typed settings, caches, and configuration loading.",
+  "pages": [
+    "index",
+    "functions",
+    "classes",
+    "interfaces"
+  ]
+}

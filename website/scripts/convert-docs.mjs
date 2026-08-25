@@ -10,11 +10,14 @@ const SRC = join(here, "..", "..", "docs");
 const OUT = join(here, "..", "content", "docs");
 
 // basename (without .md) -> { out: relative output path, route: site route }
+// `generated` docs are produced by another script (scripts/generate-api.mjs);
+// they are listed here only so cross-doc links resolve to the right route.
 const map = {
   README: { out: "index.mdx", route: "/docs", title: "Introduction" },
+  "api-reference": { route: "/docs/api-reference", generated: true },
   "getting-started": { out: "getting-started.mdx", route: "/docs/getting-started" },
+  mcp: { out: "guides/mcp.mdx", route: "/docs/guides/mcp" },
   migration: { out: "migration.mdx", route: "/docs/migration" },
-  "api-reference": { out: "api-reference.mdx", route: "/docs/api-reference" },
   commands: { out: "guides/commands.mdx", route: "/docs/guides/commands" },
   options: { out: "guides/options.mdx", route: "/docs/guides/options" },
   components: { out: "guides/components.mdx", route: "/docs/guides/components" },
@@ -137,8 +140,9 @@ async function main() {
   await rm(OUT, { recursive: true, force: true });
   await mkdir(join(OUT, "guides"), { recursive: true });
 
+  const bases = Object.keys(map).filter((base) => !map[base].generated);
   const hazards = [];
-  for (const base of Object.keys(map)) hazards.push(...(await convert(base)));
+  for (const base of bases) hazards.push(...(await convert(base)));
 
   await writeFile(
     join(OUT, "meta.json"),
@@ -153,14 +157,14 @@ async function main() {
     JSON.stringify(
       {
         title: "Guides",
-        pages: ["commands", "options", "components", "context-menus", "events", "context", "collectors", "guards", "permissions", "auto-defer", "client", "cooldown", "scaling", "scheduler", "prefix", "logging", "errors", "messages", "usage", "store", "env", "i18n", "dx", "plugins", "shutdown", "loading"],
+        pages: ["commands", "options", "components", "context-menus", "events", "context", "collectors", "guards", "permissions", "auto-defer", "client", "cooldown", "scaling", "scheduler", "prefix", "logging", "errors", "messages", "usage", "store", "env", "i18n", "dx", "plugins", "shutdown", "loading", "mcp"],
       },
       null,
       2,
     ) + "\n",
   );
 
-  console.log(`Converted ${Object.keys(map).length} docs.`);
+  console.log(`Converted ${bases.length} docs.`);
   if (hazards.length) {
     console.log(`\nPotential MDX hazards (review):\n${hazards.join("\n")}`);
   } else {

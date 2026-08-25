@@ -34,7 +34,7 @@ new SpearClient({
 ### Dynamic (per-guild) prefixes
 
 Pass `dynamic` to resolve extra prefix(es) per message — for example a custom
-per-guild prefix from a database or [`createSettings`](./api-reference.md#persistent-storage).
+per-guild prefix from a database or [`createSettings`](./store.md).
 Dynamic prefixes are tried in addition to any static `prefix`; return
 `null`/`undefined` for none. It runs on every candidate message, so keep it fast
 (and cached).

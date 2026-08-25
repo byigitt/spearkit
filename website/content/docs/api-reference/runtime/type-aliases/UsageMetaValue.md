@@ -1,0 +1,10 @@
+---
+title: "UsageMetaValue"
+description: "A primitive metadata value attached to a usage event."
+---
+
+> **UsageMetaValue** = `string` \| `number` \| `boolean` \| `null`
+
+Defined in: [src/usage.ts:25](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L25)
+
+A primitive metadata value attached to a usage event.

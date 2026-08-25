@@ -151,7 +151,20 @@ Note that `client.load` imports **compiled JavaScript**, so if you use file-base
 loading you must build before running the compiled output. Explicit `register`
 calls work the same under `tsx` or `node`.
 
+## Coding agents
+
+spearkit already ships [`llms.txt`](https://llmstxt.org) / `llms-full.txt` (generated
+from these docs) and `AGENTS.md`. To let an agent **retrieve** a recipe instead of
+guessing discord.js patterns, point the client at the stdio MCP server:
+
+```bash
+npx spearkit mcp
+```
+
+See [MCP for coding agents](./mcp.md).
+
 ## See also
 
 - [Client](./client.md) — `SpearClient`, intents, `register`, `start`, deployment.
 - [Commands](./commands.md) — slash commands, subcommands, options, deployment.
+- [MCP](./mcp.md) — Cursor / Claude Code / Claude Desktop setup.

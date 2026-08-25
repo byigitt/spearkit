@@ -33,7 +33,7 @@ const DOCS_BASE = `${RAW_BASE}/docs`;
 const SECTIONS = [
   {
     title: "Documentation",
-    docs: ["getting-started", "client", "migration"],
+    docs: ["getting-started", "client", "migration", "mcp"],
   },
   {
     title: "Guides",
@@ -76,6 +76,7 @@ const SECTIONS = [
 const FULL_ORDER = [
   "README",
   "getting-started",
+  "mcp",
   "migration",
   "client",
   "commands",
@@ -172,6 +173,7 @@ const USE_CASES = [
   '| Push commands to Discord | `client.deployCommands({ guildId })`; slash + context menus, safe CI → `client.deployAllCommands({ strategy: "diff", dryRun })` |',
   "| Package a reusable feature | `definePlugin(...)` + `client.use(...)` |",
   '| Migrate an existing discord.js bot | import from `"spearkit"`, swap `Client` → `SpearClient` |',
+  "| Point a coding agent at spearkit docs | `npx spearkit mcp` (stdio MCP) + [`llms.txt`](https://llmstxt.org) |",
   "",
   "**Commands & input**",
   "",

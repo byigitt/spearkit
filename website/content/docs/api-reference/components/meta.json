@@ -1,0 +1,12 @@
+{
+  "title": "Components",
+  "description": "Buttons, selects, modals, component contexts, layouts, and payload routing.",
+  "pages": [
+    "index",
+    "functions",
+    "classes",
+    "interfaces",
+    "type-aliases",
+    "variables"
+  ]
+}

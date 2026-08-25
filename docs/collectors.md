@@ -6,7 +6,7 @@ and translate the "timed out" rejection into something you can branch on.
 spearkit collapses the common cases to a single `await` that resolves to the
 result — or `null` on timeout.
 
-Beyond these, see the [pagination and confirm helpers](./api-reference.md#pagination--confirmation)
+Beyond these, see the [pagination and confirm helpers](./api-reference.md)
 for ready-made paged lists and yes/no gates.
 
 ## Wait for a message ("type your answer")

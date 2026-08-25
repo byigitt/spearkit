@@ -5,8 +5,10 @@
   "type": "module",
   "scripts": {
     "convert-docs": "node scripts/convert-docs.mjs",
-    "predev": "node scripts/convert-docs.mjs",
-    "prebuild": "node scripts/convert-docs.mjs",
+    "generate-api": "node scripts/generate-api.mjs",
+    "generate-docs": "npm run convert-docs && npm run generate-api",
+    "predev": "npm run generate-docs",
+    "prebuild": "npm run generate-docs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -29,9 +31,16 @@
     "@types/react-dom": "^19.2.3",
     "postcss": "^8.5.15",
     "tailwindcss": "^4.3.0",
+    "typedoc": "^0.28.20",
+    "typedoc-plugin-markdown": "^4.12.0",
     "typescript": "^6.0.3"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["@tailwindcss/oxide", "sharp", "unrs-resolver", "esbuild"]
+    "onlyBuiltDependencies": [
+      "@tailwindcss/oxide",
+      "sharp",
+      "unrs-resolver",
+      "esbuild"
+    ]
   }
 }

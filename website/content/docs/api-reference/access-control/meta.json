@@ -1,0 +1,10 @@
+{
+  "title": "Guards and permissions",
+  "description": "Handler preconditions, permission checks, and moderation hierarchy helpers.",
+  "pages": [
+    "index",
+    "functions",
+    "interfaces",
+    "type-aliases"
+  ]
+}

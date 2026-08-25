@@ -1,0 +1,12 @@
+{
+  "title": "Contexts and replies",
+  "description": "Shared handler contexts, collectors, and reply embed helpers.",
+  "pages": [
+    "index",
+    "functions",
+    "classes",
+    "interfaces",
+    "type-aliases",
+    "variables"
+  ]
+}

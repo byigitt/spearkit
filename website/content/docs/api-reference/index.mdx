@@ -1,0 +1,30 @@
+---
+title: "API Reference"
+description: "Every symbol spearkit exports, generated from its TypeScript source."
+---
+
+Every symbol spearkit exports, generated from the public TypeScript
+declarations and their TSDoc comments. Import all of them — and the entire
+re-exported discord.js surface — from `"spearkit"`.
+
+```ts
+import { SpearClient, command, option, event, button, modal, row } from "spearkit";
+```
+
+Pick a section, then open a symbol for its signature, parameters, members and
+source link. Prefer the [guides](/docs/guides/commands) when you want to know
+which API fits a task.
+
+| Section | Covers |
+| ------- | ------ |
+| [Core](/docs/api-reference/core) | Client setup, plugins, file loading, and command scope. |
+| [Commands](/docs/api-reference/commands) | Slash commands, options, contexts, registries, hybrid commands, and context menus. |
+| [Prefix commands](/docs/api-reference/prefix-commands) | Classic text commands and their typed argument parser. |
+| [Components](/docs/api-reference/components) | Buttons, selects, modals, component contexts, layouts, and payload routing. |
+| [Contexts and replies](/docs/api-reference/contexts) | Shared handler contexts, collectors, and reply embed helpers. |
+| [Events and tasks](/docs/api-reference/events-and-tasks) | Gateway events, scheduled work, and graceful shutdown. |
+| [Guards and permissions](/docs/api-reference/access-control) | Handler preconditions, permission checks, and moderation hierarchy helpers. |
+| [Cooldowns and scaling](/docs/api-reference/cooldowns-and-scaling) | Rate limits, shared cooldown backends, sharding, queues, and backpressure. |
+| [Storage and configuration](/docs/api-reference/storage) | Key-value stores, typed settings, caches, and configuration loading. |
+| [Runtime services](/docs/api-reference/runtime) | Logging, usage tracking, environment variables, i18n, and handler errors. |
+| [Utilities](/docs/api-reference/utilities) | Formatting, mentions, invites, choices, safe fetches, locks, and Discord errors. |

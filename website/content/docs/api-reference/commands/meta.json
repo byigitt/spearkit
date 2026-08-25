@@ -1,0 +1,12 @@
+{
+  "title": "Commands",
+  "description": "Slash commands, options, contexts, registries, hybrid commands, and context menus.",
+  "pages": [
+    "index",
+    "functions",
+    "classes",
+    "interfaces",
+    "type-aliases",
+    "variables"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "title": "Runtime services",
+  "description": "Logging, usage tracking, environment variables, i18n, and handler errors.",
+  "pages": [
+    "index",
+    "functions",
+    "classes",
+    "interfaces",
+    "type-aliases",
+    "variables"
+  ]
+}

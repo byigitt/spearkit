@@ -1,0 +1,11 @@
+{
+  "title": "Cooldowns and scaling",
+  "description": "Rate limits, shared cooldown backends, sharding, queues, and backpressure.",
+  "pages": [
+    "index",
+    "functions",
+    "classes",
+    "interfaces",
+    "type-aliases"
+  ]
+}

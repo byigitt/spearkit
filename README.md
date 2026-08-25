@@ -64,9 +64,10 @@ spearkit ships machine-readable guidance so coding agents write correct code wit
 
 - **[`AGENTS.md`](./AGENTS.md)** — the golden rules and canonical patterns, auto-read by most coding agents.
 - **[`llms.txt`](./llms.txt)** — an [llmstxt.org](https://llmstxt.org) index of the docs; **[`llms-full.txt`](./llms-full.txt)** is every guide and the full API reference in one file.
+- **MCP server** — `npx spearkit mcp` (stdio). Tools: `coding_rules`, `get_recipe`, `search`, `get_guide`, `get_example`. Setup: [docs/mcp.md](./docs/mcp.md).
 - **Agent skill** ([`.claude/skills/spearkit/`](./.claude/skills/spearkit)) — a drop-in [Agent Skill](https://docs.anthropic.com/en/docs/agents-and-tools/agent-skills) with recipes and a symbol cheatsheet.
 
-`AGENTS.md`, `llms.txt`, `llms-full.txt`, `docs/` and the agent skill ship in the
+`AGENTS.md`, `llms.txt`, `llms-full.txt`, `docs/`, `examples/`, `mcp/` and the agent skill ship in the
 npm package as plain files (no install hook), so an installed copy lives under
 `node_modules/spearkit/` — e.g. `node_modules/spearkit/.claude/skills/spearkit/SKILL.md`.
 The `llms` files are generated from `docs/`; run `npm run docs:llms` after editing docs.

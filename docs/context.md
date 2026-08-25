@@ -124,7 +124,7 @@ export default command({
 ```
 
 Configure the colors/icons with the client `embeds` option; see the
-[API reference](./api-reference.md#embeds--preset-replies).
+[API reference](./api-reference.md).
 
 ## The `{ ephemeral: true }` shortcut
 
@@ -263,7 +263,7 @@ export default command({
 
 For role-hierarchy and moderation preflights (acting on self/owner, comparing top
 roles) see `moderationCheck` and the permission helpers in the
-[API reference](./api-reference.md#permissions--moderation).
+[API reference](./api-reference.md).
 
 ## Awaiting input
 
@@ -290,7 +290,7 @@ export default command({
 ```
 
 The standalone `awaitMessage`, `awaitComponent` and `showAndAwaitModal` helpers
-are also exported; see the [API reference](./api-reference.md#collectors).
+are also exported; see the [API reference](./api-reference.md).
 
 ## See also
 

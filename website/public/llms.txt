@@ -18,6 +18,7 @@ Core rules an agent should follow: use `SpearClient` (not `Client`); define comm
 | Push commands to Discord | `client.deployCommands({ guildId })`; slash + context menus, safe CI → `client.deployAllCommands({ strategy: "diff", dryRun })` |
 | Package a reusable feature | `definePlugin(...)` + `client.use(...)` |
 | Migrate an existing discord.js bot | import from `"spearkit"`, swap `Client` → `SpearClient` |
+| Point a coding agent at spearkit docs | `npx spearkit mcp` (stdio MCP) + [`llms.txt`](https://llmstxt.org) |
 
 **Commands & input**
 
@@ -90,6 +91,7 @@ Core rules an agent should follow: use `SpearClient` (not `Client`); define comm
 - [Getting started](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/getting-started.md): spearkit is discord.js++: it re-exports the entire discord.js surface and adds a fully type-safe layer for events, slash commands and interactive components. This page takes you from an empty folder…
 - [Client](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/client.md): SpearClient is a discord.js Client with command, event and component registries — plus interaction routing — wired up for you. You construct it the same way you construct a discord.js client…
 - [Migrating from discord.js](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/migration.md): spearkit re-exports the entire discord.js surface, so adopting it is not a rewrite — it is a one-line import change followed by optional, incremental cleanup. You can move to spearkit today and start…
+- [MCP server for coding agents](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/mcp.md): spearkit ships a stdio MCP server so Cursor, Claude Code, Claude Desktop, and other MCP clients can pull the right recipe instead of inventing discord.js boilerplate. It reads the same docs/…
 
 ## Guides
 
@@ -122,7 +124,7 @@ Core rules an agent should follow: use `SpearClient` (not `Client`); define comm
 
 ## Reference
 
-- [API reference](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/api-reference.md): Every symbol spearkit exports, in addition to the entire re-exported discord.js surface. Import any of these from "spearkit".
+- [API reference](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/api-reference.md): The API reference is generated from spearkit's public TypeScript declarations and TSDoc comments. Choose a section in the sidebar, then open a symbol to see its signature, parameters, return type…
 
 ## Optional
 

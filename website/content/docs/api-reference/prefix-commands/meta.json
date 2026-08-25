@@ -1,0 +1,11 @@
+{
+  "title": "Prefix commands",
+  "description": "Classic text commands and their typed argument parser.",
+  "pages": [
+    "index",
+    "functions",
+    "classes",
+    "interfaces",
+    "type-aliases"
+  ]
+}

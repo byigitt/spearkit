@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * spearkit CLI — currently `spearkit create <dir>` scaffolds a starter bot.
+ * spearkit CLI — `spearkit create <dir>` scaffolds a starter bot;
+ * `spearkit mcp` starts the stdio MCP server for coding agents.
  */
 import { cp, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
@@ -13,6 +14,7 @@ const TEMPLATE = join(PKG_ROOT, "templates", "bot");
 
 function usage() {
   console.error("Usage: spearkit create <directory>");
+  console.error("       spearkit mcp");
   console.error("       spearkit --version");
   process.exit(1);
 }
@@ -68,8 +70,13 @@ if (args[0] === "--version" || args[0] === "-v") {
   process.exit(0);
 }
 const [cmd, dir] = args;
-if (cmd !== "create" || dir === undefined || dir.length === 0) usage();
-create(dir).catch((error) => {
-  console.error(error instanceof Error ? error.message : error);
-  process.exit(1);
-});
+if (cmd === "mcp") {
+  await import("../mcp/server.mjs");
+} else if (cmd === "create" && dir) {
+  create(dir).catch((error) => {
+    console.error(error instanceof Error ? error.message : error);
+    process.exit(1);
+  });
+} else {
+  usage();
+}

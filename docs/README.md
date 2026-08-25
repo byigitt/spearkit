@@ -8,35 +8,36 @@ components.
 ## Contents
 
 1. [Getting started](./getting-started.md) — install, first bot, project layout.
-2. [Client](./client.md) — `SpearClient`, intents, `register`, `start`, deployment.
-3. [Commands](./commands.md) — slash commands, subcommands, permissions, deployment.
-4. [Options](./options.md) — typed option builders, choices, autocomplete.
-5. [Components](./components.md) — buttons, selects, modals, custom-id routing.
-6. [Context menus](./context-menus.md) — user and message "Apps" commands.
-7. [Events](./events.md) — the `event()` helper and the event registry.
-8. [Contexts](./context.md) — reply helpers shared by every handler.
-9. [Guards](./guards.md) — role/permission/owner/guild preconditions.
-10. [Auto-defer](./auto-defer.md) — beat the 3-second `Unknown interaction` error.
-11. [Permissions & hierarchy](./permissions.md) — moderation preflight checks.
-12. [Discord API errors](./errors.md) — recognise and recover from `DiscordAPIError`.
-13. [Cooldowns](./cooldown.md) — per-user/role/guild rate limiting.
-14. [Scaling](./scaling.md) — shards, multi-host assignment, backpressure, health.
-15. [Scheduled tasks](./scheduler.md) — cron and interval jobs.
-16. [Prefix commands](./prefix.md) — classic `!text` commands.
-17. [Hybrid commands](./hybrid.md) — one definition for slash + prefix.
-18. [Collectors](./collectors.md) — await messages, modals and component clicks.
-19. [Key-value store & settings](./store.md) — persist per-guild config + dynamic prefix.
-20. [Messages & limits](./messages.md) — split long output, truncate text.
-21. [Logging](./logging.md) — structured, leveled, scoped logging.
-22. [Usage tracking](./usage.md) — record who used what (store + Discord channel).
-23. [Environment & dotenv](./env.md) — load `.env` and read typed env vars.
-24. [Runtime i18n](./i18n.md) — Discord locales, fallback catalogs, `ctx.t`.
-25. [Everyday helpers](./dx.md) — choices, long replies, DMs, invite URL, mentions.
-26. [Graceful shutdown](./shutdown.md) — close cleanly on `SIGINT`/`SIGTERM`.
-27. [Plugins](./plugins.md) — bundling features into reusable units.
-28. [File-based loading](./loading.md) — one file per command/event/component.
-29. [Migrating from discord.js](./migration.md) — the drop-in path.
-30. [API reference](./api-reference.md) — every exported symbol.
+2. [MCP for coding agents](./mcp.md) — `npx spearkit mcp` plus `llms.txt`.
+3. [Client](./client.md) — `SpearClient`, intents, `register`, `start`, deployment.
+4. [Commands](./commands.md) — slash commands, subcommands, permissions, deployment.
+5. [Options](./options.md) — typed option builders, choices, autocomplete.
+6. [Components](./components.md) — buttons, selects, modals, custom-id routing.
+7. [Context menus](./context-menus.md) — user and message "Apps" commands.
+8. [Events](./events.md) — the `event()` helper and the event registry.
+9. [Contexts](./context.md) — reply helpers shared by every handler.
+10. [Guards](./guards.md) — role/permission/owner/guild preconditions.
+11. [Auto-defer](./auto-defer.md) — beat the 3-second `Unknown interaction` error.
+12. [Permissions & hierarchy](./permissions.md) — moderation preflight checks.
+13. [Discord API errors](./errors.md) — recognise and recover from `DiscordAPIError`.
+14. [Cooldowns](./cooldown.md) — per-user/role/guild rate limiting.
+15. [Scaling](./scaling.md) — shards, multi-host assignment, backpressure, health.
+16. [Scheduled tasks](./scheduler.md) — cron and interval jobs.
+17. [Prefix commands](./prefix.md) — classic `!text` commands.
+18. [Hybrid commands](./hybrid.md) — one definition for slash + prefix.
+19. [Collectors](./collectors.md) — await messages, modals and component clicks.
+20. [Key-value store & settings](./store.md) — persist per-guild config + dynamic prefix.
+21. [Messages & limits](./messages.md) — split long output, truncate text.
+22. [Logging](./logging.md) — structured, leveled, scoped logging.
+23. [Usage tracking](./usage.md) — record who used what (store + Discord channel).
+24. [Environment & dotenv](./env.md) — load `.env` and read typed env vars.
+25. [Runtime i18n](./i18n.md) — Discord locales, fallback catalogs, `ctx.t`.
+26. [Everyday helpers](./dx.md) — choices, long replies, DMs, invite URL, mentions.
+27. [Graceful shutdown](./shutdown.md) — close cleanly on `SIGINT`/`SIGTERM`.
+28. [Plugins](./plugins.md) — bundling features into reusable units.
+29. [File-based loading](./loading.md) — one file per command/event/component.
+30. [Migrating from discord.js](./migration.md) — the drop-in path.
+31. [API reference](./api-reference.md) — every exported symbol.
 
 ## Why spearkit
 

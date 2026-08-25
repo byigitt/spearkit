@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "spearkit": {
+      "command": "node",
+      "args": ["bin/spearkit.mjs", "mcp"]
+    }
+  }
+}

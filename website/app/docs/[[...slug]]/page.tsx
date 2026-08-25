@@ -10,8 +10,11 @@ export default async function Page(props: { params: Promise<{ slug?: string[] }>
   if (!page) notFound();
 
   const MDXContent = page.data.body;
+  // Generated API pages repeat "Parameters"/"Returns" under every member, which
+  // drowns the table of contents. Only sections and members belong there.
+  const toc = page.data.toc.filter((item) => item.depth <= 3);
   return (
-    <DocsPage toc={page.data.toc} full={page.data.full}>
+    <DocsPage toc={toc} full={page.data.full}>
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>

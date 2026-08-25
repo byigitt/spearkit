@@ -118,6 +118,10 @@ export interface SpearOptions {
 /** Options for {@link SpearClient}: discord.js options plus {@link SpearOptions}. `intents` may be omitted. */
 export type SpearClientOptions = Partial<ClientOptions> & SpearOptions;
 
+function isHybridCommand(item: Registerable): item is HybridCommand {
+  return "slash" in item && "prefix" in item;
+}
+
 /**
  * A discord.js {@link Client} with batteries included: command, event,
  * component, prefix-command, scheduler and context-menu registries plus
@@ -131,10 +135,6 @@ export type SpearClientOptions = Partial<ClientOptions> & SpearOptions;
  * await client.deployAllCommands({ guildId: "123" });
  * ```
  */
-function isHybridCommand(item: Registerable): item is HybridCommand {
-  return "slash" in item && "prefix" in item;
-}
-
 export class SpearClient extends Client {
   /** Slash command registry and dispatcher. */
   readonly commands = new CommandRegistry();

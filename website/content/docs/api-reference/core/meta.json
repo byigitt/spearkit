@@ -1,0 +1,12 @@
+{
+  "title": "Core",
+  "description": "Client setup, plugins, file loading, and command scope.",
+  "pages": [
+    "index",
+    "functions",
+    "classes",
+    "interfaces",
+    "type-aliases",
+    "variables"
+  ]
+}

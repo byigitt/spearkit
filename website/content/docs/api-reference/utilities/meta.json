@@ -1,0 +1,12 @@
+{
+  "title": "Utilities",
+  "description": "Formatting, mentions, invites, choices, safe fetches, locks, and Discord errors.",
+  "pages": [
+    "index",
+    "functions",
+    "classes",
+    "interfaces",
+    "type-aliases",
+    "variables"
+  ]
+}

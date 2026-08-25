@@ -20,8 +20,9 @@ and adds a fully type-safe API: handlers never see `any`/`unknown`. Install with
 
 When a task needs more than this file, load
 [`reference/cheatsheet.md`](reference/cheatsheet.md) (every exported symbol + ready
-recipes). The package also ships `llms-full.txt` (all docs in one file) and a
-`docs/` folder; in a consumer project they sit under `node_modules/spearkit/`.
+recipes). The package also ships `llms-full.txt` (all docs in one file), a
+`docs/` folder, and an MCP server (`npx spearkit mcp`). In a consumer project
+they sit under `node_modules/spearkit/`.
 
 ## Non-negotiable rules
 

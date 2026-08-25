@@ -3,7 +3,8 @@
 Authoritative rules for AI agents (and humans) writing Discord bots with
 **spearkit**. Read this first; it is short on purpose. For depth, load
 [`llms-full.txt`](./llms-full.txt) (every guide + the full API reference in one
-file) or browse [`docs/`](./docs) and [`examples/`](./examples).
+file), browse [`docs/`](./docs) and [`examples/`](./examples), or query the
+stdio MCP server (`npx spearkit mcp`, [guide](./docs/mcp.md)).
 
 spearkit is **discord.js++**: it re-exports the entire discord.js surface (so it
 is a drop-in replacement) and adds a fully type-safe layer for slash commands,
@@ -46,6 +47,7 @@ Map the task to the API. Patterns and signatures are below and in `docs/`.
 | Push commands to Discord | `client.deployCommands({ guildId })`; slash + context menus, safe CI → `client.deployAllCommands({ strategy: "diff", dryRun })` |
 | Package a reusable feature | `definePlugin(...)` + `client.use(...)` |
 | Migrate an existing discord.js bot | import from `"spearkit"`, swap `Client` → `SpearClient` |
+| Point a coding agent at spearkit docs | `npx spearkit mcp` (stdio MCP) + [`llms.txt`](./llms.txt) |
 
 **Commands & input**
 
@@ -297,5 +299,6 @@ modals add `ctx.fields`.
 
 `docs/*.md` is the single source of truth. `llms.txt`, `llms-full.txt` and the
 `website/public/` copies are generated — run `npm run docs:llms` after editing
-docs. A ready-to-use agent skill lives at
+docs. Coding agents can retrieve recipes over MCP (`npx spearkit mcp`; see
+[`docs/mcp.md`](./docs/mcp.md)). A ready-to-use agent skill lives at
 [`.claude/skills/spearkit/`](./.claude/skills/spearkit).
