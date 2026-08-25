@@ -3,7 +3,9 @@ title: "LocaleResolver"
 description: "LocaleResolver in the spearkit API."
 ---
 
-> **LocaleResolver** = (`target`) => `Awaitable`\<`string` \| `null` \| `undefined`\>
+```ts
+type LocaleResolver = (target: LocaleTarget) => Awaitable<string | null | undefined>;
+```
 
 Defined in: [src/i18n.ts:42](https://github.com/byigitt/spearkit/blob/main/src/i18n.ts#L42)
 

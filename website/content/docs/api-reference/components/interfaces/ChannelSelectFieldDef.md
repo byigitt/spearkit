@@ -5,8 +5,6 @@ description: "A channel select field inside a modal. Submits channel ids."
 
 Defined in: [src/components/builders.ts:401](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L401)
 
-A channel select field inside a modal. Submits channel ids.
-
 ## Extends
 
 - `SelectFieldBase`

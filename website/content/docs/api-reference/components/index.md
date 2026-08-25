@@ -1,6 +1,6 @@
 ---
-title: "components"
-description: "components in the spearkit API."
+title: "Components"
+description: "Buttons, selects, modals, component contexts, layouts, and payload routing."
 ---
 
 ## Classes

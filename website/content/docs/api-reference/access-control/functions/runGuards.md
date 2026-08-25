@@ -3,11 +3,11 @@ title: "runGuards()"
 description: "Run guards in order, short-circuiting on the first denial."
 ---
 
-> **runGuards**\<`TCtx`\>(`ctx`, `guards`): `Promise`\<[`RunGuardsResult`](../type-aliases/RunGuardsResult)\>
+```ts
+function runGuards<TCtx>(ctx: TCtx, guards: readonly Guard<TCtx>[] | undefined): Promise<RunGuardsResult>;
+```
 
 Defined in: [src/guards.ts:52](https://github.com/byigitt/spearkit/blob/main/src/guards.ts#L52)
-
-Run guards in order, short-circuiting on the first denial.
 
 ## Type Parameters
 

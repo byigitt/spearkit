@@ -5,8 +5,6 @@ description: "Options for helpCommand."
 
 Defined in: [src/help.ts:20](https://github.com/byigitt/spearkit/blob/main/src/help.ts#L20)
 
-Options for [helpCommand](../functions/helpCommand).
-
 ## Properties
 
 | Property | Type | Description |
@@ -18,4 +16,4 @@ Options for [helpCommand](../functions/helpCommand).
 | <a id="property-name"></a> `name?` | `string` | Slash command name. Default: `"help"`. |
 | <a id="property-pagesize"></a> `pageSize?` | `number` | Entries per page. Default: 10. |
 | <a id="property-title"></a> `title?` | `string` | Embed title. Default: `"Commands"`. |
-| <a id="property-transform"></a> `transform?` | (`entries`, `ctx`) => readonly [`HelpEntry`](HelpEntry)[] \| `Promise`\<readonly [`HelpEntry`](HelpEntry)[]\> | Filter or reorder entries before rendering. |
+| <a id="property-transform"></a> `transform?` | (`entries`: readonly [`HelpEntry`](HelpEntry)[], `ctx`: [`CommandContext`](../../commands/classes/CommandContext)) => \| readonly [`HelpEntry`](HelpEntry)[] \| `Promise`\<readonly [`HelpEntry`](HelpEntry)[]\> | Filter or reorder entries before rendering. |

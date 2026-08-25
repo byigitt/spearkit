@@ -5,8 +5,6 @@ description: "One option inside a radio group / checkbox group."
 
 Defined in: [src/components/builders.ts:340](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L340)
 
-One option inside a radio group / checkbox group.
-
 ## Properties
 
 | Property | Modifier | Type |

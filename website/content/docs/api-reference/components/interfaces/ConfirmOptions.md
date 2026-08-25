@@ -5,8 +5,6 @@ description: "Options for confirm."
 
 Defined in: [src/confirm.ts:39](https://github.com/byigitt/spearkit/blob/main/src/confirm.ts#L39)
 
-Options for [confirm](../functions/confirm).
-
 ## Properties
 
 | Property | Type | Description |

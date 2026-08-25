@@ -5,8 +5,6 @@ description: "Environment read by shardOptionsFromEnv."
 
 Defined in: [src/scale.ts:111](https://github.com/byigitt/spearkit/blob/main/src/scale.ts#L111)
 
-Environment read by [shardOptionsFromEnv](../functions/shardOptionsFromEnv).
-
 ## Properties
 
 | Property | Type |

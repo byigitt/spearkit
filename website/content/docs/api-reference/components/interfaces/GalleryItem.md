@@ -5,8 +5,6 @@ description: "One media gallery entry."
 
 Defined in: [src/components/v2.ts:58](https://github.com/byigitt/spearkit/blob/main/src/components/v2.ts#L58)
 
-One media gallery entry.
-
 ## Properties
 
 | Property | Type |

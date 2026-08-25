@@ -3,11 +3,14 @@ title: "hasPermissions()"
 description: "Whether who has all of required in channel."
 ---
 
-> **hasPermissions**(`channel`, `who`, `required`): `boolean`
+```ts
+function hasPermissions(
+   channel: GuildBasedChannel, 
+   who: PermissionHolder, 
+   required: PermissionResolvable): boolean;
+```
 
 Defined in: [src/permissions.ts:64](https://github.com/byigitt/spearkit/blob/main/src/permissions.ts#L64)
-
-Whether `who` has all of `required` in `channel`.
 
 ## Parameters
 

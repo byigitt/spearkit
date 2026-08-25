@@ -1,13 +1,13 @@
 ---
 title: "discordTimestamp()"
-description: "Render a Discord-flavoured timestamp tag (<t:1234:R>). Styles: t short time, T long time, d short date, D long date, f short date/time (default), F long…"
+description: "Render a Discord-flavoured timestamp tag (<t:1234:R>)."
 ---
 
-> **discordTimestamp**(`date`, `style?`): `string`
+```ts
+function discordTimestamp(date: number | Date, style?: DiscordTimestampStyle): string;
+```
 
 Defined in: [src/format.ts:185](https://github.com/byigitt/spearkit/blob/main/src/format.ts#L185)
-
-Render a Discord-flavoured timestamp tag (`<t:1234:R>`).
 
 Styles: `t` short time, `T` long time, `d` short date, `D` long date,
 `f` short date/time (default), `F` long date/time, `R` relative.

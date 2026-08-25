@@ -5,8 +5,6 @@ description: "A compiled pattern: its routing namespace and ordered param names.
 
 Defined in: [src/components/customId.ts:30](https://github.com/byigitt/spearkit/blob/main/src/components/customId.ts#L30)
 
-A compiled pattern: its routing namespace and ordered param names.
-
 ## Properties
 
 | Property | Modifier | Type |

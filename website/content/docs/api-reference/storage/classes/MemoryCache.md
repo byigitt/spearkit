@@ -5,8 +5,6 @@ description: "In-memory implementation of CacheStore. Lazy TTL expiration."
 
 Defined in: [src/cache.ts:52](https://github.com/byigitt/spearkit/blob/main/src/cache.ts#L52)
 
-In-memory implementation of [CacheStore](../interfaces/CacheStore). Lazy TTL expiration.
-
 ## Implements
 
 - [`CacheStore`](../interfaces/CacheStore)
@@ -15,7 +13,9 @@ In-memory implementation of [CacheStore](../interfaces/CacheStore). Lazy TTL exp
 
 ### Constructor
 
-> **new MemoryCache**(): `MemoryCache`
+```ts
+new MemoryCache(): MemoryCache;
+```
 
 #### Returns
 
@@ -27,7 +27,9 @@ In-memory implementation of [CacheStore](../interfaces/CacheStore). Lazy TTL exp
 
 #### Get Signature
 
-> **get** **size**(): `number`
+```ts
+get size(): number;
+```
 
 Defined in: [src/cache.ts:56](https://github.com/byigitt/spearkit/blob/main/src/cache.ts#L56)
 
@@ -41,7 +43,9 @@ Total number of stored (possibly expired) entries — primarily for tests.
 
 ### clear()
 
-> **clear**(): `Promise`\<`void`\>
+```ts
+clear(): Promise<void>;
+```
 
 Defined in: [src/cache.ts:121](https://github.com/byigitt/spearkit/blob/main/src/cache.ts#L121)
 
@@ -59,7 +63,9 @@ Drop every entry.
 
 ### delete()
 
-> **delete**(`key`): `Promise`\<`boolean`\>
+```ts
+delete(key: string): Promise<boolean>;
+```
 
 Defined in: [src/cache.ts:78](https://github.com/byigitt/spearkit/blob/main/src/cache.ts#L78)
 
@@ -83,7 +89,9 @@ Remove a key. Resolves to `true` if it existed.
 
 ### get()
 
-> **get**\<`T`\>(`key`): `Promise`\<`T` \| `undefined`\>
+```ts
+get<T>(key: string): Promise<T | undefined>;
+```
 
 Defined in: [src/cache.ts:60](https://github.com/byigitt/spearkit/blob/main/src/cache.ts#L60)
 
@@ -113,7 +121,9 @@ Read a previously set value, or `undefined` if missing/expired.
 
 ### has()
 
-> **has**(`key`): `Promise`\<`boolean`\>
+```ts
+has(key: string): Promise<boolean>;
+```
 
 Defined in: [src/cache.ts:82](https://github.com/byigitt/spearkit/blob/main/src/cache.ts#L82)
 
@@ -137,7 +147,12 @@ Whether a non-expired key is present.
 
 ### increment()
 
-> **increment**(`key`, `delta?`, `options?`): `Promise`\<`number`\>
+```ts
+increment(
+   key: string, 
+   delta?: number, 
+options?: CacheSetOptions): Promise<number>;
+```
 
 Defined in: [src/cache.ts:86](https://github.com/byigitt/spearkit/blob/main/src/cache.ts#L86)
 
@@ -163,7 +178,9 @@ Atomically increment a numeric counter. Returns the new value.
 
 ### rateLimit()
 
-> **rateLimit**(`key`, `options`): `Promise`\<[`RateLimitResult`](../interfaces/RateLimitResult)\>
+```ts
+rateLimit(key: string, options: object): Promise<RateLimitResult>;
+```
 
 Defined in: [src/cache.ts:102](https://github.com/byigitt/spearkit/blob/main/src/cache.ts#L102)
 
@@ -190,7 +207,12 @@ Fixed-window rate limit hit. Atomic per key.
 
 ### set()
 
-> **set**\<`T`\>(`key`, `value`, `options?`): `Promise`\<`void`\>
+```ts
+set<T>(
+   key: string, 
+   value: T, 
+options?: CacheSetOptions): Promise<void>;
+```
 
 Defined in: [src/cache.ts:70](https://github.com/byigitt/spearkit/blob/main/src/cache.ts#L70)
 

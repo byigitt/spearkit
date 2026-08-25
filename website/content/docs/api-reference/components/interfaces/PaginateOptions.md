@@ -1,11 +1,9 @@
 ---
-title: "PaginateOptions\\<T\\>"
+title: "PaginateOptions"
 description: "Options for paginate / buildPaginatorPage."
 ---
 
 Defined in: [src/pagination.ts:28](https://github.com/byigitt/spearkit/blob/main/src/pagination.ts#L28)
-
-Options for [paginate](../functions/paginate) / [buildPaginatorPage](../functions/buildPaginatorPage).
 
 ## Type Parameters
 
@@ -26,6 +24,6 @@ Options for [paginate](../functions/paginate) / [buildPaginatorPage](../function
 | `labels.prev?` | `string` | - |
 | <a id="property-namespace"></a> `namespace?` | `string` | Custom-id prefix to avoid clashes with other components. Default `"spk-page"`. |
 | <a id="property-pagesize"></a> `pageSize?` | `number` | Items per page. Default `10`. |
-| <a id="property-render"></a> `render` | (`slice`, `state`) => [`PaginateRender`](../type-aliases/PaginateRender) \| `Promise`\<[`PaginateRender`](../type-aliases/PaginateRender)\> | Build the body for one page. |
+| <a id="property-render"></a> `render` | (`slice`: readonly `T`[], `state`: `object`) => \| [`PaginateRender`](../type-aliases/PaginateRender) \| `Promise`\<[`PaginateRender`](../type-aliases/PaginateRender)\> | Build the body for one page. |
 | <a id="property-timeoutms"></a> `timeoutMs?` | `number` | Time (ms) before buttons are disabled. Default `5 * 60_000`. |
 | <a id="property-user"></a> `user?` | `string` | When set, only this user id can click. Defaults to the invoker. |

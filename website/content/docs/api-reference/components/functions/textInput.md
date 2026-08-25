@@ -3,11 +3,11 @@ title: "textInput()"
 description: "Define a single modal text-input field."
 ---
 
-> **textInput**(`config`): [`TextInputDef`](../interfaces/TextInputDef)
+```ts
+function textInput(config: object): TextInputDef;
+```
 
 Defined in: [src/components/builders.ts:458](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L458)
-
-Define a single modal text-input field.
 
 ## Parameters
 

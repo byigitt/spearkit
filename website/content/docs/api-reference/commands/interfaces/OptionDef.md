@@ -1,14 +1,9 @@
 ---
-title: "OptionDef\\<TValue, TRequired\\>"
-description: "A fully-described slash command option. The two type parameters are phantom markers used purely for compile-time inference of the resolved value: - TValue is…"
+title: "OptionDef"
+description: "A fully-described slash command option. The two type parameters are phantom markers used purely for compile-time inference of the resolved value: - TValue is the type produced for the command handler. - TRequired controls nullability (true => value, false => | undefined)."
 ---
 
 Defined in: [src/commands/options.ts:61](https://github.com/byigitt/spearkit/blob/main/src/commands/options.ts#L61)
-
-A fully-described slash command option. The two type parameters are phantom
-markers used purely for compile-time inference of the resolved value:
-- `TValue` is the type produced for the command handler.
-- `TRequired` controls nullability (`true` => value, `false` => `| undefined`).
 
 ## Type Parameters
 

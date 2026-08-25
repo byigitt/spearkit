@@ -1,6 +1,6 @@
 ---
-title: "events-and-tasks"
-description: "events-and-tasks in the spearkit API."
+title: "Events and tasks"
+description: "Gateway events, scheduled work, and graceful shutdown."
 ---
 
 ## Classes

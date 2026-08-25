@@ -5,8 +5,6 @@ description: "A file upload field definition. Submits the uploaded Attachments."
 
 Defined in: [src/components/builders.ts:369](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L369)
 
-A file upload field definition. Submits the uploaded Attachments.
-
 ## Extends
 
 - [`ModalFieldDef`](ModalFieldDef)\<`Attachment`[], `true`\>

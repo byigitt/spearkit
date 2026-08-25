@@ -5,13 +5,13 @@ description: "Minimal logger shape used for shutdown progress (your client.logge
 
 Defined in: [src/shutdown.ts:26](https://github.com/byigitt/spearkit/blob/main/src/shutdown.ts#L26)
 
-Minimal logger shape used for shutdown progress (your `client.logger` fits).
-
 ## Methods
 
 ### error()?
 
-> `optional` **error**(`message`, `meta?`): `void`
+```ts
+optional error(message: string, meta?: unknown): void;
+```
 
 Defined in: [src/shutdown.ts:28](https://github.com/byigitt/spearkit/blob/main/src/shutdown.ts#L28)
 
@@ -30,7 +30,9 @@ Defined in: [src/shutdown.ts:28](https://github.com/byigitt/spearkit/blob/main/s
 
 ### info()?
 
-> `optional` **info**(`message`): `void`
+```ts
+optional info(message: string): void;
+```
 
 Defined in: [src/shutdown.ts:27](https://github.com/byigitt/spearkit/blob/main/src/shutdown.ts#L27)
 

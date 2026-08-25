@@ -5,8 +5,6 @@ description: "Configuration for poll."
 
 Defined in: [src/poll.ts:19](https://github.com/byigitt/spearkit/blob/main/src/poll.ts#L19)
 
-Configuration for [poll](../functions/poll).
-
 ## Properties
 
 | Property | Type | Description |

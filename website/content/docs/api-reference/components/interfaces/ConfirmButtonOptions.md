@@ -5,8 +5,6 @@ description: "One of the two buttons."
 
 Defined in: [src/confirm.ts:31](https://github.com/byigitt/spearkit/blob/main/src/confirm.ts#L31)
 
-One of the two buttons.
-
 ## Properties
 
 | Property | Type | Description |

@@ -5,8 +5,6 @@ description: "A single argument's runtime spec; recorded by PrefixArgsBuilder."
 
 Defined in: [src/prefix-args.ts:35](https://github.com/byigitt/spearkit/blob/main/src/prefix-args.ts#L35)
 
-A single argument's runtime spec; recorded by [PrefixArgsBuilder](../classes/PrefixArgsBuilder).
-
 ## Properties
 
 | Property | Modifier | Type |

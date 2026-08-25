@@ -1,13 +1,13 @@
 ---
 title: "startHealthServer()"
-description: "Start dependency-free Kubernetes/container probes: - GET /healthz — process is alive - GET /readyz — Discord ready + custom checks"
+description: "Start dependency-free Kubernetes/container probes:"
 ---
 
-> **startHealthServer**(`options?`): `Promise`\<[`HealthServerHandle`](../interfaces/HealthServerHandle)\>
+```ts
+function startHealthServer(options?: HealthServerOptions): Promise<HealthServerHandle>;
+```
 
 Defined in: [src/scale.ts:378](https://github.com/byigitt/spearkit/blob/main/src/scale.ts#L378)
-
-Start dependency-free Kubernetes/container probes:
 
 - `GET /healthz` — process is alive
 - `GET /readyz` — Discord ready + custom checks

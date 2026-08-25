@@ -1,6 +1,6 @@
 ---
-title: "prefix-commands"
-description: "prefix-commands in the spearkit API."
+title: "Prefix commands"
+description: "Classic text commands and their typed argument parser."
 ---
 
 ## Classes

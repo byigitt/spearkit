@@ -5,8 +5,6 @@ description: "A user select field inside a modal. Submits user ids."
 
 Defined in: [src/components/builders.ts:391](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L391)
 
-A user select field inside a modal. Submits user ids.
-
 ## Extends
 
 - `SelectFieldBase`

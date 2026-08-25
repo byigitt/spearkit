@@ -1,19 +1,17 @@
 ---
 title: "UsageTracker"
-description: "Routes each UsageEvent to a store and/or a Discord channel. The client owns one as client.usage. Tracking is fire-and-forget: a slow store or channel never…"
+description: "Routes each UsageEvent to a store and/or a Discord channel. The client owns one as client.usage. Tracking is fire-and-forget: a slow store or channel never blocks command handling, and failures are logged."
 ---
 
 Defined in: [src/usage.ts:283](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L283)
-
-Routes each [UsageEvent](../interfaces/UsageEvent) to a store and/or a Discord channel. The
-client owns one as `client.usage`. Tracking is fire-and-forget: a slow store
-or channel never blocks command handling, and failures are logged.
 
 ## Constructors
 
 ### Constructor
 
-> **new UsageTracker**(): `UsageTracker`
+```ts
+new UsageTracker(): UsageTracker;
+```
 
 #### Returns
 
@@ -31,7 +29,9 @@ or channel never blocks command handling, and failures are logged.
 
 #### Get Signature
 
-> **get** **enabled**(): `boolean`
+```ts
+get enabled(): boolean;
+```
 
 Defined in: [src/usage.ts:291](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L291)
 
@@ -45,7 +45,9 @@ Whether anything will happen on [track](#track).
 
 ### reportTo()
 
-> **reportTo**(`channelId`, `format?`): `this`
+```ts
+reportTo(channelId: string, format?: (event: UsageEvent) => string): this;
+```
 
 Defined in: [src/usage.ts:313](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L313)
 
@@ -56,7 +58,7 @@ Mirror events into a Discord channel.
 | Parameter | Type | Default value |
 | :------ | :------ | :------ |
 | `channelId` | `string` | `undefined` |
-| `format` | (`event`) => `string` | `formatUsage` |
+| `format` | (`event`: [`UsageEvent`](../interfaces/UsageEvent)) => `string` | `formatUsage` |
 
 #### Returns
 
@@ -66,7 +68,9 @@ Mirror events into a Discord channel.
 
 ### setLogger()
 
-> **setLogger**(`logger`): `this`
+```ts
+setLogger(logger: Logger): this;
+```
 
 Defined in: [src/usage.ts:301](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L301)
 
@@ -84,7 +88,9 @@ Defined in: [src/usage.ts:301](https://github.com/byigitt/spearkit/blob/main/src
 
 ### setStore()
 
-> **setStore**(`store`): `this`
+```ts
+setStore(store: UsageStore): this;
+```
 
 Defined in: [src/usage.ts:307](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L307)
 
@@ -104,7 +110,9 @@ Persist events to a store (a database).
 
 ### track()
 
-> **track**(`event`): `void`
+```ts
+track(event: UsageEvent): void;
+```
 
 Defined in: [src/usage.ts:319](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L319)
 

@@ -56,6 +56,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "e2e": "node e2e/live.mjs",
+    "docs:api": "npm --prefix website run generate-api",
     "docs:llms": "node scripts/generate-llms.mjs",
     "prepublishOnly": "npm run docs:llms && npm run build"
   },

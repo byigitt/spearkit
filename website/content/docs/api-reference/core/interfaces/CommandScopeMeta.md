@@ -5,8 +5,6 @@ description: "Scope metadata shared by slash commands and context menus."
 
 Defined in: [src/scope.ts:32](https://github.com/byigitt/spearkit/blob/main/src/scope.ts#L32)
 
-Scope metadata shared by slash commands and context menus.
-
 ## Extended by
 
 - [`HybridCommandConfig`](../../commands/interfaces/HybridCommandConfig)

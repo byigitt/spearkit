@@ -1,11 +1,9 @@
 ---
-title: "MessageCommandConfig\\<R\\>"
+title: "MessageCommandConfig"
 description: "Configuration for messageCommand."
 ---
 
 Defined in: [src/context-menus.ts:66](https://github.com/byigitt/spearkit/blob/main/src/context-menus.ts#L66)
-
-Configuration for [messageCommand](../functions/messageCommand).
 
 ## Extends
 
@@ -32,4 +30,4 @@ Configuration for [messageCommand](../functions/messageCommand).
 | <a id="property-name"></a> `name` | `string` | - | - |
 | <a id="property-namelocalizations"></a> `nameLocalizations?` | `Partial`\<`Record`\<`Locale`, `string` \| `null`\>\> | - | `ContextMenuMeta.nameLocalizations` |
 | <a id="property-nsfw"></a> `nsfw?` | `boolean` | - | `ContextMenuMeta.nsfw` |
-| <a id="property-run"></a> `run` | (`ctx`) => `Awaitable`\<`R`\> | - | - |
+| <a id="property-run"></a> `run` | (`ctx`: [`MessageContextMenuContext`](../classes/MessageContextMenuContext)) => `Awaitable`\<`R`\> | - | - |

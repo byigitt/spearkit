@@ -5,8 +5,6 @@ description: "Options for startHealthServer."
 
 Defined in: [src/scale.ts:352](https://github.com/byigitt/spearkit/blob/main/src/scale.ts#L352)
 
-Options for [startHealthServer](../functions/startHealthServer).
-
 ## Properties
 
 | Property | Type | Description |

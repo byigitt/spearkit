@@ -3,11 +3,11 @@ title: "userCommand()"
 description: "Define a user-target (\"Apps → user\") context-menu command."
 ---
 
-> **userCommand**\<`R`\>(`config`): [`UserContextMenu`](../interfaces/UserContextMenu)
+```ts
+function userCommand<R>(config: UserCommandConfig<R>): UserContextMenu;
+```
 
 Defined in: [src/context-menus.ts:145](https://github.com/byigitt/spearkit/blob/main/src/context-menus.ts#L145)
-
-Define a user-target ("Apps → user") context-menu command.
 
 ## Type Parameters
 

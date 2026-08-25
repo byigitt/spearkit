@@ -1,11 +1,9 @@
 ---
-title: "RadioGroupDef\\<V, TRequired\\>"
+title: "RadioGroupDef"
 description: "A radio group field definition. Submits one of its option values."
 ---
 
 Defined in: [src/components/builders.ts:348](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L348)
-
-A radio group field definition. Submits one of its option values.
 
 ## Extends
 

@@ -1,13 +1,16 @@
 ---
 title: "paginate()"
-description: "Send an item list across paginated, button-controlled embeds. The first page is replied to interaction (or editReplyd when already deferred), then a…"
+description: "Send an item list across paginated, button-controlled embeds."
 ---
 
-> **paginate**\<`T`\>(`interaction`, `items`, `options`): `Promise`\<`void`\>
+```ts
+function paginate<T>(
+   interaction: RepliableInteraction, 
+   items: readonly T[], 
+options: PaginateOptions<T>): Promise<void>;
+```
 
 Defined in: [src/pagination.ts:147](https://github.com/byigitt/spearkit/blob/main/src/pagination.ts#L147)
-
-Send an item list across paginated, button-controlled embeds.
 
 The first page is replied to [interaction](#paginate) (or `editReply`d when
 already deferred), then a button-component collector handles prev/next

@@ -5,8 +5,6 @@ description: "Configuration for a command that contains subcommands and/or group
 
 Defined in: [src/commands/command.ts:100](https://github.com/byigitt/spearkit/blob/main/src/commands/command.ts#L100)
 
-Configuration for a command that contains subcommands and/or groups.
-
 ## Extends
 
 - `CommonMeta`

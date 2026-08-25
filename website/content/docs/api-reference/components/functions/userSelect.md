@@ -3,11 +3,11 @@ title: "userSelect()"
 description: "Define a user select menu."
 ---
 
-> **userSelect**\<`P`, `R`\>(`config`): [`UserSelect`](../interfaces/UserSelect)\<`P`\>
+```ts
+function userSelect<P, R>(config: EntitySelectConfig<P> & object): UserSelect<P>;
+```
 
 Defined in: [src/components/builders.ts:204](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L204)
-
-Define a user select menu.
 
 ## Type Parameters
 

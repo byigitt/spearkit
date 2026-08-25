@@ -5,8 +5,6 @@ description: "Options for chunkMessage."
 
 Defined in: [src/format.ts:214](https://github.com/byigitt/spearkit/blob/main/src/format.ts#L214)
 
-Options for [chunkMessage](../functions/chunkMessage).
-
 ## Properties
 
 | Property | Type | Description |

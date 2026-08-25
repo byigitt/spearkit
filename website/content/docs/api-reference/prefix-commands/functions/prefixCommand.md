@@ -3,11 +3,11 @@ title: "prefixCommand()"
 description: "Define a prefix command."
 ---
 
-> **prefixCommand**\<`TArgs`, `R`\>(`config`): [`PrefixCommand`](../interfaces/PrefixCommand)
+```ts
+function prefixCommand<TArgs, R>(config: PrefixCommandConfig<TArgs, R>): PrefixCommand;
+```
 
 Defined in: [src/prefix.ts:90](https://github.com/byigitt/spearkit/blob/main/src/prefix.ts#L90)
-
-Define a prefix command.
 
 ## Type Parameters
 

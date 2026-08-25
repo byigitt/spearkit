@@ -1,19 +1,17 @@
 ---
 title: "CooldownManager"
-description: "Tracks last-use timestamps and decides whether an action is allowed. One instance is shared on client.cooldowns. The default backend is in-memory; pass a store…"
+description: "Tracks last-use timestamps and decides whether an action is allowed. One instance is shared on client.cooldowns. The default backend is in-memory; pass a store so shards/restarts share the same clock."
 ---
 
 Defined in: [src/cooldown.ts:279](https://github.com/byigitt/spearkit/blob/main/src/cooldown.ts#L279)
-
-Tracks last-use timestamps and decides whether an action is allowed.
-One instance is shared on `client.cooldowns`. The default backend is
-in-memory; pass a store so shards/restarts share the same clock.
 
 ## Constructors
 
 ### Constructor
 
-> **new CooldownManager**(`backend?`): `CooldownManager`
+```ts
+new CooldownManager(backend?: CooldownStoreInput): CooldownManager;
+```
 
 Defined in: [src/cooldown.ts:282](https://github.com/byigitt/spearkit/blob/main/src/cooldown.ts#L282)
 
@@ -33,7 +31,9 @@ Defined in: [src/cooldown.ts:282](https://github.com/byigitt/spearkit/blob/main/
 
 #### Get Signature
 
-> **get** **size**(): `number`
+```ts
+get size(): number;
+```
 
 Defined in: [src/cooldown.ts:293](https://github.com/byigitt/spearkit/blob/main/src/cooldown.ts#L293)
 
@@ -47,7 +47,9 @@ Number of tracked buckets when the backend exposes `size`.
 
 ### clear()
 
-> **clear**(): `Awaitable`\<`void`\>
+```ts
+clear(): Awaitable<void>;
+```
 
 Defined in: [src/cooldown.ts:339](https://github.com/byigitt/spearkit/blob/main/src/cooldown.ts#L339)
 
@@ -61,7 +63,13 @@ Drop every tracked cooldown.
 
 ### consume()
 
-> **consume**(`bucket`, `input`, `actor`, `now?`): `Awaitable`\<[`CooldownResult`](../type-aliases/CooldownResult)\>
+```ts
+consume(
+   bucket: string, 
+   input: CooldownInput, 
+   actor: CooldownActor, 
+now?: number): Awaitable<CooldownResult>;
+```
 
 Defined in: [src/cooldown.ts:304](https://github.com/byigitt/spearkit/blob/main/src/cooldown.ts#L304)
 
@@ -87,7 +95,13 @@ synchronous. Dispatch always `await`s this.
 
 ### peek()
 
-> **peek**(`bucket`, `input`, `actor`, `now?`): `Awaitable`\<[`CooldownResult`](../type-aliases/CooldownResult)\>
+```ts
+peek(
+   bucket: string, 
+   input: CooldownInput, 
+   actor: CooldownActor, 
+now?: number): Awaitable<CooldownResult>;
+```
 
 Defined in: [src/cooldown.ts:317](https://github.com/byigitt/spearkit/blob/main/src/cooldown.ts#L317)
 
@@ -110,7 +124,12 @@ Like [consume](#consume) but never records — a read-only check.
 
 ### reset()
 
-> **reset**(`bucket`, `actor`, `scope?`): `Awaitable`\<`boolean`\>
+```ts
+reset(
+   bucket: string, 
+   actor: CooldownActor, 
+scope?: CooldownScope): Awaitable<boolean>;
+```
 
 Defined in: [src/cooldown.ts:330](https://github.com/byigitt/spearkit/blob/main/src/cooldown.ts#L330)
 
@@ -132,7 +151,9 @@ Clear a single actor's cooldown for a bucket. Returns whether one existed.
 
 ### setBackend()
 
-> **setBackend**(`backend`): `this`
+```ts
+setBackend(backend: CooldownStoreInput): this;
+```
 
 Defined in: [src/cooldown.ts:287](https://github.com/byigitt/spearkit/blob/main/src/cooldown.ts#L287)
 

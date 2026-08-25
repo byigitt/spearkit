@@ -1,11 +1,9 @@
 ---
-title: "ChannelSelect\\<P\\>"
+title: "ChannelSelect"
 description: "A registrable channel select."
 ---
 
 Defined in: [src/components/builders.ts:241](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L241)
-
-A registrable channel select.
 
 ## Extends
 
@@ -30,7 +28,9 @@ A registrable channel select.
 
 ### build()
 
-> **build**(...`args`): `ChannelSelectMenuBuilder`
+```ts
+build(...args: BuildArgs<P>): ChannelSelectMenuBuilder;
+```
 
 Defined in: [src/components/builders.ts:242](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L242)
 
@@ -48,7 +48,9 @@ Defined in: [src/components/builders.ts:242](https://github.com/byigitt/spearkit
 
 ### handle()
 
-> **handle**(`interaction`, `params`): `Promise`\<`void`\>
+```ts
+handle(interaction: ChannelSelectMenuInteraction, params: Record<string, string>): Promise<void>;
+```
 
 Defined in: [src/components/registry.ts:51](https://github.com/byigitt/spearkit/blob/main/src/components/registry.ts#L51)
 

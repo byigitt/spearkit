@@ -5,8 +5,6 @@ description: "Options for pushing commands to discord."
 
 Defined in: [src/commands/registry.ts:34](https://github.com/byigitt/spearkit/blob/main/src/commands/registry.ts#L34)
 
-Options for pushing commands to discord.
-
 ## Properties
 
 | Property | Type | Description |

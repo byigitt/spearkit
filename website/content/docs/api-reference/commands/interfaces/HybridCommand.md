@@ -5,8 +5,6 @@ description: "A hybrid command: hand both parts to client.register(...) at once.
 
 Defined in: [src/hybrid.ts:196](https://github.com/byigitt/spearkit/blob/main/src/hybrid.ts#L196)
 
-A hybrid command: hand both parts to `client.register(...)` at once.
-
 ## Properties
 
 | Property | Modifier | Type |

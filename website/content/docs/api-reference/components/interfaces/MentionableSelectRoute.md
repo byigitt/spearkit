@@ -5,8 +5,6 @@ description: "Routing entry for a mentionable select."
 
 Defined in: [src/components/registry.ts:54](https://github.com/byigitt/spearkit/blob/main/src/components/registry.ts#L54)
 
-Routing entry for a mentionable select.
-
 ## Extends
 
 - `RouteBase`
@@ -28,7 +26,9 @@ Routing entry for a mentionable select.
 
 ### handle()
 
-> **handle**(`interaction`, `params`): `Promise`\<`void`\>
+```ts
+handle(interaction: MentionableSelectMenuInteraction, params: Record<string, string>): Promise<void>;
+```
 
 Defined in: [src/components/registry.ts:56](https://github.com/byigitt/spearkit/blob/main/src/components/registry.ts#L56)
 

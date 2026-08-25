@@ -1,11 +1,9 @@
 ---
-title: "EventConfig\\<E\\>"
+title: "EventConfig"
 description: "Object form accepted by event."
 ---
 
 Defined in: [src/events.ts:9](https://github.com/byigitt/spearkit/blob/main/src/events.ts#L9)
-
-Object form accepted by [event](../functions/event).
 
 ## Type Parameters
 

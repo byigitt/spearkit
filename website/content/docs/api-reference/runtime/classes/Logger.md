@@ -1,13 +1,9 @@
 ---
 title: "Logger"
-description: "A leveled, scoped logger. Create one directly or read client.logger. child loggers share the parent's threshold and transports, so calling setLevel on any of…"
+description: "A leveled, scoped logger. Create one directly or read client.logger. child loggers share the parent's threshold and transports, so calling setLevel on any of them affects the whole tree."
 ---
 
 Defined in: [src/logger.ts:178](https://github.com/byigitt/spearkit/blob/main/src/logger.ts#L178)
-
-A leveled, scoped logger. Create one directly or read `client.logger`.
-[child](#child) loggers share the parent's threshold and transports, so calling
-[setLevel](#setlevel) on any of them affects the whole tree.
 
 ## Example
 
@@ -21,7 +17,9 @@ log.child("commands").error("handler failed", { error });
 
 ### Constructor
 
-> **new Logger**(`options?`): `Logger`
+```ts
+new Logger(options?: LoggerOptions): Logger;
+```
 
 Defined in: [src/logger.ts:183](https://github.com/byigitt/spearkit/blob/main/src/logger.ts#L183)
 
@@ -47,7 +45,9 @@ Defined in: [src/logger.ts:183](https://github.com/byigitt/spearkit/blob/main/sr
 
 #### Get Signature
 
-> **get** **level**(): [`LogThreshold`](../type-aliases/LogThreshold)
+```ts
+get level(): LogThreshold;
+```
 
 Defined in: [src/logger.ts:192](https://github.com/byigitt/spearkit/blob/main/src/logger.ts#L192)
 
@@ -61,7 +61,9 @@ The current minimum threshold.
 
 ### addTransport()
 
-> **addTransport**(`sink`): `this`
+```ts
+addTransport(sink: LogSink): this;
+```
 
 Defined in: [src/logger.ts:209](https://github.com/byigitt/spearkit/blob/main/src/logger.ts#L209)
 
@@ -81,7 +83,9 @@ Append a transport to the existing list.
 
 ### child()
 
-> **child**(`scope`): `Logger`
+```ts
+child(scope: string): Logger;
+```
 
 Defined in: [src/logger.ts:220](https://github.com/byigitt/spearkit/blob/main/src/logger.ts#L220)
 
@@ -101,7 +105,9 @@ A child logger with an extra scope segment, sharing this logger's state.
 
 ### debug()
 
-> **debug**(`message`, `options?`): `void`
+```ts
+debug(message: string, options?: LogOptions): void;
+```
 
 Defined in: [src/logger.ts:248](https://github.com/byigitt/spearkit/blob/main/src/logger.ts#L248)
 
@@ -122,7 +128,9 @@ Verbose diagnostics, off by default.
 
 ### enabled()
 
-> **enabled**(`level`): `boolean`
+```ts
+enabled(level: LogLevel): boolean;
+```
 
 Defined in: [src/logger.ts:215](https://github.com/byigitt/spearkit/blob/main/src/logger.ts#L215)
 
@@ -142,7 +150,9 @@ Whether an entry of `level` would currently be emitted.
 
 ### error()
 
-> **error**(`message`, `options?`): `void`
+```ts
+error(message: string, options?: LogOptions): void;
+```
 
 Defined in: [src/logger.ts:263](https://github.com/byigitt/spearkit/blob/main/src/logger.ts#L263)
 
@@ -163,7 +173,9 @@ Failures. Attach the cause via `{ error }`.
 
 ### info()
 
-> **info**(`message`, `options?`): `void`
+```ts
+info(message: string, options?: LogOptions): void;
+```
 
 Defined in: [src/logger.ts:253](https://github.com/byigitt/spearkit/blob/main/src/logger.ts#L253)
 
@@ -184,7 +196,12 @@ Normal operational messages.
 
 ### log()
 
-> **log**(`level`, `message`, `options?`): `void`
+```ts
+log(
+   level: LogLevel, 
+   message: string, 
+   options?: LogOptions): void;
+```
 
 Defined in: [src/logger.ts:228](https://github.com/byigitt/spearkit/blob/main/src/logger.ts#L228)
 
@@ -206,7 +223,9 @@ Emit an entry at an explicit level.
 
 ### setLevel()
 
-> **setLevel**(`level`): `this`
+```ts
+setLevel(level: LogThreshold): this;
+```
 
 Defined in: [src/logger.ts:197](https://github.com/byigitt/spearkit/blob/main/src/logger.ts#L197)
 
@@ -226,7 +245,9 @@ Change the threshold for this logger and every child sharing its state.
 
 ### setTransports()
 
-> **setTransports**(`transports`): `this`
+```ts
+setTransports(transports: readonly LogSink[]): this;
+```
 
 Defined in: [src/logger.ts:203](https://github.com/byigitt/spearkit/blob/main/src/logger.ts#L203)
 
@@ -246,7 +267,9 @@ Replace the transport list for this logger and every child sharing its state.
 
 ### warn()
 
-> **warn**(`message`, `options?`): `void`
+```ts
+warn(message: string, options?: LogOptions): void;
+```
 
 Defined in: [src/logger.ts:258](https://github.com/byigitt/spearkit/blob/main/src/logger.ts#L258)
 

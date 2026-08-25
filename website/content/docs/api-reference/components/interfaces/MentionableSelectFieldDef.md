@@ -5,8 +5,6 @@ description: "A mentionable (user + role) select field inside a modal. Submits i
 
 Defined in: [src/components/builders.ts:407](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L407)
 
-A mentionable (user + role) select field inside a modal. Submits ids.
-
 ## Extends
 
 - `SelectFieldBase`

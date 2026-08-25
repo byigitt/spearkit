@@ -5,8 +5,6 @@ description: "Actor/location data supplied to an async locale resolver."
 
 Defined in: [src/i18n.ts:33](https://github.com/byigitt/spearkit/blob/main/src/i18n.ts#L33)
 
-Actor/location data supplied to an async locale resolver.
-
 ## Properties
 
 | Property | Type | Description |

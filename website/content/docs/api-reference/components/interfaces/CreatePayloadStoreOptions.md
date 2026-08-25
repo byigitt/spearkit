@@ -5,8 +5,6 @@ description: "Options for createPayloadStore."
 
 Defined in: [src/payload.ts:25](https://github.com/byigitt/spearkit/blob/main/src/payload.ts#L25)
 
-Options for [createPayloadStore](../functions/createPayloadStore).
-
 ## Properties
 
 | Property | Type | Description |

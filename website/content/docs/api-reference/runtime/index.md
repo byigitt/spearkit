@@ -1,6 +1,6 @@
 ---
-title: "runtime"
-description: "runtime in the spearkit API."
+title: "Runtime services"
+description: "Logging, usage tracking, environment variables, i18n, and handler errors."
 ---
 
 ## Classes

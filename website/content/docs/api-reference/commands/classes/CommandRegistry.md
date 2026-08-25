@@ -5,13 +5,13 @@ description: "Holds every slash command and routes interactions to them."
 
 Defined in: [src/commands/registry.ts:51](https://github.com/byigitt/spearkit/blob/main/src/commands/registry.ts#L51)
 
-Holds every slash command and routes interactions to them.
-
 ## Constructors
 
 ### Constructor
 
-> **new CommandRegistry**(): `CommandRegistry`
+```ts
+new CommandRegistry(): CommandRegistry;
+```
 
 #### Returns
 
@@ -23,7 +23,9 @@ Holds every slash command and routes interactions to them.
 
 #### Get Signature
 
-> **get** **names**(): `string`[]
+```ts
+get names(): string[];
+```
 
 Defined in: [src/commands/registry.ts:83](https://github.com/byigitt/spearkit/blob/main/src/commands/registry.ts#L83)
 
@@ -39,7 +41,9 @@ All registered command names.
 
 #### Get Signature
 
-> **get** **size**(): `number`
+```ts
+get size(): number;
+```
 
 Defined in: [src/commands/registry.ts:88](https://github.com/byigitt/spearkit/blob/main/src/commands/registry.ts#L88)
 
@@ -53,7 +57,9 @@ Number of registered commands.
 
 ### add()
 
-> **add**(...`commands`): `this`
+```ts
+add(...commands: SlashCommand[]): this;
+```
 
 Defined in: [src/commands/registry.ts:62](https://github.com/byigitt/spearkit/blob/main/src/commands/registry.ts#L62)
 
@@ -73,7 +79,9 @@ Register one or more commands. Later registrations override by name.
 
 ### all()
 
-> **all**(): [`SlashCommand`](SlashCommand)[]
+```ts
+all(): SlashCommand[];
+```
 
 Defined in: [src/commands/registry.ts:78](https://github.com/byigitt/spearkit/blob/main/src/commands/registry.ts#L78)
 
@@ -87,7 +95,9 @@ All registered commands.
 
 ### deploy()
 
-> **deploy**(`options`): `Promise`\<[`DeployResult`](../type-aliases/DeployResult)\>
+```ts
+deploy(options: DeployOptions): Promise<DeployResult>;
+```
 
 Defined in: [src/commands/registry.ts:221](https://github.com/byigitt/spearkit/blob/main/src/commands/registry.ts#L221)
 
@@ -110,7 +120,9 @@ deploys can take up to an hour to propagate.
 
 ### get()
 
-> **get**(`name`): [`SlashCommand`](SlashCommand) \| `undefined`
+```ts
+get(name: string): SlashCommand | undefined;
+```
 
 Defined in: [src/commands/registry.ts:73](https://github.com/byigitt/spearkit/blob/main/src/commands/registry.ts#L73)
 
@@ -130,7 +142,9 @@ Look up a command by name.
 
 ### handle()
 
-> **handle**(`interaction`): `Promise`\<`void`\>
+```ts
+handle(interaction: ChatInputCommandInteraction): Promise<void>;
+```
 
 Defined in: [src/commands/registry.ts:135](https://github.com/byigitt/spearkit/blob/main/src/commands/registry.ts#L135)
 
@@ -150,7 +164,9 @@ Dispatch an incoming chat-input interaction to its command.
 
 ### handleAutocomplete()
 
-> **handleAutocomplete**(`interaction`): `Promise`\<`void`\>
+```ts
+handleAutocomplete(interaction: AutocompleteInteraction): Promise<void>;
+```
 
 Defined in: [src/commands/registry.ts:205](https://github.com/byigitt/spearkit/blob/main/src/commands/registry.ts#L205)
 
@@ -170,7 +186,9 @@ Dispatch an autocomplete interaction to its command.
 
 ### onError()
 
-> **onError**(`handler`): `this`
+```ts
+onError(handler: CommandErrorHandler): this;
+```
 
 Defined in: [src/commands/registry.ts:93](https://github.com/byigitt/spearkit/blob/main/src/commands/registry.ts#L93)
 
@@ -190,7 +208,9 @@ Set the handler used when a command throws.
 
 ### remove()
 
-> **remove**(`name`): `boolean`
+```ts
+remove(name: string): boolean;
+```
 
 Defined in: [src/commands/registry.ts:68](https://github.com/byigitt/spearkit/blob/main/src/commands/registry.ts#L68)
 
@@ -210,7 +230,9 @@ Remove a command by name.
 
 ### setAutoDefer()
 
-> **setAutoDefer**(`config?`): `this`
+```ts
+setAutoDefer(config?: AutoDeferConfig): this;
+```
 
 Defined in: [src/commands/registry.ts:118](https://github.com/byigitt/spearkit/blob/main/src/commands/registry.ts#L118)
 
@@ -230,7 +252,9 @@ Default auto-defer applied to commands that don't set their own.
 
 ### setCooldowns()
 
-> **setCooldowns**(`manager`, `defaultCooldown?`): `this`
+```ts
+setCooldowns(manager: CooldownManager, defaultCooldown?: CooldownConfig): this;
+```
 
 Defined in: [src/commands/registry.ts:105](https://github.com/byigitt/spearkit/blob/main/src/commands/registry.ts#L105)
 
@@ -251,7 +275,9 @@ Wire a shared cooldown manager and an optional default cooldown for every comman
 
 ### setDefaultGuards()
 
-> **setDefaultGuards**(`guards`): `this`
+```ts
+setDefaultGuards(guards: readonly Guard[]): this;
+```
 
 Defined in: [src/commands/registry.ts:112](https://github.com/byigitt/spearkit/blob/main/src/commands/registry.ts#L112)
 
@@ -271,7 +297,9 @@ Guards that run before every command's own guards.
 
 ### setLogger()
 
-> **setLogger**(`logger`): `this`
+```ts
+setLogger(logger: Logger): this;
+```
 
 Defined in: [src/commands/registry.ts:99](https://github.com/byigitt/spearkit/blob/main/src/commands/registry.ts#L99)
 
@@ -291,7 +319,9 @@ Attach a logger used for dispatch tracing (debug level).
 
 ### setUsageHook()
 
-> **setUsageHook**(`hook`): `this`
+```ts
+setUsageHook(hook: (event: UsageEvent) => void): this;
+```
 
 Defined in: [src/commands/registry.ts:124](https://github.com/byigitt/spearkit/blob/main/src/commands/registry.ts#L124)
 
@@ -301,7 +331,7 @@ Attach a hook called after each successful command execution.
 
 | Parameter | Type |
 | :------ | :------ |
-| `hook` | (`event`) => `void` |
+| `hook` | (`event`: [`UsageEvent`](../../runtime/interfaces/UsageEvent)) => `void` |
 
 #### Returns
 
@@ -311,7 +341,9 @@ Attach a hook called after each successful command execution.
 
 ### toJSON()
 
-> **toJSON**(): `RESTPostAPIApplicationCommandsJSONBody`[]
+```ts
+toJSON(): RESTPostAPIApplicationCommandsJSONBody[];
+```
 
 Defined in: [src/commands/registry.ts:130](https://github.com/byigitt/spearkit/blob/main/src/commands/registry.ts#L130)
 

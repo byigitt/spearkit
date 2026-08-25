@@ -1,11 +1,9 @@
 ---
-title: "PrefixArgsParser\\<T\\>"
+title: "PrefixArgsParser"
 description: "The compiled parser produced by PrefixArgsBuilder.compile."
 ---
 
 Defined in: [src/prefix-args.ts:56](https://github.com/byigitt/spearkit/blob/main/src/prefix-args.ts#L56)
-
-The compiled parser produced by [PrefixArgsBuilder.compile](../classes/PrefixArgsBuilder#compile).
 
 ## Type Parameters
 
@@ -23,7 +21,11 @@ The compiled parser produced by [PrefixArgsBuilder.compile](../classes/PrefixArg
 
 ### parse()
 
-> **parse**(`tokens`, `rest`): [`PrefixArgError`](PrefixArgError) \| [`PrefixArgsOk`](PrefixArgsOk)\<`T`\>
+```ts
+parse(tokens: readonly string[], rest: string): 
+  | PrefixArgError
+| PrefixArgsOk<T>;
+```
 
 Defined in: [src/prefix-args.ts:58](https://github.com/byigitt/spearkit/blob/main/src/prefix-args.ts#L58)
 
@@ -36,4 +38,5 @@ Defined in: [src/prefix-args.ts:58](https://github.com/byigitt/spearkit/blob/mai
 
 #### Returns
 
-[`PrefixArgError`](PrefixArgError) \| [`PrefixArgsOk`](PrefixArgsOk)\<`T`\>
+  \| [`PrefixArgError`](PrefixArgError)
+  \| [`PrefixArgsOk`](PrefixArgsOk)\<`T`\>

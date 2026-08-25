@@ -3,11 +3,11 @@ title: "formatCooldownMessage()"
 description: "Build the user-facing message for a blocked action."
 ---
 
-> **formatCooldownMessage**(`config`, `remainingMs`): `string`
+```ts
+function formatCooldownMessage(config: CooldownConfig, remainingMs: number): string;
+```
 
 Defined in: [src/cooldown.ts:345](https://github.com/byigitt/spearkit/blob/main/src/cooldown.ts#L345)
-
-Build the user-facing message for a blocked action.
 
 ## Parameters
 

@@ -3,11 +3,11 @@ title: "denied()"
 description: "Sugar: build a denial result with an explanation."
 ---
 
-> **denied**(`reason?`): [`GuardResult`](../type-aliases/GuardResult)
+```ts
+function denied(reason?: string): GuardResult;
+```
 
 Defined in: [src/guards.ts:44](https://github.com/byigitt/spearkit/blob/main/src/guards.ts#L44)
-
-Sugar: build a denial result with an explanation.
 
 ## Parameters
 

@@ -5,8 +5,6 @@ description: "Routing entry for a string select."
 
 Defined in: [src/components/registry.ts:34](https://github.com/byigitt/spearkit/blob/main/src/components/registry.ts#L34)
 
-Routing entry for a string select.
-
 ## Extends
 
 - `RouteBase`
@@ -28,7 +26,9 @@ Routing entry for a string select.
 
 ### handle()
 
-> **handle**(`interaction`, `params`): `Promise`\<`void`\>
+```ts
+handle(interaction: StringSelectMenuInteraction, params: Record<string, string>): Promise<void>;
+```
 
 Defined in: [src/components/registry.ts:36](https://github.com/byigitt/spearkit/blob/main/src/components/registry.ts#L36)
 

@@ -5,8 +5,6 @@ description: "A message-target context-menu command."
 
 Defined in: [src/context-menus.ts:87](https://github.com/byigitt/spearkit/blob/main/src/context-menus.ts#L87)
 
-A message-target context-menu command.
-
 ## Extends
 
 - [`BaseContextMenuCommand`](BaseContextMenuCommand)
@@ -26,7 +24,9 @@ A message-target context-menu command.
 
 ### execute()
 
-> **execute**(`interaction`): `Promise`\<`void`\>
+```ts
+execute(interaction: MessageContextMenuCommandInteraction): Promise<void>;
+```
 
 Defined in: [src/context-menus.ts:89](https://github.com/byigitt/spearkit/blob/main/src/context-menus.ts#L89)
 
@@ -44,7 +44,9 @@ Defined in: [src/context-menus.ts:89](https://github.com/byigitt/spearkit/blob/m
 
 ### toJSON()
 
-> **toJSON**(): `RESTPostAPIContextMenuApplicationCommandsJSONBody`
+```ts
+toJSON(): RESTPostAPIContextMenuApplicationCommandsJSONBody;
+```
 
 Defined in: [src/context-menus.ts:77](https://github.com/byigitt/spearkit/blob/main/src/context-menus.ts#L77)
 

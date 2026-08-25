@@ -1,11 +1,9 @@
 ---
-title: "OptionChoice\\<V\\>"
+title: "OptionChoice"
 description: "A single choice for string/integer/number options."
 ---
 
 Defined in: [src/commands/options.ts:44](https://github.com/byigitt/spearkit/blob/main/src/commands/options.ts#L44)
-
-A single choice for string/integer/number options.
 
 ## Type Parameters
 

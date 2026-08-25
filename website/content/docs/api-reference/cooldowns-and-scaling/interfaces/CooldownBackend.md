@@ -1,11 +1,9 @@
 ---
 title: "CooldownBackend"
-description: "Pluggable last-hit storage for CooldownManager. The in-memory backend is the default. Pass a KeyValueStore via keyValueCooldownBackend (SQLite/JSON…"
+description: "Pluggable last-hit storage for CooldownManager."
 ---
 
 Defined in: [src/cooldown.ts:115](https://github.com/byigitt/spearkit/blob/main/src/cooldown.ts#L115)
-
-Pluggable last-hit storage for [CooldownManager](../classes/CooldownManager).
 
 The in-memory backend is the default. Pass a [KeyValueStore](../../storage/interfaces/KeyValueStore) via
 [keyValueCooldownBackend](../functions/keyValueCooldownBackend) (SQLite/JSON, restart-safe) or
@@ -16,7 +14,9 @@ share one clock.
 
 ### clear()
 
-> **clear**(): `Awaitable`\<`void`\>
+```ts
+clear(): Awaitable<void>;
+```
 
 Defined in: [src/cooldown.ts:123](https://github.com/byigitt/spearkit/blob/main/src/cooldown.ts#L123)
 
@@ -30,7 +30,9 @@ Drop every tracked key.
 
 ### delete()
 
-> **delete**(`key`): `Awaitable`\<`boolean`\>
+```ts
+delete(key: string): Awaitable<boolean>;
+```
 
 Defined in: [src/cooldown.ts:121](https://github.com/byigitt/spearkit/blob/main/src/cooldown.ts#L121)
 
@@ -50,7 +52,12 @@ Drop one key. Resolves `true` if it existed.
 
 ### hit()
 
-> **hit**(`key`, `durationMs`, `now`): `Awaitable`\<[`CooldownResult`](../type-aliases/CooldownResult)\>
+```ts
+hit(
+   key: string, 
+   durationMs: number, 
+now: number): Awaitable<CooldownResult>;
+```
 
 Defined in: [src/cooldown.ts:117](https://github.com/byigitt/spearkit/blob/main/src/cooldown.ts#L117)
 
@@ -72,7 +79,12 @@ Record a hit unless `key` is still cooling down.
 
 ### peek()
 
-> **peek**(`key`, `durationMs`, `now`): `Awaitable`\<[`CooldownResult`](../type-aliases/CooldownResult)\>
+```ts
+peek(
+   key: string, 
+   durationMs: number, 
+now: number): Awaitable<CooldownResult>;
+```
 
 Defined in: [src/cooldown.ts:119](https://github.com/byigitt/spearkit/blob/main/src/cooldown.ts#L119)
 
@@ -94,7 +106,9 @@ Read-only check.
 
 ### size()?
 
-> `optional` **size**(): `Awaitable`\<`number`\>
+```ts
+optional size(): Awaitable<number>;
+```
 
 Defined in: [src/cooldown.ts:125](https://github.com/byigitt/spearkit/blob/main/src/cooldown.ts#L125)
 

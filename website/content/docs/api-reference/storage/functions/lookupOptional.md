@@ -3,11 +3,11 @@ title: "lookupOptional()"
 description: "Build a non-throwing lookup that returns undefined for missing keys."
 ---
 
-> **lookupOptional**\<`K`, `V`\>(`table`): (`key`) => `V` \| `undefined`
+```ts
+function lookupOptional<K, V>(table: Readonly<Record<K, V>>): (key: K) => V | undefined;
+```
 
 Defined in: [src/config.ts:66](https://github.com/byigitt/spearkit/blob/main/src/config.ts#L66)
-
-Build a non-throwing lookup that returns `undefined` for missing keys.
 
 ## Type Parameters
 
@@ -24,4 +24,4 @@ Build a non-throwing lookup that returns `undefined` for missing keys.
 
 ## Returns
 
-(`key`) => `V` \| `undefined`
+(`key`: `K`) => `V` \| `undefined`

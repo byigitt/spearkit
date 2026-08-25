@@ -1,11 +1,9 @@
 ---
-title: "CheckboxGroupDef\\<V\\>"
+title: "CheckboxGroupDef"
 description: "A checkbox group field definition. Submits an array of its option values."
 ---
 
 Defined in: [src/components/builders.ts:355](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L355)
-
-A checkbox group field definition. Submits an array of its option values.
 
 ## Extends
 

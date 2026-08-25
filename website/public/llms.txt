@@ -124,7 +124,7 @@ Core rules an agent should follow: use `SpearClient` (not `Client`); define comm
 
 ## Reference
 
-- [API reference](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/api-reference.md): The API reference is generated from spearkit's public TypeScript declarations and TSDoc comments. Choose a section in the sidebar, then open a symbol to see its signature, parameters, return type…
+- [API reference](https://raw.githubusercontent.com/byigitt/spearkit/main/docs/api-reference.md): Every symbol spearkit exports, with its signature and summary. This file is generated from the public TypeScript declarations in src/; the full reference — parameters, members, inherited signatures…
 
 ## Optional
 

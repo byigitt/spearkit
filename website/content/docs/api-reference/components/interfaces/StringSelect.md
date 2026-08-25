@@ -1,11 +1,9 @@
 ---
-title: "StringSelect\\<P\\>"
+title: "StringSelect"
 description: "A registrable string select with a typed build."
 ---
 
 Defined in: [src/components/builders.ts:171](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L171)
-
-A registrable string select with a typed [build](#build).
 
 ## Extends
 
@@ -30,7 +28,9 @@ A registrable string select with a typed [build](#build).
 
 ### build()
 
-> **build**(...`args`): `StringSelectMenuBuilder`
+```ts
+build(...args: BuildArgs<P>): StringSelectMenuBuilder;
+```
 
 Defined in: [src/components/builders.ts:172](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L172)
 
@@ -48,7 +48,9 @@ Defined in: [src/components/builders.ts:172](https://github.com/byigitt/spearkit
 
 ### handle()
 
-> **handle**(`interaction`, `params`): `Promise`\<`void`\>
+```ts
+handle(interaction: StringSelectMenuInteraction, params: Record<string, string>): Promise<void>;
+```
 
 Defined in: [src/components/registry.ts:36](https://github.com/byigitt/spearkit/blob/main/src/components/registry.ts#L36)
 

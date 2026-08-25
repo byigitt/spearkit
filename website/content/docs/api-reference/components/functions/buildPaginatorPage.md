@@ -1,15 +1,19 @@
 ---
 title: "buildPaginatorPage()"
-description: "Build the payload for a single paginator page (embeds + button row), without any interaction or collector wiring. Useful for tests, web previews and custom UIs…"
+description: "Build the payload for a single paginator page (embeds + button row), without any interaction or collector wiring. Useful for tests, web previews and custom UIs that want spearkit's slicing/controls but their own send path."
 ---
 
-> **buildPaginatorPage**\<`T`\>(`items`, `page`, `options`): `Promise`\<\{ `pages`: `number`; `payload`: `BaseMessageOptions`; \}\>
+```ts
+function buildPaginatorPage<T>(
+   items: readonly T[], 
+   page: number, 
+   options: PaginateOptions<T>): Promise<{
+  pages: number;
+  payload: BaseMessageOptions;
+}>;
+```
 
 Defined in: [src/pagination.ts:123](https://github.com/byigitt/spearkit/blob/main/src/pagination.ts#L123)
-
-Build the payload for a single paginator page (embeds + button row), without
-any interaction or collector wiring. Useful for tests, web previews and
-custom UIs that want spearkit's slicing/controls but their own send path.
 
 ## Type Parameters
 
@@ -27,4 +31,7 @@ custom UIs that want spearkit's slicing/controls but their own send path.
 
 ## Returns
 
-`Promise`\<\{ `pages`: `number`; `payload`: `BaseMessageOptions`; \}\>
+`Promise`\<\{
+  `pages`: `number`;
+  `payload`: `BaseMessageOptions`;
+\}\>

@@ -5,8 +5,6 @@ description: "Per-user and per-role duration overrides (milliseconds; 0 disables
 
 Defined in: [src/cooldown.ts:22](https://github.com/byigitt/spearkit/blob/main/src/cooldown.ts#L22)
 
-Per-user and per-role duration overrides (milliseconds; `0` disables).
-
 ## Properties
 
 | Property | Type | Description |

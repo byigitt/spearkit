@@ -5,8 +5,6 @@ description: "Construction options for Embeds. Missing fields fall back to defau
 
 Defined in: [src/embeds.ts:32](https://github.com/byigitt/spearkit/blob/main/src/embeds.ts#L32)
 
-Construction options for [Embeds](../classes/Embeds). Missing fields fall back to defaults.
-
 ## Properties
 
 | Property | Type | Description |

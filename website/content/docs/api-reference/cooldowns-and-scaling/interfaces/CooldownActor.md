@@ -5,8 +5,6 @@ description: "The actor a cooldown is evaluated for."
 
 Defined in: [src/cooldown.ts:52](https://github.com/byigitt/spearkit/blob/main/src/cooldown.ts#L52)
 
-The actor a cooldown is evaluated for.
-
 ## Properties
 
 | Property | Type |

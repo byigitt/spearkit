@@ -5,13 +5,13 @@ description: "Anything with an async-or-sync destroy() — a discord.js Client q
 
 Defined in: [src/shutdown.ts:21](https://github.com/byigitt/spearkit/blob/main/src/shutdown.ts#L21)
 
-Anything with an async-or-sync `destroy()` — a discord.js `Client` qualifies.
-
 ## Methods
 
 ### destroy()
 
-> **destroy**(): `Awaitable`\<`void`\>
+```ts
+destroy(): Awaitable<void>;
+```
 
 Defined in: [src/shutdown.ts:22](https://github.com/byigitt/spearkit/blob/main/src/shutdown.ts#L22)
 

@@ -1,16 +1,13 @@
 ---
 title: "DiscordErrorCode"
-description: "The Discord JSON error codes spearkit cares about most, by readable name. This is a curated subset of discord.js' RESTJSONErrorCodes covering the failures bots…"
+description: "The Discord JSON error codes spearkit cares about most, by readable name. This is a curated subset of discord.js' RESTJSONErrorCodes covering the failures bots actually hit and can recover from. Values are the numeric codes Discord returns on DiscordAPIError.code."
 ---
 
-> `const` **DiscordErrorCode**: `object`
+```ts
+const DiscordErrorCode: object;
+```
 
 Defined in: [src/discord-errors.ts:30](https://github.com/byigitt/spearkit/blob/main/src/discord-errors.ts#L30)
-
-The Discord JSON error codes spearkit cares about most, by readable name.
-This is a curated subset of discord.js' RESTJSONErrorCodes covering
-the failures bots actually hit and can recover from. Values are the numeric
-codes Discord returns on `DiscordAPIError.code`.
 
 ## Type Declaration
 

@@ -5,7 +5,9 @@ description: "event() in the spearkit API."
 
 ## Call Signature
 
-> **event**\<`E`\>(`name`, `run`): [`EventDef`](../interfaces/EventDef)
+```ts
+function event<E>(name: E, run: EventHandler<E>): EventDef;
+```
 
 Defined in: [src/events.ts:76](https://github.com/byigitt/spearkit/blob/main/src/events.ts#L76)
 
@@ -41,7 +43,9 @@ export default event("messageCreate", (message) => {
 
 ## Call Signature
 
-> **event**\<`E`\>(`config`): [`EventDef`](../interfaces/EventDef)
+```ts
+function event<E>(config: EventConfig<E>): EventDef;
+```
 
 Defined in: [src/events.ts:77](https://github.com/byigitt/spearkit/blob/main/src/events.ts#L77)
 

@@ -5,8 +5,6 @@ description: "Users and roles that bypass a cooldown entirely."
 
 Defined in: [src/cooldown.ts:14](https://github.com/byigitt/spearkit/blob/main/src/cooldown.ts#L14)
 
-Users and roles that bypass a cooldown entirely.
-
 ## Properties
 
 | Property | Type | Description |

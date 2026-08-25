@@ -5,13 +5,13 @@ description: "Holds context-menu commands and routes incoming interactions to th
 
 Defined in: [src/context-menus.ts:181](https://github.com/byigitt/spearkit/blob/main/src/context-menus.ts#L181)
 
-Holds context-menu commands and routes incoming interactions to them.
-
 ## Constructors
 
 ### Constructor
 
-> **new ContextMenuRegistry**(): `ContextMenuRegistry`
+```ts
+new ContextMenuRegistry(): ContextMenuRegistry;
+```
 
 #### Returns
 
@@ -23,7 +23,9 @@ Holds context-menu commands and routes incoming interactions to them.
 
 #### Get Signature
 
-> **get** **size**(): `number`
+```ts
+get size(): number;
+```
 
 Defined in: [src/context-menus.ts:202](https://github.com/byigitt/spearkit/blob/main/src/context-menus.ts#L202)
 
@@ -37,7 +39,9 @@ Total number of registered context-menu commands.
 
 ### add()
 
-> **add**(...`commands`): `this`
+```ts
+add(...commands: readonly ContextMenuCommand[]): this;
+```
 
 Defined in: [src/context-menus.ts:193](https://github.com/byigitt/spearkit/blob/main/src/context-menus.ts#L193)
 
@@ -57,7 +61,9 @@ Register one or more context-menu commands.
 
 ### all()
 
-> **all**(): [`ContextMenuCommand`](../type-aliases/ContextMenuCommand)[]
+```ts
+all(): ContextMenuCommand[];
+```
 
 Defined in: [src/context-menus.ts:207](https://github.com/byigitt/spearkit/blob/main/src/context-menus.ts#L207)
 
@@ -71,7 +77,9 @@ Every registered command, both kinds.
 
 ### handleMessage()
 
-> **handleMessage**(`interaction`): `Promise`\<`void`\>
+```ts
+handleMessage(interaction: MessageContextMenuCommandInteraction): Promise<void>;
+```
 
 Defined in: [src/context-menus.ts:257](https://github.com/byigitt/spearkit/blob/main/src/context-menus.ts#L257)
 
@@ -91,7 +99,9 @@ Dispatch a message-target interaction.
 
 ### handleUser()
 
-> **handleUser**(`interaction`): `Promise`\<`void`\>
+```ts
+handleUser(interaction: UserContextMenuCommandInteraction): Promise<void>;
+```
 
 Defined in: [src/context-menus.ts:250](https://github.com/byigitt/spearkit/blob/main/src/context-menus.ts#L250)
 
@@ -111,7 +121,9 @@ Dispatch a user-target interaction.
 
 ### onError()
 
-> **onError**(`handler`): `this`
+```ts
+onError(handler: ContextMenuErrorHandler): this;
+```
 
 Defined in: [src/context-menus.ts:244](https://github.com/byigitt/spearkit/blob/main/src/context-menus.ts#L244)
 
@@ -131,7 +143,9 @@ Set the handler used when a context-menu command throws.
 
 ### setAutoDefer()
 
-> **setAutoDefer**(`config?`): `this`
+```ts
+setAutoDefer(config?: AutoDeferConfig): this;
+```
 
 Defined in: [src/context-menus.ts:233](https://github.com/byigitt/spearkit/blob/main/src/context-menus.ts#L233)
 
@@ -151,7 +165,9 @@ Default auto-defer applied to menus that don't set their own.
 
 ### setCooldowns()
 
-> **setCooldowns**(`manager`, `defaultCooldown?`): `this`
+```ts
+setCooldowns(manager: CooldownManager, defaultCooldown?: CooldownConfig): this;
+```
 
 Defined in: [src/context-menus.ts:221](https://github.com/byigitt/spearkit/blob/main/src/context-menus.ts#L221)
 
@@ -170,7 +186,9 @@ Defined in: [src/context-menus.ts:221](https://github.com/byigitt/spearkit/blob/
 
 ### setDefaultGuards()
 
-> **setDefaultGuards**(`guards`): `this`
+```ts
+setDefaultGuards(guards: readonly Guard[]): this;
+```
 
 Defined in: [src/context-menus.ts:227](https://github.com/byigitt/spearkit/blob/main/src/context-menus.ts#L227)
 
@@ -188,7 +206,9 @@ Defined in: [src/context-menus.ts:227](https://github.com/byigitt/spearkit/blob/
 
 ### setLogger()
 
-> **setLogger**(`logger`): `this`
+```ts
+setLogger(logger: Logger): this;
+```
 
 Defined in: [src/context-menus.ts:216](https://github.com/byigitt/spearkit/blob/main/src/context-menus.ts#L216)
 
@@ -206,7 +226,9 @@ Defined in: [src/context-menus.ts:216](https://github.com/byigitt/spearkit/blob/
 
 ### setUsageHook()
 
-> **setUsageHook**(`hook`): `this`
+```ts
+setUsageHook(hook: (event: UsageEvent) => void): this;
+```
 
 Defined in: [src/context-menus.ts:238](https://github.com/byigitt/spearkit/blob/main/src/context-menus.ts#L238)
 
@@ -214,7 +236,7 @@ Defined in: [src/context-menus.ts:238](https://github.com/byigitt/spearkit/blob/
 
 | Parameter | Type |
 | :------ | :------ |
-| `hook` | (`event`) => `void` |
+| `hook` | (`event`: [`UsageEvent`](../../runtime/interfaces/UsageEvent)) => `void` |
 
 #### Returns
 
@@ -224,7 +246,9 @@ Defined in: [src/context-menus.ts:238](https://github.com/byigitt/spearkit/blob/
 
 ### toJSON()
 
-> **toJSON**(): `RESTPostAPIContextMenuApplicationCommandsJSONBody`[]
+```ts
+toJSON(): RESTPostAPIContextMenuApplicationCommandsJSONBody[];
+```
 
 Defined in: [src/context-menus.ts:212](https://github.com/byigitt/spearkit/blob/main/src/context-menus.ts#L212)
 

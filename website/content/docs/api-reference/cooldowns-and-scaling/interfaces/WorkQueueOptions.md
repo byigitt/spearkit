@@ -5,8 +5,6 @@ description: "Options for WorkQueue."
 
 Defined in: [src/scale.ts:249](https://github.com/byigitt/spearkit/blob/main/src/scale.ts#L249)
 
-Options for [WorkQueue](../classes/WorkQueue).
-
 ## Properties
 
 | Property | Type | Description |

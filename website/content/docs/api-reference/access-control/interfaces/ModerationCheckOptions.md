@@ -5,8 +5,6 @@ description: "Options for moderationCheck."
 
 Defined in: [src/permissions.ts:97](https://github.com/byigitt/spearkit/blob/main/src/permissions.ts#L97)
 
-Options for [moderationCheck](../functions/moderationCheck).
-
 ## Properties
 
 | Property | Type | Description |

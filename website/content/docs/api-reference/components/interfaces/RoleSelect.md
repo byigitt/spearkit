@@ -1,11 +1,9 @@
 ---
-title: "RoleSelect\\<P\\>"
+title: "RoleSelect"
 description: "A registrable role select."
 ---
 
 Defined in: [src/components/builders.ts:220](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L220)
-
-A registrable role select.
 
 ## Extends
 
@@ -30,7 +28,9 @@ A registrable role select.
 
 ### build()
 
-> **build**(...`args`): `RoleSelectMenuBuilder`
+```ts
+build(...args: BuildArgs<P>): RoleSelectMenuBuilder;
+```
 
 Defined in: [src/components/builders.ts:221](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L221)
 
@@ -48,7 +48,9 @@ Defined in: [src/components/builders.ts:221](https://github.com/byigitt/spearkit
 
 ### handle()
 
-> **handle**(`interaction`, `params`): `Promise`\<`void`\>
+```ts
+handle(interaction: RoleSelectMenuInteraction, params: Record<string, string>): Promise<void>;
+```
 
 Defined in: [src/components/registry.ts:46](https://github.com/byigitt/spearkit/blob/main/src/components/registry.ts#L46)
 

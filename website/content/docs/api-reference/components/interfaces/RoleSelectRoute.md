@@ -5,8 +5,6 @@ description: "Routing entry for a role select."
 
 Defined in: [src/components/registry.ts:44](https://github.com/byigitt/spearkit/blob/main/src/components/registry.ts#L44)
 
-Routing entry for a role select.
-
 ## Extends
 
 - `RouteBase`
@@ -28,7 +26,9 @@ Routing entry for a role select.
 
 ### handle()
 
-> **handle**(`interaction`, `params`): `Promise`\<`void`\>
+```ts
+handle(interaction: RoleSelectMenuInteraction, params: Record<string, string>): Promise<void>;
+```
 
 Defined in: [src/components/registry.ts:46](https://github.com/byigitt/spearkit/blob/main/src/components/registry.ts#L46)
 

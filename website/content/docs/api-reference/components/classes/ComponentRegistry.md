@@ -1,19 +1,17 @@
 ---
 title: "ComponentRegistry"
-description: "Routes button, select and modal interactions to the handlers registered for their custom-id namespace. Decodes the custom-id, extracts typed params, and…"
+description: "Routes button, select and modal interactions to the handlers registered for their custom-id namespace. Decodes the custom-id, extracts typed params, and invokes the matching handler."
 ---
 
 Defined in: [src/components/registry.ts:93](https://github.com/byigitt/spearkit/blob/main/src/components/registry.ts#L93)
-
-Routes button, select and modal interactions to the handlers registered for
-their custom-id namespace. Decodes the custom-id, extracts typed params, and
-invokes the matching handler.
 
 ## Constructors
 
 ### Constructor
 
-> **new ComponentRegistry**(): `ComponentRegistry`
+```ts
+new ComponentRegistry(): ComponentRegistry;
+```
 
 #### Returns
 
@@ -25,7 +23,9 @@ invokes the matching handler.
 
 #### Get Signature
 
-> **get** **size**(): `number`
+```ts
+get size(): number;
+```
 
 Defined in: [src/components/registry.ts:161](https://github.com/byigitt/spearkit/blob/main/src/components/registry.ts#L161)
 
@@ -39,7 +39,9 @@ Total number of registered components.
 
 ### add()
 
-> **add**(...`defs`): `this`
+```ts
+add(...defs: ComponentDef[]): this;
+```
 
 Defined in: [src/components/registry.ts:107](https://github.com/byigitt/spearkit/blob/main/src/components/registry.ts#L107)
 
@@ -59,7 +61,9 @@ Register one or more components. Later registrations override by namespace.
 
 ### handle()
 
-> **handle**(`interaction`): `Promise`\<`boolean`\>
+```ts
+handle(interaction: Interaction): Promise<boolean>;
+```
 
 Defined in: [src/components/registry.ts:177](https://github.com/byigitt/spearkit/blob/main/src/components/registry.ts#L177)
 
@@ -80,7 +84,9 @@ handler matched and ran, `false` otherwise.
 
 ### onError()
 
-> **onError**(`handler`): `this`
+```ts
+onError(handler: ComponentErrorHandler): this;
+```
 
 Defined in: [src/components/registry.ts:137](https://github.com/byigitt/spearkit/blob/main/src/components/registry.ts#L137)
 
@@ -100,7 +106,9 @@ Set the handler used when a component throws.
 
 ### setDefaultGuards()
 
-> **setDefaultGuards**(`guards`): `this`
+```ts
+setDefaultGuards(guards: readonly Guard[]): this;
+```
 
 Defined in: [src/components/registry.ts:155](https://github.com/byigitt/spearkit/blob/main/src/components/registry.ts#L155)
 
@@ -120,7 +128,9 @@ Guards that run before every component's own guards.
 
 ### setLogger()
 
-> **setLogger**(`logger`): `this`
+```ts
+setLogger(logger: Logger): this;
+```
 
 Defined in: [src/components/registry.ts:143](https://github.com/byigitt/spearkit/blob/main/src/components/registry.ts#L143)
 
@@ -140,7 +150,9 @@ Attach a logger used for dispatch tracing (debug level).
 
 ### setUsageHook()
 
-> **setUsageHook**(`hook`): `this`
+```ts
+setUsageHook(hook: (event: UsageEvent) => void): this;
+```
 
 Defined in: [src/components/registry.ts:149](https://github.com/byigitt/spearkit/blob/main/src/components/registry.ts#L149)
 
@@ -150,7 +162,7 @@ Attach a hook called after each successful component handler run.
 
 | Parameter | Type |
 | :------ | :------ |
-| `hook` | (`event`) => `void` |
+| `hook` | (`event`: [`UsageEvent`](../../runtime/interfaces/UsageEvent)) => `void` |
 
 #### Returns
 

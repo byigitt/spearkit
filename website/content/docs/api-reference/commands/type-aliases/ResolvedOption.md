@@ -1,13 +1,13 @@
 ---
-title: "ResolvedOption\\<O\\>"
+title: "ResolvedOption"
 description: "Maps an OptionDef to the value passed into the command handler."
 ---
 
-> **ResolvedOption**\<`O`\> = `O` *extends* [`OptionDef`](../interfaces/OptionDef)\<infer V, infer Req\> ? `Req` *extends* `true` ? `V` : `V` \| `undefined` : `never`
+```ts
+type ResolvedOption<O> = O extends OptionDef<infer V, infer Req> ? Req extends true ? V : V | undefined : never;
+```
 
 Defined in: [src/commands/options.ts:86](https://github.com/byigitt/spearkit/blob/main/src/commands/options.ts#L86)
-
-Maps an [OptionDef](../interfaces/OptionDef) to the value passed into the command handler.
 
 ## Type Parameters
 

@@ -23,10 +23,10 @@ Client setup, plugins, file loading, and command scope.
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
-| [collectModules()](https://spearkit.bayburt.lu/docs/api-reference/core/functions/collectModules) | `collectModules(dir, options?): Promise<Registerable[]>` | Recursively import a directory and collect every spearkit-registrable export (commands, events, components, hybrid commands, context menus) found in default or named exports. |
-| [definePlugin()](https://spearkit.bayburt.lu/docs/api-reference/core/functions/definePlugin) | `definePlugin(plugin): SpearPlugin` | Identity helper that gives a plugin object its type and editor hints. |
-| [loadInto()](https://spearkit.bayburt.lu/docs/api-reference/core/functions/loadInto) | `loadInto(client, dir, options?): Promise<number>` | Load a directory and register everything it exports into the client. Returns the number of items registered. |
-| [resolveCommandScope()](https://spearkit.bayburt.lu/docs/api-reference/core/functions/resolveCommandScope) | `resolveCommandScope(meta): ResolvedCommandScope` | Resolve scope metadata into its REST payload form. Throws when guildOnly conflicts with an explicit contexts list. |
+| [collectModules()](https://spearkit.bayburt.lu/docs/api-reference/core/functions/collectModules) | `function collectModules(dir: string, options?: LoadOptions): Promise<Registerable[]>;` | Recursively import a directory and collect every spearkit-registrable export (commands, events, components, hybrid commands, context menus) found in default or named exports. |
+| [definePlugin()](https://spearkit.bayburt.lu/docs/api-reference/core/functions/definePlugin) | `function definePlugin(plugin: SpearPlugin): SpearPlugin;` | Identity helper that gives a plugin object its type and editor hints. |
+| [loadInto()](https://spearkit.bayburt.lu/docs/api-reference/core/functions/loadInto) | `function loadInto( client: SpearClient, dir: string, options?: LoadOptions): Promise<number>;` | Load a directory and register everything it exports into the client. Returns the number of items registered. |
+| [resolveCommandScope()](https://spearkit.bayburt.lu/docs/api-reference/core/functions/resolveCommandScope) | `function resolveCommandScope(meta: CommandScopeMeta): ResolvedCommandScope;` | Resolve scope metadata into its REST payload form. Throws when guildOnly conflicts with an explicit contexts list. |
 
 ### Classes
 
@@ -48,16 +48,16 @@ Client setup, plugins, file loading, and command scope.
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
-| [ContextKind](https://spearkit.bayburt.lu/docs/api-reference/core/type-aliases/ContextKind) | `ContextKind = "guild" \| "botDm" \| "privateChannel"` | Runtime contexts accepted by contexts. |
-| [InstallKind](https://spearkit.bayburt.lu/docs/api-reference/core/type-aliases/InstallKind) | `InstallKind = "guild" \| "user"` | Installation targets accepted by install. |
-| [Registerable](https://spearkit.bayburt.lu/docs/api-reference/core/type-aliases/Registerable) | `Registerable = SlashCommand \| EventDef \| ComponentDef \| ScheduledTask \| PrefixCommand \| ContextMenuCommand \| HybridCommand` | Anything that can be handed to SpearClient.register. |
-| [SpearClientOptions](https://spearkit.bayburt.lu/docs/api-reference/core/type-aliases/SpearClientOptions) | `SpearClientOptions = Partial<ClientOptions> & SpearOptions` | Options for SpearClient: discord.js options plus SpearOptions. intents may be omitted. |
+| [ContextKind](https://spearkit.bayburt.lu/docs/api-reference/core/type-aliases/ContextKind) | `type ContextKind = "guild" \| "botDm" \| "privateChannel";` | Runtime contexts accepted by contexts. |
+| [InstallKind](https://spearkit.bayburt.lu/docs/api-reference/core/type-aliases/InstallKind) | `type InstallKind = "guild" \| "user";` | Installation targets accepted by install. |
+| [Registerable](https://spearkit.bayburt.lu/docs/api-reference/core/type-aliases/Registerable) | `type Registerable = \| SlashCommand \| EventDef \| ComponentDef \| ScheduledTask \| PrefixCommand \| ContextMenuCommand \| HybridCommand;` | Anything that can be handed to SpearClient.register. |
+| [SpearClientOptions](https://spearkit.bayburt.lu/docs/api-reference/core/type-aliases/SpearClientOptions) | `type SpearClientOptions = Partial<ClientOptions> & SpearOptions;` | Options for SpearClient: discord.js options plus SpearOptions. intents may be omitted. |
 
 ### Variables
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
-| [Intents](https://spearkit.bayburt.lu/docs/api-reference/core/variables/Intents) | `const Intents: object` | Ready-made intent presets. Pass one to SpearClient as intents. all includes privileged intents — enable them in the developer portal. |
+| [Intents](https://spearkit.bayburt.lu/docs/api-reference/core/variables/Intents) | `const Intents: object;` | Ready-made intent presets. Pass one to SpearClient as intents. all includes privileged intents — enable them in the developer portal. |
 
 ## Commands
 
@@ -67,25 +67,25 @@ Slash commands, options, contexts, registries, hybrid commands, and context menu
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
-| [armAutoDefer()](https://spearkit.bayburt.lu/docs/api-reference/commands/functions/armAutoDefer) | `armAutoDefer(interaction, config): () => void` | Arm a one-shot timer that calls deferReply() if the interaction is still un-acknowledged when it fires. Returns a cancel function — always call it once your handler settles (e.g. in a finally) to… |
-| [command()](https://spearkit.bayburt.lu/docs/api-reference/commands/functions/command) | `command<O, R>(config): SlashCommand` | Define a slash command with type-safe options and a co-located handler. |
-| [commandGroup()](https://spearkit.bayburt.lu/docs/api-reference/commands/functions/commandGroup) | `commandGroup(config): SlashCommand` | Define a command that routes to subcommands and/or subcommand groups. |
-| [hybridCommand()](https://spearkit.bayburt.lu/docs/api-reference/commands/functions/hybridCommand) | `hybridCommand<O, TArgs, R>(config): HybridCommand` | Define one command that works both as a slash command and as a prefix command. options drive the slash payload, args drive the prefix parser; run is shared and receives a HybridContext. |
-| [messageCommand()](https://spearkit.bayburt.lu/docs/api-reference/commands/functions/messageCommand) | `messageCommand<R>(config): MessageContextMenu` | Define a message-target ("Apps → message") context-menu command. |
-| [normalizeAutoDefer()](https://spearkit.bayburt.lu/docs/api-reference/commands/functions/normalizeAutoDefer) | `normalizeAutoDefer(input): AutoDeferConfig \| undefined` | Normalise an AutoDeferInput (or undefined) into a config, or undefined when disabled. |
-| [optionsHaveAutocomplete()](https://spearkit.bayburt.lu/docs/api-reference/commands/functions/optionsHaveAutocomplete) | `optionsHaveAutocomplete(options): boolean` | True if any option in the map declares an autocomplete handler. |
-| [readOption()](https://spearkit.bayburt.lu/docs/api-reference/commands/functions/readOption) | `readOption(resolver, name, def): OptionValue \| undefined` | Reads a resolved option value off a discord.js option resolver. |
-| [subcommand()](https://spearkit.bayburt.lu/docs/api-reference/commands/functions/subcommand) | `subcommand<O, R>(config): Subcommand` | Define a single subcommand with type-safe options and a handler. |
-| [subcommandGroup()](https://spearkit.bayburt.lu/docs/api-reference/commands/functions/subcommandGroup) | `subcommandGroup(config): SubcommandGroup` | Group several subcommands under a shared name. |
-| [toAPIOption()](https://spearkit.bayburt.lu/docs/api-reference/commands/functions/toAPIOption) | `toAPIOption(name, def): APIApplicationCommandBasicOption` | Converts a spearkit option definition into the discord REST option payload. |
-| [userCommand()](https://spearkit.bayburt.lu/docs/api-reference/commands/functions/userCommand) | `userCommand<R>(config): UserContextMenu` | Define a user-target ("Apps → user") context-menu command. |
+| [armAutoDefer()](https://spearkit.bayburt.lu/docs/api-reference/commands/functions/armAutoDefer) | `function armAutoDefer(interaction: AutoDeferrableInteraction, config: AutoDeferConfig): () => void;` | Arm a one-shot timer that calls deferReply() if the interaction is still un-acknowledged when it fires. Returns a cancel function — always call it once your handler settles (e.g. in a finally) to… |
+| [command()](https://spearkit.bayburt.lu/docs/api-reference/commands/functions/command) | `function command<O, R>(config: CommandConfig<O, R>): SlashCommand;` | Define a slash command with type-safe options and a co-located handler. |
+| [commandGroup()](https://spearkit.bayburt.lu/docs/api-reference/commands/functions/commandGroup) | `function commandGroup(config: CommandGroupConfig): SlashCommand;` | Define a command that routes to subcommands and/or subcommand groups. |
+| [hybridCommand()](https://spearkit.bayburt.lu/docs/api-reference/commands/functions/hybridCommand) | `function hybridCommand<O, TArgs, R>(config: HybridCommandConfig<O, TArgs, R>): HybridCommand;` | Define one command that works both as a slash command and as a prefix command. options drive the slash payload, args drive the prefix parser; run is shared and receives a HybridContext. |
+| [messageCommand()](https://spearkit.bayburt.lu/docs/api-reference/commands/functions/messageCommand) | `function messageCommand<R>(config: MessageCommandConfig<R>): MessageContextMenu;` | Define a message-target ("Apps → message") context-menu command. |
+| [normalizeAutoDefer()](https://spearkit.bayburt.lu/docs/api-reference/commands/functions/normalizeAutoDefer) | `function normalizeAutoDefer(input: AutoDeferInput \| undefined): AutoDeferConfig \| undefined;` | Normalise an AutoDeferInput (or undefined) into a config, or undefined when disabled. |
+| [optionsHaveAutocomplete()](https://spearkit.bayburt.lu/docs/api-reference/commands/functions/optionsHaveAutocomplete) | `function optionsHaveAutocomplete(options: OptionMap): boolean;` | True if any option in the map declares an autocomplete handler. |
+| [readOption()](https://spearkit.bayburt.lu/docs/api-reference/commands/functions/readOption) | `function readOption( resolver: OptionReader, name: string, def: AnyOptionDef): OptionValue \| undefined;` | Reads a resolved option value off a discord.js option resolver. |
+| [subcommand()](https://spearkit.bayburt.lu/docs/api-reference/commands/functions/subcommand) | `function subcommand<O, R>(config: SubcommandConfig<O, R>): Subcommand;` | Define a single subcommand with type-safe options and a handler. |
+| [subcommandGroup()](https://spearkit.bayburt.lu/docs/api-reference/commands/functions/subcommandGroup) | `function subcommandGroup(config: SubcommandGroupConfig): SubcommandGroup;` | Group several subcommands under a shared name. |
+| [toAPIOption()](https://spearkit.bayburt.lu/docs/api-reference/commands/functions/toAPIOption) | `function toAPIOption(name: string, def: AnyOptionDef): APIApplicationCommandBasicOption;` | Converts a spearkit option definition into the discord REST option payload. |
+| [userCommand()](https://spearkit.bayburt.lu/docs/api-reference/commands/functions/userCommand) | `function userCommand<R>(config: UserCommandConfig<R>): UserContextMenu;` | Define a user-target ("Apps → user") context-menu command. |
 
 ### Classes
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
 | [AutocompleteContext](https://spearkit.bayburt.lu/docs/api-reference/commands/classes/AutocompleteContext) |  | The handler argument for autocomplete requests. Provides the focused value and a typed respond helper. |
-| [CommandContext\<O\>](https://spearkit.bayburt.lu/docs/api-reference/commands/classes/CommandContext) |  | The handler argument for a slash command. Wraps the discord.js interaction and exposes the resolved, fully-typed options. |
+| [CommandContext](https://spearkit.bayburt.lu/docs/api-reference/commands/classes/CommandContext) |  | The handler argument for a slash command. Wraps the discord.js interaction and exposes the resolved, fully-typed options. |
 | [CommandRegistry](https://spearkit.bayburt.lu/docs/api-reference/commands/classes/CommandRegistry) |  | Holds every slash command and routes interactions to them. |
 | [ContextMenuRegistry](https://spearkit.bayburt.lu/docs/api-reference/commands/classes/ContextMenuRegistry) |  | Holds context-menu commands and routes incoming interactions to them. |
 | [MessageContextMenuContext](https://spearkit.bayburt.lu/docs/api-reference/commands/classes/MessageContextMenuContext) |  | Handler context for a message-target context menu. |
@@ -98,48 +98,48 @@ Slash commands, options, contexts, registries, hybrid commands, and context menu
 | --- | --- | --- |
 | [AutoDeferConfig](https://spearkit.bayburt.lu/docs/api-reference/commands/interfaces/AutoDeferConfig) |  | Resolved auto-defer settings. |
 | [BaseContextMenuCommand](https://spearkit.bayburt.lu/docs/api-reference/commands/interfaces/BaseContextMenuCommand) |  | Common shape for any context-menu command (user or message). |
-| [CommandConfig\<O, R\>](https://spearkit.bayburt.lu/docs/api-reference/commands/interfaces/CommandConfig) |  | Configuration for a leaf (non-subcommand) slash command. |
+| [CommandConfig](https://spearkit.bayburt.lu/docs/api-reference/commands/interfaces/CommandConfig) |  | Configuration for a leaf (non-subcommand) slash command. |
 | [CommandGroupConfig](https://spearkit.bayburt.lu/docs/api-reference/commands/interfaces/CommandGroupConfig) |  | Configuration for a command that contains subcommands and/or groups. |
 | [DeployOptions](https://spearkit.bayburt.lu/docs/api-reference/commands/interfaces/DeployOptions) |  | Options for pushing commands to discord. |
 | [HybridCommand](https://spearkit.bayburt.lu/docs/api-reference/commands/interfaces/HybridCommand) |  | A hybrid command: hand both parts to client.register(...) at once. |
-| [HybridCommandConfig\<O, TArgs, R\>](https://spearkit.bayburt.lu/docs/api-reference/commands/interfaces/HybridCommandConfig) |  | Configuration for hybridCommand. |
-| [HybridContext\<TValues\>](https://spearkit.bayburt.lu/docs/api-reference/commands/interfaces/HybridContext) |  | The shared handler context for a hybrid command invocation. |
-| [MessageCommandConfig\<R\>](https://spearkit.bayburt.lu/docs/api-reference/commands/interfaces/MessageCommandConfig) |  | Configuration for messageCommand. |
+| [HybridCommandConfig](https://spearkit.bayburt.lu/docs/api-reference/commands/interfaces/HybridCommandConfig) |  | Configuration for hybridCommand. |
+| [HybridContext](https://spearkit.bayburt.lu/docs/api-reference/commands/interfaces/HybridContext) |  | The shared handler context for a hybrid command invocation. |
+| [MessageCommandConfig](https://spearkit.bayburt.lu/docs/api-reference/commands/interfaces/MessageCommandConfig) |  | Configuration for messageCommand. |
 | [MessageContextMenu](https://spearkit.bayburt.lu/docs/api-reference/commands/interfaces/MessageContextMenu) |  | A message-target context-menu command. |
-| [OptionChoice\<V\>](https://spearkit.bayburt.lu/docs/api-reference/commands/interfaces/OptionChoice) |  | A single choice for string/integer/number options. |
-| [OptionDef\<TValue, TRequired\>](https://spearkit.bayburt.lu/docs/api-reference/commands/interfaces/OptionDef) |  | A fully-described slash command option. The two type parameters are phantom markers used purely for compile-time inference of the resolved value: - TValue is the type produced for the command handler. |
+| [OptionChoice](https://spearkit.bayburt.lu/docs/api-reference/commands/interfaces/OptionChoice) |  | A single choice for string/integer/number options. |
+| [OptionDef](https://spearkit.bayburt.lu/docs/api-reference/commands/interfaces/OptionDef) |  | A fully-described slash command option. The two type parameters are phantom markers used purely for compile-time inference of the resolved value: - TValue is the type produced for the command… |
 | [Subcommand](https://spearkit.bayburt.lu/docs/api-reference/commands/interfaces/Subcommand) |  | A type-erased, ready-to-run subcommand created with subcommand. |
-| [SubcommandConfig\<O, R\>](https://spearkit.bayburt.lu/docs/api-reference/commands/interfaces/SubcommandConfig) |  | Configuration for one subcommand. |
+| [SubcommandConfig](https://spearkit.bayburt.lu/docs/api-reference/commands/interfaces/SubcommandConfig) |  | Configuration for one subcommand. |
 | [SubcommandGroup](https://spearkit.bayburt.lu/docs/api-reference/commands/interfaces/SubcommandGroup) |  | A subcommand group created with subcommandGroup. |
 | [SubcommandGroupConfig](https://spearkit.bayburt.lu/docs/api-reference/commands/interfaces/SubcommandGroupConfig) |  | Configuration for a subcommand group (a folder of subcommands). |
-| [UserCommandConfig\<R\>](https://spearkit.bayburt.lu/docs/api-reference/commands/interfaces/UserCommandConfig) |  | Configuration for userCommand. |
+| [UserCommandConfig](https://spearkit.bayburt.lu/docs/api-reference/commands/interfaces/UserCommandConfig) |  | Configuration for userCommand. |
 | [UserContextMenu](https://spearkit.bayburt.lu/docs/api-reference/commands/interfaces/UserContextMenu) |  | A user-target context-menu command. |
 
 ### Type aliases
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
-| [AllowedChannelType](https://spearkit.bayburt.lu/docs/api-reference/commands/type-aliases/AllowedChannelType) | `AllowedChannelType = NonNullable<APIApplicationCommandChannelOption["channeltypes"]>[number]` | The discord-allowed channel types for a channel option. |
-| [AnyOptionDef](https://spearkit.bayburt.lu/docs/api-reference/commands/type-aliases/AnyOptionDef) | `AnyOptionDef = OptionDef<OptionValue, boolean>` | Any option definition, regardless of value/required type. |
-| [AutocompleteHandler\<V\>](https://spearkit.bayburt.lu/docs/api-reference/commands/type-aliases/AutocompleteHandler) | `AutocompleteHandler<V> = (ctx) => Awaitable<OptionChoice<V>[] \| void>` | Provides autocomplete suggestions for an option as the user types. |
-| [AutoDeferInput](https://spearkit.bayburt.lu/docs/api-reference/commands/type-aliases/AutoDeferInput) | `AutoDeferInput = boolean \| { delayMs?: number; ephemeral?: boolean; }` | How a handler opts into auto-defer: true for defaults, or fine-tuning. |
-| [AutoDeferrableInteraction](https://spearkit.bayburt.lu/docs/api-reference/commands/type-aliases/AutoDeferrableInteraction) | `AutoDeferrableInteraction = ChatInputCommandInteraction \| UserContextMenuCommandInteraction \| MessageContextMenuCommandInteraction` | Interactions auto-defer supports (those answered with deferReply). |
-| [CommandErrorHandler](https://spearkit.bayburt.lu/docs/api-reference/commands/type-aliases/CommandErrorHandler) | `CommandErrorHandler = (error, interaction, commandName) => Awaitable<void>` | Error hook invoked when a command handler throws. |
-| [ContextMenuCommand](https://spearkit.bayburt.lu/docs/api-reference/commands/type-aliases/ContextMenuCommand) | `ContextMenuCommand = UserContextMenu \| MessageContextMenu` | A registered context-menu command — discriminated by kind. |
-| [ContextMenuErrorHandler](https://spearkit.bayburt.lu/docs/api-reference/commands/type-aliases/ContextMenuErrorHandler) | `ContextMenuErrorHandler = (error, interaction, commandName) => Awaitable<void>` | Error hook invoked when a context-menu handler throws. |
-| [DeployResult](https://spearkit.bayburt.lu/docs/api-reference/commands/type-aliases/DeployResult) | `DeployResult = RESTPutAPIApplicationCommandsResult \| RESTPutAPIApplicationGuildCommandsResult` | Result of a CommandRegistry.deploy call. |
-| [HybridReplyInput](https://spearkit.bayburt.lu/docs/api-reference/commands/type-aliases/HybridReplyInput) | `HybridReplyInput = string \| MessageReplyOptions \| InteractionReplyOptions & object` | Reply input accepted by HybridContext.reply. |
-| [OptionMap](https://spearkit.bayburt.lu/docs/api-reference/commands/type-aliases/OptionMap) | `OptionMap = Record<string, AnyOptionDef>` | A map of option name => definition. |
-| [OptionValue](https://spearkit.bayburt.lu/docs/api-reference/commands/type-aliases/OptionValue) | `OptionValue = string \| number \| boolean \| UserValue \| ChannelValue \| RoleValue \| MentionableValue \| AttachmentValue` | The closed set of values a slash option can resolve to. |
-| [ResolvedOption\<O\>](https://spearkit.bayburt.lu/docs/api-reference/commands/type-aliases/ResolvedOption) | `ResolvedOption<O> = O extends OptionDef<infer V, infer Req> ? Req extends true ? V : V \| undefined : never` | Maps an OptionDef to the value passed into the command handler. |
-| [ResolvedOptions\<O\>](https://spearkit.bayburt.lu/docs/api-reference/commands/type-aliases/ResolvedOptions) | `ResolvedOptions<O> = { [K in keyof O]: ResolvedOption<O[K]> }` | Resolves a whole OptionMap into the handler's options object. |
+| [AllowedChannelType](https://spearkit.bayburt.lu/docs/api-reference/commands/type-aliases/AllowedChannelType) | `type AllowedChannelType = NonNullable<APIApplicationCommandChannelOption["channeltypes"]>[number];` | The discord-allowed channel types for a channel option. |
+| [AnyOptionDef](https://spearkit.bayburt.lu/docs/api-reference/commands/type-aliases/AnyOptionDef) | `type AnyOptionDef = OptionDef<OptionValue, boolean>;` | Any option definition, regardless of value/required type. |
+| [AutocompleteHandler](https://spearkit.bayburt.lu/docs/api-reference/commands/type-aliases/AutocompleteHandler) | `type AutocompleteHandler<V> = (ctx: AutocompleteContext) => Awaitable<OptionChoice<V>[] \| void>;` | Provides autocomplete suggestions for an option as the user types. |
+| [AutoDeferInput](https://spearkit.bayburt.lu/docs/api-reference/commands/type-aliases/AutoDeferInput) | `type AutoDeferInput = \| boolean \| { delayMs?: number; ephemeral?: boolean; };` | How a handler opts into auto-defer: true for defaults, or fine-tuning. |
+| [AutoDeferrableInteraction](https://spearkit.bayburt.lu/docs/api-reference/commands/type-aliases/AutoDeferrableInteraction) | `type AutoDeferrableInteraction = \| ChatInputCommandInteraction \| UserContextMenuCommandInteraction \| MessageContextMenuCommandInteraction;` | Interactions auto-defer supports (those answered with deferReply). |
+| [CommandErrorHandler](https://spearkit.bayburt.lu/docs/api-reference/commands/type-aliases/CommandErrorHandler) | `type CommandErrorHandler = (error: Error, interaction: ChatInputCommandInteraction, commandName: string) => Awaitable<void>;` | Error hook invoked when a command handler throws. |
+| [ContextMenuCommand](https://spearkit.bayburt.lu/docs/api-reference/commands/type-aliases/ContextMenuCommand) | `type ContextMenuCommand = \| UserContextMenu \| MessageContextMenu;` | A registered context-menu command — discriminated by kind. |
+| [ContextMenuErrorHandler](https://spearkit.bayburt.lu/docs/api-reference/commands/type-aliases/ContextMenuErrorHandler) | `type ContextMenuErrorHandler = (error: Error, interaction: \| UserContextMenuCommandInteraction \| MessageContextMenuCommandInteraction, commandName: string) => Awaitable<void>;` | Error hook invoked when a context-menu handler throws. |
+| [DeployResult](https://spearkit.bayburt.lu/docs/api-reference/commands/type-aliases/DeployResult) | `type DeployResult = \| RESTPutAPIApplicationCommandsResult \| RESTPutAPIApplicationGuildCommandsResult;` | Result of a CommandRegistry.deploy call. |
+| [HybridReplyInput](https://spearkit.bayburt.lu/docs/api-reference/commands/type-aliases/HybridReplyInput) | `type HybridReplyInput = string \| MessageReplyOptions \| InteractionReplyOptions & object;` | Reply input accepted by HybridContext.reply. |
+| [OptionMap](https://spearkit.bayburt.lu/docs/api-reference/commands/type-aliases/OptionMap) | `type OptionMap = Record<string, AnyOptionDef>;` | A map of option name => definition. |
+| [OptionValue](https://spearkit.bayburt.lu/docs/api-reference/commands/type-aliases/OptionValue) | `type OptionValue = \| string \| number \| boolean \| UserValue \| ChannelValue \| RoleValue \| MentionableValue \| AttachmentValue;` | The closed set of values a slash option can resolve to. |
+| [ResolvedOption](https://spearkit.bayburt.lu/docs/api-reference/commands/type-aliases/ResolvedOption) | `type ResolvedOption<O> = O extends OptionDef<infer V, infer Req> ? Req extends true ? V : V \| undefined : never;` | Maps an OptionDef to the value passed into the command handler. |
+| [ResolvedOptions](https://spearkit.bayburt.lu/docs/api-reference/commands/type-aliases/ResolvedOptions) | `type ResolvedOptions<O> = { [K in keyof O]: ResolvedOption<O[K]> };` | Resolves a whole OptionMap into the handler's options object. |
 
 ### Variables
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
-| [DEFAULT\_AUTO\_DEFER\_DELAY\_MS](https://spearkit.bayburt.lu/docs/api-reference/commands/variables/DEFAULT_AUTO_DEFER_DELAY_MS) | `const DEFAULTAUTODEFERDELAYMS: 2000 = 2000` | Default safety margin: defer at 2s, leaving headroom before the 3s cutoff. |
-| [option](https://spearkit.bayburt.lu/docs/api-reference/commands/variables/option) | `const option: object` | Type-safe slash command option builders. |
+| [DEFAULT_AUTO_DEFER_DELAY_MS](https://spearkit.bayburt.lu/docs/api-reference/commands/variables/DEFAULT_AUTO_DEFER_DELAY_MS) | `const DEFAULTAUTODEFERDELAYMS: 2000 = 2000;` | Default safety margin: defer at 2s, leaving headroom before the 3s cutoff. |
+| [option](https://spearkit.bayburt.lu/docs/api-reference/commands/variables/option) | `const option: object;` | Type-safe slash command option builders. |
 
 ## Prefix commands
 
@@ -149,15 +149,15 @@ Classic text commands and their typed argument parser.
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
-| [prefixArgs()](https://spearkit.bayburt.lu/docs/api-reference/prefix-commands/functions/prefixArgs) | `prefixArgs(): PrefixArgsBuilder<{ }>` | Start a fresh args builder. Pass to prefixCommand({ args }). |
-| [prefixCommand()](https://spearkit.bayburt.lu/docs/api-reference/prefix-commands/functions/prefixCommand) | `prefixCommand<TArgs, R>(config): PrefixCommand` | Define a prefix command. |
+| [prefixArgs()](https://spearkit.bayburt.lu/docs/api-reference/prefix-commands/functions/prefixArgs) | `function prefixArgs(): PrefixArgsBuilder<{ }>;` | Start a fresh args builder. Pass to prefixCommand({ args }). |
+| [prefixCommand()](https://spearkit.bayburt.lu/docs/api-reference/prefix-commands/functions/prefixCommand) | `function prefixCommand<TArgs, R>(config: PrefixCommandConfig<TArgs, R>): PrefixCommand;` | Define a prefix command. |
 
 ### Classes
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
-| [PrefixArgsBuilder\<TShape\>](https://spearkit.bayburt.lu/docs/api-reference/prefix-commands/classes/PrefixArgsBuilder) |  | Build a typed argument schema for prefixCommand. Chain calls positionally — first token → first arg, second → second arg, etc. |
-| [PrefixContext\<TArgs\>](https://spearkit.bayburt.lu/docs/api-reference/prefix-commands/classes/PrefixContext) |  | The handler argument for a prefix command: the message plus parsed args. |
+| [PrefixArgsBuilder](https://spearkit.bayburt.lu/docs/api-reference/prefix-commands/classes/PrefixArgsBuilder) |  | Build a typed argument schema for prefixCommand. Chain calls positionally — first token → first arg, second → second arg, etc. |
+| [PrefixContext](https://spearkit.bayburt.lu/docs/api-reference/prefix-commands/classes/PrefixContext) |  | The handler argument for a prefix command: the message plus parsed args. |
 | [PrefixRegistry](https://spearkit.bayburt.lu/docs/api-reference/prefix-commands/classes/PrefixRegistry) |  | Holds prefix commands and dispatches matching messages to them. |
 
 ### Interfaces
@@ -165,18 +165,18 @@ Classic text commands and their typed argument parser.
 | Symbol | Signature | Summary |
 | --- | --- | --- |
 | [PrefixArgError](https://spearkit.bayburt.lu/docs/api-reference/prefix-commands/interfaces/PrefixArgError) |  | A failed parse, returned by PrefixArgsParser.parse. |
-| [PrefixArgsOk\<T\>](https://spearkit.bayburt.lu/docs/api-reference/prefix-commands/interfaces/PrefixArgsOk) |  | A successful parse, returned by PrefixArgsParser.parse. |
-| [PrefixArgsParser\<T\>](https://spearkit.bayburt.lu/docs/api-reference/prefix-commands/interfaces/PrefixArgsParser) |  | The compiled parser produced by PrefixArgsBuilder.compile. |
+| [PrefixArgsOk](https://spearkit.bayburt.lu/docs/api-reference/prefix-commands/interfaces/PrefixArgsOk) |  | A successful parse, returned by PrefixArgsParser.parse. |
+| [PrefixArgsParser](https://spearkit.bayburt.lu/docs/api-reference/prefix-commands/interfaces/PrefixArgsParser) |  | The compiled parser produced by PrefixArgsBuilder.compile. |
 | [PrefixArgSpec](https://spearkit.bayburt.lu/docs/api-reference/prefix-commands/interfaces/PrefixArgSpec) |  | A single argument's runtime spec; recorded by PrefixArgsBuilder. |
 | [PrefixCommand](https://spearkit.bayburt.lu/docs/api-reference/prefix-commands/interfaces/PrefixCommand) |  | A registrable prefix command. Build it with prefixCommand. |
-| [PrefixCommandConfig\<TArgs, R\>](https://spearkit.bayburt.lu/docs/api-reference/prefix-commands/interfaces/PrefixCommandConfig) |  | Configuration for a prefix command. |
+| [PrefixCommandConfig](https://spearkit.bayburt.lu/docs/api-reference/prefix-commands/interfaces/PrefixCommandConfig) |  | Configuration for a prefix command. |
 | [PrefixOptions](https://spearkit.bayburt.lu/docs/api-reference/prefix-commands/interfaces/PrefixOptions) |  | Options controlling how prefix messages are recognised. |
 
 ### Type aliases
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
-| [PrefixErrorHandler](https://spearkit.bayburt.lu/docs/api-reference/prefix-commands/type-aliases/PrefixErrorHandler) | `PrefixErrorHandler = (error, message, commandName) => Awaitable<void>` | Error hook invoked when a prefix command handler throws. |
+| [PrefixErrorHandler](https://spearkit.bayburt.lu/docs/api-reference/prefix-commands/type-aliases/PrefixErrorHandler) | `type PrefixErrorHandler = (error: Error, message: Message, commandName: string) => Awaitable<void>;` | Error hook invoked when a prefix command handler throws. |
 
 ## Components
 
@@ -186,107 +186,107 @@ Buttons, selects, modals, component contexts, layouts, and payload routing.
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
-| [buildCustomId()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/buildCustomId) | `buildCustomId(compiled, params): string` | Build a concrete custom-id from a compiled pattern and its params. |
-| [buildHelpEntries()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/buildHelpEntries) | `buildHelpEntries(client, options?): HelpEntry[]` | Collect command metadata from a client without sending anything. |
-| [buildPaginatorPage()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/buildPaginatorPage) | `buildPaginatorPage<T>(items, page, options): Promise<{ pages: number; payload: BaseMessageOptions; }>` | Build the payload for a single paginator page (embeds + button row), without any interaction or collector wiring. Useful for tests, web previews and custom UIs that want spearkit's slicing/controls… |
-| [button()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/button) | `button<P, R>(config): Button<P>` | Define an interactive button: its appearance, its custom-id pattern and its click handler, all in one place. Register it with client.components.add. |
-| [channelSelect()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/channelSelect) | `channelSelect<P, R>(config): ChannelSelect<P>` | Define a channel select menu, optionally restricted to channel types. |
-| [channelSelectField()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/channelSelectField) | `channelSelectField(config): ChannelSelectFieldDef` | Define a channel select field inside a modal, optionally restricted to channel types. The handler receives channel ids. |
-| [checkbox()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/checkbox) | `checkbox(config): CheckboxDef` | Define a modal checkbox field (a single yes/no tick). Checkboxes cannot be required per the Discord spec; the handler always receives a boolean. |
-| [checkboxGroup()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/checkboxGroup) | `checkboxGroup<C>(config): CheckboxGroupDef<OptionValues<C>>` | Define a modal checkbox-group field (zero or more selectable options). Checkbox groups cannot be required; an untouched submit resolves to []. |
-| [compilePattern()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/compilePattern) | `compilePattern(pattern): CompiledPattern` | Compile and validate a custom-id pattern. Throws on malformed input. |
-| [confirm()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/confirm) | `confirm(interaction, options): Promise<ConfirmResult>` | Show a yes/no confirmation prompt and wait for the user's choice. Resolves once a button is clicked or the timeout fires. The clicked button is automatically acknowledged via deferUpdate, and the… |
-| [container()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/container) | `container(config): ContainerBuilder` | A card: accent-coloured box holding text displays, separators, sections, galleries, files and action rows. Containers cannot be nested. |
-| [createPayloadStore()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/createPayloadStore) | `createPayloadStore<T>(options): PayloadStore<T>` | Build a PayloadStore over any KeyValueStore. |
-| [file()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/file) | `file(url, config?): FileBuilder` | An attached-file block referencing attachment://… or a URL. |
-| [fileUpload()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/fileUpload) | `fileUpload(config): FileUploadDef` | Define a modal file-upload field. The handler receives the uploaded Attachments (CDN links — file bodies are not part of the interaction). |
-| [helpCommand()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/helpCommand) | `helpCommand(options?): SlashCommand` | Define a paginated /help command backed by the live registries. |
-| [linkButton()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/linkButton) | `linkButton(config): ButtonBuilder` | Build a link button. Link buttons have no custom-id and run no handler. |
-| [mediaGallery()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/mediaGallery) | `mediaGallery(items): MediaGalleryBuilder` | A grid of remote images/videos. |
-| [mentionableSelect()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/mentionableSelect) | `mentionableSelect<P, R>(config): MentionableSelect<P>` | Define a mentionable (user + role) select menu. |
-| [mentionableSelectField()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/mentionableSelectField) | `mentionableSelectField(config): MentionableSelectFieldDef` | Define a mentionable (user + role) select field inside a modal. |
-| [modal()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/modal) | `modal<P, F, R>(config): Modal<P>` | Define a modal: its title, its custom-id pattern, its typed fields and a submit handler. Every field renders as a Label component; submitted values arrive keyed by field name in ctx.fields, inferred… |
-| [paginate()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/paginate) | `paginate<T>(interaction, items, options): Promise<void>` | Send an item list across paginated, button-controlled embeds. The first page is replied to interaction (or editReplyd when already deferred), then a button-component collector handles prev/next |
-| [paramsFromValues()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/paramsFromValues) | `paramsFromValues(paramNames, values): Record<string, string>` | Map ordered values onto their param names. |
-| [parseCustomId()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/parseCustomId) | `parseCustomId(customId): ParsedCustomId` | Parse an incoming custom-id into its namespace and decoded values. |
-| [poll()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/poll) | `poll(config): PollData` | Build a Discord poll payload with readable names and early validation. |
-| [radioGroup()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/radioGroup) | `radioGroup<C>(config): RadioGroupDef<OptionValues<C>, IsRequired<C>>` | Define a modal radio-group field (exactly one selectable option). |
-| [roleSelect()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/roleSelect) | `roleSelect<P, R>(config): RoleSelect<P>` | Define a role select menu. |
-| [roleSelectField()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/roleSelectField) | `roleSelectField(config): RoleSelectFieldDef` | Define a role select field inside a modal. The handler receives role ids. |
-| [row()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/row) | `row<C>(...components): ActionRowBuilder<C>` | Wrap one or more component builders in an action row. A row holds up to five buttons, or exactly one select menu. |
-| [section()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/section) | `section(config): SectionBuilder` | Side-by-side layout: text displays next to one button or thumbnail. |
-| [separator()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/separator) | `separator(config?): SeparatorBuilder` | A spacing/divider block. |
-| [stringSelect()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/stringSelect) | `stringSelect<P, R>(config): StringSelect<P>` | Define a string select menu, its custom-id pattern and its handler. |
-| [stringSelectField()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/stringSelectField) | `stringSelectField(config): StringSelectFieldDef` | Define a string select menu field inside a modal. The handler receives the chosen values. |
-| [textDisplay()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/textDisplay) | `textDisplay(content): TextDisplayBuilder` | A text display block (Discord-flavoured markdown allowed). |
-| [textInput()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/textInput) | `textInput(config): TextInputDef` | Define a single modal text-input field. |
-| [thumbnail()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/thumbnail) | `thumbnail(config): ThumbnailBuilder` | An inline thumbnail (used as a section accessory). |
-| [userSelect()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/userSelect) | `userSelect<P, R>(config): UserSelect<P>` | Define a user select menu. |
-| [userSelectField()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/userSelectField) | `userSelectField(config): UserSelectFieldDef` | Define a user select field inside a modal. The handler receives user ids. |
+| [buildCustomId()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/buildCustomId) | `function buildCustomId(compiled: CompiledPattern, params: Readonly<Record<string, string>>): string;` | Build a concrete custom-id from a compiled pattern and its params. |
+| [buildHelpEntries()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/buildHelpEntries) | `function buildHelpEntries(client: Pick<SpearClient, "commands" \| "prefix" \| "contextMenus">, options?: Pick<HelpCommandOptions, "includePrefix" \| "includeContextMenus"> & object): HelpEntry[];` | Collect command metadata from a client without sending anything. |
+| [buildPaginatorPage()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/buildPaginatorPage) | `function buildPaginatorPage<T>( items: readonly T[], page: number, options: PaginateOptions<T>): Promise<{ pages: number; payload: BaseMessageOptions; }>;` | Build the payload for a single paginator page (embeds + button row), without any interaction or collector wiring. Useful for tests, web previews and custom UIs that want spearkit's slicing/controls… |
+| [button()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/button) | `function button<P, R>(config: ButtonConfig<P, R>): Button<P>;` | Define an interactive button: its appearance, its custom-id pattern and its click handler, all in one place. Register it with client.components.add. |
+| [channelSelect()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/channelSelect) | `function channelSelect<P, R>(config: EntitySelectConfig<P> & object): ChannelSelect<P>;` | Define a channel select menu, optionally restricted to channel types. |
+| [channelSelectField()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/channelSelectField) | `function channelSelectField(config: FieldConfigBase & object): ChannelSelectFieldDef;` | Define a channel select field inside a modal, optionally restricted to channel types. The handler receives channel ids. |
+| [checkbox()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/checkbox) | `function checkbox(config: object): CheckboxDef;` | Define a modal checkbox field (a single yes/no tick). Checkboxes cannot be required per the Discord spec; the handler always receives a boolean. |
+| [checkboxGroup()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/checkboxGroup) | `function checkboxGroup<C>(config: C): CheckboxGroupDef<OptionValues<C>>;` | Define a modal checkbox-group field (zero or more selectable options). Checkbox groups cannot be required; an untouched submit resolves to []. |
+| [compilePattern()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/compilePattern) | `function compilePattern(pattern: string): CompiledPattern;` | Compile and validate a custom-id pattern. Throws on malformed input. |
+| [confirm()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/confirm) | `function confirm(interaction: RepliableInteraction, options: ConfirmOptions): Promise<ConfirmResult>;` | Show a yes/no confirmation prompt and wait for the user's choice. |
+| [container()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/container) | `function container(config: ContainerConfig): ContainerBuilder;` | A card: accent-coloured box holding text displays, separators, sections, galleries, files and action rows. Containers cannot be nested. |
+| [createPayloadStore()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/createPayloadStore) | `function createPayloadStore<T>(options: CreatePayloadStoreOptions): PayloadStore<T>;` | Build a PayloadStore over any KeyValueStore. |
+| [file()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/file) | `function file(url: string, config?: object): FileBuilder;` | An attached-file block referencing attachment://… or a URL. |
+| [fileUpload()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/fileUpload) | `function fileUpload(config: FieldConfigBase & object): FileUploadDef;` | Define a modal file-upload field. The handler receives the uploaded Attachments (CDN links — file bodies are not part of the interaction). |
+| [helpCommand()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/helpCommand) | `function helpCommand(options?: HelpCommandOptions): SlashCommand;` | Define a paginated /help command backed by the live registries. |
+| [linkButton()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/linkButton) | `function linkButton(config: LinkButtonConfig): ButtonBuilder;` | Build a link button. Link buttons have no custom-id and run no handler. |
+| [mediaGallery()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/mediaGallery) | `function mediaGallery(items: readonly GalleryItem[]): MediaGalleryBuilder;` | A grid of remote images/videos. |
+| [mentionableSelect()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/mentionableSelect) | `function mentionableSelect<P, R>(config: EntitySelectConfig<P> & object): MentionableSelect<P>;` | Define a mentionable (user + role) select menu. |
+| [mentionableSelectField()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/mentionableSelectField) | `function mentionableSelectField(config: FieldConfigBase & object): MentionableSelectFieldDef;` | Define a mentionable (user + role) select field inside a modal. |
+| [modal()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/modal) | `function modal<P, F, R>(config: ModalConfig<P, F, R>): Modal<P>;` | Define a modal: its title, its custom-id pattern, its typed fields and a submit handler. Every field renders as a Label component; submitted values arrive keyed by field name in ctx.fields, inferred… |
+| [paginate()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/paginate) | `function paginate<T>( interaction: RepliableInteraction, items: readonly T[], options: PaginateOptions<T>): Promise<void>;` | Send an item list across paginated, button-controlled embeds. |
+| [paramsFromValues()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/paramsFromValues) | `function paramsFromValues(paramNames: readonly string[], values: readonly string[]): Record<string, string>;` | Map ordered values onto their param names. |
+| [parseCustomId()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/parseCustomId) | `function parseCustomId(customId: string): ParsedCustomId;` | Parse an incoming custom-id into its namespace and decoded values. |
+| [poll()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/poll) | `function poll(config: PollConfig): PollData;` | Build a Discord poll payload with readable names and early validation. |
+| [radioGroup()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/radioGroup) | `function radioGroup<C>(config: C): RadioGroupDef<OptionValues<C>, IsRequired<C>>;` | Define a modal radio-group field (exactly one selectable option). |
+| [roleSelect()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/roleSelect) | `function roleSelect<P, R>(config: EntitySelectConfig<P> & object): RoleSelect<P>;` | Define a role select menu. |
+| [roleSelectField()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/roleSelectField) | `function roleSelectField(config: FieldConfigBase & object): RoleSelectFieldDef;` | Define a role select field inside a modal. The handler receives role ids. |
+| [row()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/row) | `function row<C>(...components: C[]): ActionRowBuilder<C>;` | Wrap one or more component builders in an action row. |
+| [section()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/section) | `function section(config: SectionConfig): SectionBuilder;` | Side-by-side layout: text displays next to one button or thumbnail. |
+| [separator()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/separator) | `function separator(config?: SeparatorConfig): SeparatorBuilder;` | A spacing/divider block. |
+| [stringSelect()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/stringSelect) | `function stringSelect<P, R>(config: StringSelectConfig<P, R>): StringSelect<P>;` | Define a string select menu, its custom-id pattern and its handler. |
+| [stringSelectField()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/stringSelectField) | `function stringSelectField(config: FieldConfigBase & object): StringSelectFieldDef;` | Define a string select menu field inside a modal. The handler receives the chosen values. |
+| [textDisplay()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/textDisplay) | `function textDisplay(content: string): TextDisplayBuilder;` | A text display block (Discord-flavoured markdown allowed). |
+| [textInput()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/textInput) | `function textInput(config: object): TextInputDef;` | Define a single modal text-input field. |
+| [thumbnail()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/thumbnail) | `function thumbnail(config: ThumbnailConfig): ThumbnailBuilder;` | An inline thumbnail (used as a section accessory). |
+| [userSelect()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/userSelect) | `function userSelect<P, R>(config: EntitySelectConfig<P> & object): UserSelect<P>;` | Define a user select menu. |
+| [userSelectField()](https://spearkit.bayburt.lu/docs/api-reference/components/functions/userSelectField) | `function userSelectField(config: FieldConfigBase & object): UserSelectFieldDef;` | Define a user select field inside a modal. The handler receives user ids. |
 
 ### Classes
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
-| [ButtonContext\<P\>](https://spearkit.bayburt.lu/docs/api-reference/components/classes/ButtonContext) |  | Context for a button click. |
-| [ChannelSelectContext\<P\>](https://spearkit.bayburt.lu/docs/api-reference/components/classes/ChannelSelectContext) |  | Context for a channel select. |
+| [ButtonContext](https://spearkit.bayburt.lu/docs/api-reference/components/classes/ButtonContext) |  | Context for a button click. |
+| [ChannelSelectContext](https://spearkit.bayburt.lu/docs/api-reference/components/classes/ChannelSelectContext) |  | Context for a channel select. |
 | [ComponentRegistry](https://spearkit.bayburt.lu/docs/api-reference/components/classes/ComponentRegistry) |  | Routes button, select and modal interactions to the handlers registered for their custom-id namespace. Decodes the custom-id, extracts typed params, and invokes the matching handler. |
-| [MentionableSelectContext\<P\>](https://spearkit.bayburt.lu/docs/api-reference/components/classes/MentionableSelectContext) |  | Context for a mentionable (user + role) select. |
-| [MessageComponentContext\<P, I\>](https://spearkit.bayburt.lu/docs/api-reference/components/classes/MessageComponentContext) |  | Base context for message-component interactions (buttons and selects). Adds the component-only update/deferUpdate/showModal helpers and the routed, typed params. |
-| [ModalContext\<P, Fields\>](https://spearkit.bayburt.lu/docs/api-reference/components/classes/ModalContext) |  | Context for a submitted modal. Exposes the routed params plus the resolved fields, keyed by the field names you declared and typed by each field definition (text inputs are string, radio groups… |
-| [RoleSelectContext\<P\>](https://spearkit.bayburt.lu/docs/api-reference/components/classes/RoleSelectContext) |  | Context for a role select. |
-| [StringSelectContext\<P\>](https://spearkit.bayburt.lu/docs/api-reference/components/classes/StringSelectContext) |  | Context for a string select; exposes the chosen values. |
-| [UserSelectContext\<P\>](https://spearkit.bayburt.lu/docs/api-reference/components/classes/UserSelectContext) |  | Context for a user select; exposes selected ids, users and members. |
+| [MentionableSelectContext](https://spearkit.bayburt.lu/docs/api-reference/components/classes/MentionableSelectContext) |  | Context for a mentionable (user + role) select. |
+| [MessageComponentContext](https://spearkit.bayburt.lu/docs/api-reference/components/classes/MessageComponentContext) |  | Base context for message-component interactions (buttons and selects). Adds the component-only update/deferUpdate/showModal helpers and the routed, typed params. |
+| [ModalContext](https://spearkit.bayburt.lu/docs/api-reference/components/classes/ModalContext) |  | Context for a submitted modal. Exposes the routed params plus the resolved fields, keyed by the field names you declared and typed by each field definition (text inputs are string, radio groups… |
+| [RoleSelectContext](https://spearkit.bayburt.lu/docs/api-reference/components/classes/RoleSelectContext) |  | Context for a role select. |
+| [StringSelectContext](https://spearkit.bayburt.lu/docs/api-reference/components/classes/StringSelectContext) |  | Context for a string select; exposes the chosen values. |
+| [UserSelectContext](https://spearkit.bayburt.lu/docs/api-reference/components/classes/UserSelectContext) |  | Context for a user select; exposes selected ids, users and members. |
 
 ### Interfaces
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
-| [Button\<P\>](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/Button) |  | A registrable button with a typed build. |
-| [ButtonConfig\<P, R\>](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/ButtonConfig) |  | Config for an interactive button created with button. |
+| [Button](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/Button) |  | A registrable button with a typed build. |
+| [ButtonConfig](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/ButtonConfig) |  | Config for an interactive button created with button. |
 | [ButtonRoute](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/ButtonRoute) |  | Routing entry for a button. |
-| [ChannelSelect\<P\>](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/ChannelSelect) |  | A registrable channel select. |
+| [ChannelSelect](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/ChannelSelect) |  | A registrable channel select. |
 | [ChannelSelectFieldDef](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/ChannelSelectFieldDef) |  | A channel select field inside a modal. Submits channel ids. |
 | [ChannelSelectRoute](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/ChannelSelectRoute) |  | Routing entry for a channel select. |
 | [CheckboxDef](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/CheckboxDef) |  | A single checkbox field definition. Submits a boolean (never required). |
-| [CheckboxGroupDef\<V\>](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/CheckboxGroupDef) |  | A checkbox group field definition. Submits an array of its option values. |
+| [CheckboxGroupDef](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/CheckboxGroupDef) |  | A checkbox group field definition. Submits an array of its option values. |
 | [CompiledPattern](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/CompiledPattern) |  | A compiled pattern: its routing namespace and ordered param names. |
 | [ConfirmButtonOptions](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/ConfirmButtonOptions) |  | One of the two buttons. |
 | [ConfirmOptions](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/ConfirmOptions) |  | Options for confirm. |
 | [ConfirmResult](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/ConfirmResult) |  | Result of confirm. |
 | [ContainerConfig](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/ContainerConfig) |  | Config for container. |
 | [CreatePayloadStoreOptions](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/CreatePayloadStoreOptions) |  | Options for createPayloadStore. |
-| [EntitySelectConfig\<P\>](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/EntitySelectConfig) |  | Config shared by the entity-select builders (user/role/channel/mentionable). |
+| [EntitySelectConfig](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/EntitySelectConfig) |  | Config shared by the entity-select builders (user/role/channel/mentionable). |
 | [FileUploadDef](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/FileUploadDef) |  | A file upload field definition. Submits the uploaded Attachments. |
 | [GalleryItem](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/GalleryItem) |  | One media gallery entry. |
 | [GroupOption](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/GroupOption) |  | One option inside a radio group / checkbox group. |
 | [HelpCommandOptions](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/HelpCommandOptions) |  | Options for helpCommand. |
 | [HelpEntry](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/HelpEntry) |  | One command shown by the generated help command. |
 | [LinkButtonConfig](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/LinkButtonConfig) |  | Config for a link button (no handler — just opens a URL). |
-| [MentionableSelect\<P\>](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/MentionableSelect) |  | A registrable mentionable select. |
+| [MentionableSelect](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/MentionableSelect) |  | A registrable mentionable select. |
 | [MentionableSelectFieldDef](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/MentionableSelectFieldDef) |  | A mentionable (user + role) select field inside a modal. Submits ids. |
 | [MentionableSelectRoute](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/MentionableSelectRoute) |  | Routing entry for a mentionable select. |
-| [Modal\<P\>](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/Modal) |  | A registrable modal with a typed build. |
-| [ModalConfig\<P, F, R\>](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/ModalConfig) |  | Config for a modal created with modal. |
-| [ModalFieldDef\<TValue, TRequired\>](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/ModalFieldDef) |  | Base of every modal field definition. The two type parameters are phantom markers used purely for compile-time inference of the submitted value: - TValue is the type produced for the modal handler. |
+| [Modal](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/Modal) |  | A registrable modal with a typed build. |
+| [ModalConfig](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/ModalConfig) |  | Config for a modal created with modal. |
+| [ModalFieldDef](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/ModalFieldDef) |  | Base of every modal field definition. The two type parameters are phantom markers used purely for compile-time inference of the submitted value: - TValue is the type produced for the modal handler. -… |
 | [ModalRoute](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/ModalRoute) |  | Routing entry for a modal submission. |
-| [PaginateOptions\<T\>](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/PaginateOptions) |  | Options for paginate / buildPaginatorPage. |
+| [PaginateOptions](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/PaginateOptions) |  | Options for paginate / buildPaginatorPage. |
 | [ParsedCustomId](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/ParsedCustomId) |  | The namespace + raw values parsed out of an incoming custom-id. |
-| [PayloadStore\<T\>](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/PayloadStore) |  | A token → payload map backed by a KeyValueStore. |
+| [PayloadStore](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/PayloadStore) |  | A token → payload map backed by a KeyValueStore. |
 | [PollConfig](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/PollConfig) |  | Configuration for poll. |
-| [RadioGroupDef\<V, TRequired\>](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/RadioGroupDef) |  | A radio group field definition. Submits one of its option values. |
-| [RoleSelect\<P\>](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/RoleSelect) |  | A registrable role select. |
+| [RadioGroupDef](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/RadioGroupDef) |  | A radio group field definition. Submits one of its option values. |
+| [RoleSelect](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/RoleSelect) |  | A registrable role select. |
 | [RoleSelectFieldDef](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/RoleSelectFieldDef) |  | A role select field inside a modal. Submits role ids. |
 | [RoleSelectRoute](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/RoleSelectRoute) |  | Routing entry for a role select. |
 | [SectionConfig](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/SectionConfig) |  | Config for section: side text plus exactly one accessory. |
 | [SeparatorConfig](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/SeparatorConfig) |  | Config for separator. |
-| [StringSelect\<P\>](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/StringSelect) |  | A registrable string select with a typed build. |
-| [StringSelectConfig\<P, R\>](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/StringSelectConfig) |  | Config for a string select created with stringSelect. |
+| [StringSelect](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/StringSelect) |  | A registrable string select with a typed build. |
+| [StringSelectConfig](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/StringSelectConfig) |  | Config for a string select created with stringSelect. |
 | [StringSelectFieldDef](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/StringSelectFieldDef) |  | A string select field inside a modal. Submits the chosen values. |
 | [StringSelectRoute](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/StringSelectRoute) |  | Routing entry for a string select. |
 | [TextInputDef](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/TextInputDef) |  | A resolved text-input field definition. Submits a string. |
 | [ThumbnailConfig](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/ThumbnailConfig) |  | Config for thumbnail. |
-| [UserSelect\<P\>](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/UserSelect) |  | A registrable user select. |
+| [UserSelect](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/UserSelect) |  | A registrable user select. |
 | [UserSelectFieldDef](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/UserSelectFieldDef) |  | A user select field inside a modal. Submits user ids. |
 | [UserSelectRoute](https://spearkit.bayburt.lu/docs/api-reference/components/interfaces/UserSelectRoute) |  | Routing entry for a user select. |
 
@@ -294,31 +294,31 @@ Buttons, selects, modals, component contexts, layouts, and payload routing.
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
-| [AnyComponentInteraction](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/AnyComponentInteraction) | `AnyComponentInteraction = ButtonInteraction \| StringSelectMenuInteraction \| UserSelectMenuInteraction \| RoleSelectMenuInteraction \| ChannelSelectMenuInteraction \| MentionableSelectMenuInteraction` | The concrete message-component interaction types (button + every select). |
-| [AnyModalFieldDef](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/AnyModalFieldDef) | `AnyModalFieldDef = ModalFieldDef<unknown, boolean>` | Any modal field definition, regardless of value type. |
-| [BuildArgs\<S\>](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/BuildArgs) | `BuildArgs<S> = [ParamNames<S>] extends [never] ? [] : [Params<S>]` | Arguments build() accepts: none when the pattern has no params. |
-| [ButtonStyleInput](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/ButtonStyleInput) | `ButtonStyleInput = "Primary" \| "Secondary" \| "Success" \| "Danger" \| ButtonStyle.Primary \| ButtonStyle.Secondary \| ButtonStyle.Success \| ButtonStyle.Danger` | Accepted button styles for an interactive (custom-id) button. |
-| [ComponentDef](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/ComponentDef) | `ComponentDef = ButtonRoute \| StringSelectRoute \| UserSelectRoute \| RoleSelectRoute \| ChannelSelectRoute \| MentionableSelectRoute \| ModalRoute` | Any registrable component routing entry. |
-| [ComponentErrorHandler](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/ComponentErrorHandler) | `ComponentErrorHandler = (error, interaction, namespace) => Awaitable<void>` | Error hook invoked when a component handler throws. |
-| [ConfirmButtonStyle](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/ConfirmButtonStyle) | `ConfirmButtonStyle = "Primary" \| "Secondary" \| "Success" \| "Danger"` | Visual style for a confirm/cancel button. |
-| [HelpSurface](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/HelpSurface) | `HelpSurface = "slash" \| "prefix" \| "userMenu" \| "messageMenu"` |  |
-| [ModalFieldKind](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/ModalFieldKind) | `ModalFieldKind = "textInput" \| "stringSelect" \| "userSelect" \| "roleSelect" \| "channelSelect" \| "mentionableSelect" \| "radioGroup" \| "checkboxGroup" \| "checkbox" \| "fileUpload"` | Every modal field kind spearkit knows how to build and read back. |
-| [ModalFieldMap](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/ModalFieldMap) | `ModalFieldMap = Record<string, AnyModalFieldDef>` | A map of field name => definition. |
-| [PaginateRender](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/PaginateRender) | `PaginateRender = EmbedBuilder \| readonly EmbedBuilder[] \| BaseMessageOptions` | Result of PaginateOptions.render: a builder OR a full message payload. |
-| [ParamNames\<S\>](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/ParamNames) | `ParamNames<S> = S extends ${string}{${infer Name}}${infer Rest} ? Name \| ParamNames<Rest> : never` | Names of the {param} placeholders inside a pattern. |
-| [Params\<S\>](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/Params) | `Params<S> = { [K in ParamNames<S>]: string }` | The params object a pattern resolves to (every value is a string). |
-| [PollAnswerInput](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/PollAnswerInput) | `PollAnswerInput = string \| { emoji?: EmojiIdentifierResolvable; text: string; }` | One answer accepted by poll. |
-| [ResolvedFieldValue\<D\>](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/ResolvedFieldValue) | `ResolvedFieldValue<D> = D extends ModalFieldDef<infer V, infer Req> ? Req extends true ? V : V \| undefined : never` | Maps a single field definition to the value passed into the modal handler. Optional fields only widen to include undefined when being empty is a meaningful distinct state (radio groups)… |
-| [ResolvedModalFields\<F\>](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/ResolvedModalFields) | `ResolvedModalFields<F> = { [K in keyof F]: ResolvedFieldValue<F[K]> }` | Resolves a whole ModalFieldMap into the handler's fields object. |
-| [SectionButton](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/SectionButton) | `SectionButton = Parameters<SectionBuilder["setButtonAccessory"]>[0]` | Accessory accepted by section: an API button or a ButtonBuilder. |
-| [TextInputStyleInput](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/TextInputStyleInput) | `TextInputStyleInput = "Short" \| "Paragraph" \| TextInputStyle` | Accepted text-input styles. |
-| [V2Child](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/V2Child) | `V2Child = TextDisplayBuilder \| SeparatorBuilder \| SectionBuilder \| MediaGalleryBuilder \| FileBuilder \| ActionRowBuilder<MessageActionRowComponentBuilder>` | Anything that can sit inside a container or at the top level of a V2 message. |
+| [AnyComponentInteraction](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/AnyComponentInteraction) | `type AnyComponentInteraction = \| ButtonInteraction \| StringSelectMenuInteraction \| UserSelectMenuInteraction \| RoleSelectMenuInteraction \| ChannelSelectMenuInteraction \| MentionableSelectMenuInteraction;` | The concrete message-component interaction types (button + every select). |
+| [AnyModalFieldDef](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/AnyModalFieldDef) | `type AnyModalFieldDef = ModalFieldDef<unknown, boolean>;` | Any modal field definition, regardless of value type. |
+| [BuildArgs](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/BuildArgs) | `type BuildArgs<S> = [ParamNames<S>] extends [never] ? [] : [Params<S>];` | Arguments build() accepts: none when the pattern has no params. |
+| [ButtonStyleInput](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/ButtonStyleInput) | `type ButtonStyleInput = \| "Primary" \| "Secondary" \| "Success" \| "Danger" \| ButtonStyle.Primary \| ButtonStyle.Secondary \| ButtonStyle.Success \| ButtonStyle.Danger;` | Accepted button styles for an interactive (custom-id) button. |
+| [ComponentDef](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/ComponentDef) | `type ComponentDef = \| ButtonRoute \| StringSelectRoute \| UserSelectRoute \| RoleSelectRoute \| ChannelSelectRoute \| MentionableSelectRoute \| ModalRoute;` | Any registrable component routing entry. |
+| [ComponentErrorHandler](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/ComponentErrorHandler) | `type ComponentErrorHandler = (error: Error, interaction: RepliableInteraction, namespace: string) => Awaitable<void>;` | Error hook invoked when a component handler throws. |
+| [ConfirmButtonStyle](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/ConfirmButtonStyle) | `type ConfirmButtonStyle = "Primary" \| "Secondary" \| "Success" \| "Danger";` | Visual style for a confirm/cancel button. |
+| [HelpSurface](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/HelpSurface) | `type HelpSurface = "slash" \| "prefix" \| "userMenu" \| "messageMenu";` |  |
+| [ModalFieldKind](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/ModalFieldKind) | `type ModalFieldKind = \| "textInput" \| "stringSelect" \| "userSelect" \| "roleSelect" \| "channelSelect" \| "mentionableSelect" \| "radioGroup" \| "checkboxGroup" \| "checkbox" \| "fileUpload";` | Every modal field kind spearkit knows how to build and read back. |
+| [ModalFieldMap](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/ModalFieldMap) | `type ModalFieldMap = Record<string, AnyModalFieldDef>;` | A map of field name => definition. |
+| [PaginateRender](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/PaginateRender) | `type PaginateRender = EmbedBuilder \| readonly EmbedBuilder[] \| BaseMessageOptions;` | Result of PaginateOptions.render: a builder OR a full message payload. |
+| [ParamNames](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/ParamNames) | `type ParamNames<S> = S extends ${string}{${infer Name}}${infer Rest} ? Name \| ParamNames<Rest> : never;` | Names of the {param} placeholders inside a pattern. |
+| [Params](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/Params) | `type Params<S> = { [K in ParamNames<S>]: string };` | The params object a pattern resolves to (every value is a string). |
+| [PollAnswerInput](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/PollAnswerInput) | `type PollAnswerInput = \| string \| { emoji?: EmojiIdentifierResolvable; text: string; };` | One answer accepted by poll. |
+| [ResolvedFieldValue](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/ResolvedFieldValue) | `type ResolvedFieldValue<D> = D extends ModalFieldDef<infer V, infer Req> ? Req extends true ? V : V \| undefined : never;` | Maps a single field definition to the value passed into the modal handler. Optional fields only widen to include undefined when being empty is a meaningful distinct state (radio groups)… |
+| [ResolvedModalFields](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/ResolvedModalFields) | `type ResolvedModalFields<F> = { [K in keyof F]: ResolvedFieldValue<F[K]> };` | Resolves a whole ModalFieldMap into the handler's fields object. |
+| [SectionButton](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/SectionButton) | `type SectionButton = Parameters<SectionBuilder["setButtonAccessory"]>[0];` | Accessory accepted by section: an API button or a ButtonBuilder. |
+| [TextInputStyleInput](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/TextInputStyleInput) | `type TextInputStyleInput = "Short" \| "Paragraph" \| TextInputStyle;` | Accepted text-input styles. |
+| [V2Child](https://spearkit.bayburt.lu/docs/api-reference/components/type-aliases/V2Child) | `type V2Child = \| TextDisplayBuilder \| SeparatorBuilder \| SectionBuilder \| MediaGalleryBuilder \| FileBuilder \| ActionRowBuilder<MessageActionRowComponentBuilder>;` | Anything that can sit inside a container or at the top level of a V2 message. |
 
 ### Variables
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
-| [MAX\_CUSTOM\_ID\_LENGTH](https://spearkit.bayburt.lu/docs/api-reference/components/variables/MAX_CUSTOM_ID_LENGTH) | `const MAXCUSTOMIDLENGTH: 100 = 100` | The discord custom-id length limit. |
+| [MAX_CUSTOM_ID_LENGTH](https://spearkit.bayburt.lu/docs/api-reference/components/variables/MAX_CUSTOM_ID_LENGTH) | `const MAXCUSTOMIDLENGTH: 100 = 100;` | The discord custom-id length limit. |
 
 ## Contexts and replies
 
@@ -328,17 +328,17 @@ Shared handler contexts, collectors, and reply embed helpers.
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
-| [asEphemeral()](https://spearkit.bayburt.lu/docs/api-reference/contexts/functions/asEphemeral) | `asEphemeral(input): ReplyData` | Marks an input as ephemeral, regardless of how it was passed. |
-| [awaitComponent()](https://spearkit.bayburt.lu/docs/api-reference/contexts/functions/awaitComponent) | `awaitComponent(message, options?): Promise<MessageComponentInteraction<CacheType> \| null>` | Wait for the next component interaction (button/select click) on message, resolving to it or null on timeout. Note: you must still acknowledge the returned interaction (update/deferUpdate/reply). |
-| [awaitMessage()](https://spearkit.bayburt.lu/docs/api-reference/contexts/functions/awaitMessage) | `awaitMessage(channel, options?): Promise<Message<boolean> \| null>` | Wait for the next message in channel that matches filter, resolving to the Message or null if none arrives before time elapses. |
-| [normalizeReply()](https://spearkit.bayburt.lu/docs/api-reference/contexts/functions/normalizeReply) | `normalizeReply(input): InteractionReplyOptions` | Normalises spearkit reply input into a discord.js reply payload. |
-| [showAndAwaitModal()](https://spearkit.bayburt.lu/docs/api-reference/contexts/functions/showAndAwaitModal) | `showAndAwaitModal(interaction, modal, options?): Promise<ModalSubmitInteraction<CacheType> \| null>` | Show modal on interaction, then wait for its submission — scoped to the same user and the modal's own custom-id — resolving to the ModalSubmitInteraction or null if the user dismisses it / it times |
+| [asEphemeral()](https://spearkit.bayburt.lu/docs/api-reference/contexts/functions/asEphemeral) | `function asEphemeral(input: ReplyInput): ReplyData;` | Marks an input as ephemeral, regardless of how it was passed. |
+| [awaitComponent()](https://spearkit.bayburt.lu/docs/api-reference/contexts/functions/awaitComponent) | `function awaitComponent(message: Message, options?: AwaitComponentOptions): Promise<MessageComponentInteraction<CacheType> \| null>;` | Wait for the next component interaction (button/select click) on message, resolving to it or null on timeout. Note: you must still acknowledge the returned interaction (update/deferUpdate/reply). |
+| [awaitMessage()](https://spearkit.bayburt.lu/docs/api-reference/contexts/functions/awaitMessage) | `function awaitMessage(channel: CollectableChannel, options?: AwaitMessageOptions): Promise<Message<boolean> \| null>;` | Wait for the next message in channel that matches filter, resolving to the Message or null if none arrives before time elapses. |
+| [normalizeReply()](https://spearkit.bayburt.lu/docs/api-reference/contexts/functions/normalizeReply) | `function normalizeReply(input: ReplyInput): InteractionReplyOptions;` | Normalises spearkit reply input into a discord.js reply payload. |
+| [showAndAwaitModal()](https://spearkit.bayburt.lu/docs/api-reference/contexts/functions/showAndAwaitModal) | `function showAndAwaitModal( interaction: ModalShowingInteraction, modal: ModalLike, options?: AwaitModalOptions): Promise<ModalSubmitInteraction<CacheType> \| null>;` | Show modal on interaction, then wait for its submission — scoped to the same user and the modal's own custom-id — resolving to the ModalSubmitInteraction or null if the user dismisses it / it times… |
 
 ### Classes
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
-| [Abstract Class: BaseContext\<I\>](https://spearkit.bayburt.lu/docs/api-reference/contexts/classes/BaseContext) |  | Ergonomic base wrapper shared by every interaction context (commands, buttons, selects, modals). Exposes the common actor/location accessors plus reply helpers that smooth over discord.js' state… |
+| [Abstract Class: BaseContext](https://spearkit.bayburt.lu/docs/api-reference/contexts/classes/BaseContext) |  | Ergonomic base wrapper shared by every interaction context (commands, buttons, selects, modals). Exposes the common actor/location accessors plus reply helpers that smooth over discord.js' state… |
 | [Embeds](https://spearkit.bayburt.lu/docs/api-reference/contexts/classes/Embeds) |  | Builds preset embeds with consistent colors and icons. |
 
 ### Interfaces
@@ -357,21 +357,21 @@ Shared handler contexts, collectors, and reply embed helpers.
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
-| [CollectableChannel](https://spearkit.bayburt.lu/docs/api-reference/contexts/type-aliases/CollectableChannel) | `CollectableChannel = Exclude<TextBasedChannel, PartialGroupDMChannel>` | A text-based channel that can collect messages — every TextBasedChannel except PartialGroupDMChannel (which has no message manager). |
-| [EmbedLevel](https://spearkit.bayburt.lu/docs/api-reference/contexts/type-aliases/EmbedLevel) | `EmbedLevel = "error" \| "success" \| "info" \| "warn"` | One of the four built-in preset levels. |
-| [EmbedPresetInput](https://spearkit.bayburt.lu/docs/api-reference/contexts/type-aliases/EmbedPresetInput) | `EmbedPresetInput = string \| { author?: APIEmbedAuthor; description?: string; fields?: readonly APIEmbedField[]; footer?: APIEmbedFooter; image?: { url: string; }; thumbnail?: { url: string; }; timestamp?: Date \| number \| string; title?: string; url?: string; }` | Shape accepted by every preset: a plain string or a structured body. |
-| [ModalLike](https://spearkit.bayburt.lu/docs/api-reference/contexts/type-aliases/ModalLike) | `ModalLike = JSONEncodable<APIModalInteractionResponseCallbackData> \| ModalComponentData \| ModalBuilder` | A modal in any of the forms discord.js' showModal accepts. |
-| [ModalShowingInteraction](https://spearkit.bayburt.lu/docs/api-reference/contexts/type-aliases/ModalShowingInteraction) | `ModalShowingInteraction = ChatInputCommandInteraction \| MessageComponentInteraction \| UserContextMenuCommandInteraction \| MessageContextMenuCommandInteraction` | Interactions that can open a modal and await its submission. |
-| [ReplyData](https://spearkit.bayburt.lu/docs/api-reference/contexts/type-aliases/ReplyData) | `ReplyData = InteractionReplyOptions & object` | Reply options with an ergonomic ephemeral shortcut (mapped to flags). |
-| [ReplyInput](https://spearkit.bayburt.lu/docs/api-reference/contexts/type-aliases/ReplyInput) | `ReplyInput = string \| ReplyData` | Either a plain string or full reply options. |
+| [CollectableChannel](https://spearkit.bayburt.lu/docs/api-reference/contexts/type-aliases/CollectableChannel) | `type CollectableChannel = Exclude<TextBasedChannel, PartialGroupDMChannel>;` | A text-based channel that can collect messages — every TextBasedChannel except PartialGroupDMChannel (which has no message manager). |
+| [EmbedLevel](https://spearkit.bayburt.lu/docs/api-reference/contexts/type-aliases/EmbedLevel) | `type EmbedLevel = "error" \| "success" \| "info" \| "warn";` | One of the four built-in preset levels. |
+| [EmbedPresetInput](https://spearkit.bayburt.lu/docs/api-reference/contexts/type-aliases/EmbedPresetInput) | `type EmbedPresetInput = \| string \| { author?: APIEmbedAuthor; description?: string; fields?: readonly APIEmbedField[]; footer?: APIEmbedFooter; image?: { url: string; }; thumbnail?: { url: string; }; timestamp?: Date \| number \| string; title?: string; url?: string; };` | Shape accepted by every preset: a plain string or a structured body. |
+| [ModalLike](https://spearkit.bayburt.lu/docs/api-reference/contexts/type-aliases/ModalLike) | `type ModalLike = \| JSONEncodable<APIModalInteractionResponseCallbackData> \| ModalComponentData \| ModalBuilder;` | A modal in any of the forms discord.js' showModal accepts. |
+| [ModalShowingInteraction](https://spearkit.bayburt.lu/docs/api-reference/contexts/type-aliases/ModalShowingInteraction) | `type ModalShowingInteraction = \| ChatInputCommandInteraction \| MessageComponentInteraction \| UserContextMenuCommandInteraction \| MessageContextMenuCommandInteraction;` | Interactions that can open a modal and await its submission. |
+| [ReplyData](https://spearkit.bayburt.lu/docs/api-reference/contexts/type-aliases/ReplyData) | `type ReplyData = InteractionReplyOptions & object;` | Reply options with an ergonomic ephemeral shortcut (mapped to flags). |
+| [ReplyInput](https://spearkit.bayburt.lu/docs/api-reference/contexts/type-aliases/ReplyInput) | `type ReplyInput = string \| ReplyData;` | Either a plain string or full reply options. |
 
 ### Variables
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
-| [DEFAULT\_EMBED\_COLORS](https://spearkit.bayburt.lu/docs/api-reference/contexts/variables/DEFAULT_EMBED_COLORS) | `const DEFAULTEMBEDCOLORS: EmbedColors` | Discord-ish defaults: red / green / blue / yellow + ⛔ ✅ ℹ️ ⚠️. |
-| [DEFAULT\_EMBED\_ICONS](https://spearkit.bayburt.lu/docs/api-reference/contexts/variables/DEFAULT_EMBED_ICONS) | `const DEFAULTEMBEDICONS: EmbedIcons` | Default icons: warning / check / info / triangle. |
-| [defaultEmbeds](https://spearkit.bayburt.lu/docs/api-reference/contexts/variables/defaultEmbeds) | `const defaultEmbeds: Embeds` | The shared default factory — used by contexts when the client has none. |
+| [DEFAULT_EMBED_COLORS](https://spearkit.bayburt.lu/docs/api-reference/contexts/variables/DEFAULT_EMBED_COLORS) | `const DEFAULTEMBEDCOLORS: EmbedColors;` | Discord-ish defaults: red / green / blue / yellow + ⛔ ✅ ℹ️ ⚠️. |
+| [DEFAULT_EMBED_ICONS](https://spearkit.bayburt.lu/docs/api-reference/contexts/variables/DEFAULT_EMBED_ICONS) | `const DEFAULTEMBEDICONS: EmbedIcons;` | Default icons: warning / check / info / triangle. |
+| [defaultEmbeds](https://spearkit.bayburt.lu/docs/api-reference/contexts/variables/defaultEmbeds) | `const defaultEmbeds: Embeds;` | The shared default factory — used by contexts when the client has none. |
 
 ## Events and tasks
 
@@ -381,10 +381,10 @@ Gateway events, scheduled work, and graceful shutdown.
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
-| [cron()](https://spearkit.bayburt.lu/docs/api-reference/events-and-tasks/functions/cron) | `cron(expression): CronExpression` | Compile a cron expression. Throws on malformed input. |
+| [cron()](https://spearkit.bayburt.lu/docs/api-reference/events-and-tasks/functions/cron) | `function cron(expression: string): CronExpression;` | Compile a cron expression. Throws on malformed input. |
 | [event()](https://spearkit.bayburt.lu/docs/api-reference/events-and-tasks/functions/event) |  |  |
-| [gracefulShutdown()](https://spearkit.bayburt.lu/docs/api-reference/events-and-tasks/functions/gracefulShutdown) | `gracefulShutdown(client, options?): () => void` | Wire signal handlers that gracefully tear client down once, then exit. Returns a disposer that removes the handlers (handy for tests/hot-reload). |
-| [task()](https://spearkit.bayburt.lu/docs/api-reference/events-and-tasks/functions/task) | `task(config): ScheduledTask` | Define a scheduled task. Throws if neither cron nor interval is given. |
+| [gracefulShutdown()](https://spearkit.bayburt.lu/docs/api-reference/events-and-tasks/functions/gracefulShutdown) | `function gracefulShutdown(client: Destroyable, options?: GracefulShutdownOptions): () => void;` | Wire signal handlers that gracefully tear client down once, then exit. Returns a disposer that removes the handlers (handy for tests/hot-reload). |
+| [task()](https://spearkit.bayburt.lu/docs/api-reference/events-and-tasks/functions/task) | `function task(config: TaskConfig): ScheduledTask;` | Define a scheduled task. Throws if neither cron nor interval is given. |
 
 ### Classes
 
@@ -399,7 +399,7 @@ Gateway events, scheduled work, and graceful shutdown.
 | Symbol | Signature | Summary |
 | --- | --- | --- |
 | [Destroyable](https://spearkit.bayburt.lu/docs/api-reference/events-and-tasks/interfaces/Destroyable) |  | Anything with an async-or-sync destroy() — a discord.js Client qualifies. |
-| [EventConfig\<E\>](https://spearkit.bayburt.lu/docs/api-reference/events-and-tasks/interfaces/EventConfig) |  | Object form accepted by event. |
+| [EventConfig](https://spearkit.bayburt.lu/docs/api-reference/events-and-tasks/interfaces/EventConfig) |  | Object form accepted by event. |
 | [EventDef](https://spearkit.bayburt.lu/docs/api-reference/events-and-tasks/interfaces/EventDef) |  | A type-erased, ready-to-attach event listener. Built by event; the concrete event type is captured in the closures so binding stays type-safe. |
 | [GracefulShutdownOptions](https://spearkit.bayburt.lu/docs/api-reference/events-and-tasks/interfaces/GracefulShutdownOptions) |  | Options for gracefulShutdown. |
 | [ScheduledTask](https://spearkit.bayburt.lu/docs/api-reference/events-and-tasks/interfaces/ScheduledTask) |  | A compiled, registrable scheduled task. Build it with task. |
@@ -410,7 +410,7 @@ Gateway events, scheduled work, and graceful shutdown.
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
-| [EventHandler\<E\>](https://spearkit.bayburt.lu/docs/api-reference/events-and-tasks/type-aliases/EventHandler) | `EventHandler<E> = (...args) => Awaitable<void>` | A typed handler for a discord.js client event. |
+| [EventHandler](https://spearkit.bayburt.lu/docs/api-reference/events-and-tasks/type-aliases/EventHandler) | `type EventHandler<E> = (...args: ClientEvents[E]) => Awaitable<void>;` | A typed handler for a discord.js client event. |
 
 ## Guards and permissions
 
@@ -420,24 +420,24 @@ Handler preconditions, permission checks, and moderation hierarchy helpers.
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
-| [botMissingPermissions()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/botMissingPermissions) | `botMissingPermissions(channel, required): ("CreateInstantInvite" \| "KickMembers" \| "BanMembers" \| "Administrator" \| "ManageChannels" \| "ManageGuild" \| "AddReactions" \| "ViewAuditLog" \| "PrioritySpeaker" \| "Stream" \| "ViewChannel" \| "SendMessages" \| "SendTTSMessages" \| "ManageMessages" \| "EmbedLinks" \| "AttachFiles" \| "ReadMessageHistory" \| "MentionEveryone" \| "UseExternalEmojis" \| "ViewGuildInsights" \| "Connect" \| "Speak" \| "MuteMembers" \| "DeafenMembers" \| "MoveMembers" \| "UseVAD" \| "ChangeNickname" \| "ManageNicknames" \| "ManageRoles" \| "ManageWebhooks" \| "ManageEmojisAndStickers" \| "ManageGuildExpressions" \| "UseApplicationCommands" \| "RequestToSpeak" \| "ManageEvents" \| "ManageThreads" \| "CreatePublicThreads" \| "CreatePrivateThreads" \| "UseExternalStickers" \| "SendMessagesInThreads" \| "UseEmbeddedActivities" \| "ModerateMembers" \| "ViewCreatorMonetizationAnalytics" \| "UseSoundboard" \| "CreateGuildExpressions" \| "CreateEvents" \| "UseExternalSounds" \| "SendVoiceMessages" \| "SetVoiceChannelStatus" \| "SendPolls" \| "UseExternalApps" \| "PinMessages" \| "BypassSlowmode")[]` | Like missingPermissions but for the bot's own member in channel. Resolves channel.guild.members.me; if that isn't available, every required permission is reported missing. |
-| [canActOn()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/canActOn) | `canActOn(actor, target): boolean` | Whether actor outranks target enough to act on them: not the same member, target isn't the guild owner, and actor is either the owner or holds a higher top role. |
-| [compareRoles()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/compareRoles) | `compareRoles(a, b): number` | Compare two members by their highest role position. Returns a positive number when a is above b, negative when below, 0 when equal. This is the raw comparison Discord enforces for moderation actions. |
-| [denied()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/denied) | `denied(reason?): GuardResult` | Sugar: build a denial result with an explanation. |
-| [dmOnly()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/dmOnly) | `dmOnly(reason?): Guard` | Require the interaction/message to come from a DM. |
-| [formatPermissions()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/formatPermissions) | `formatPermissions(permissions): string` | Render permission flag names into a human, comma-separated string. Accepts a PermissionsString array (the output of missingPermissions) or anything PermissionResolvable. |
-| [guard()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/guard) | `guard<TCtx>(predicate): Guard<TCtx>` | Inline custom predicate; sugar so a one-off check still types as a Guard. |
-| [guildOnly()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/guildOnly) | `guildOnly(reason?): Guard` | Require the interaction/message to come from inside a guild. |
-| [hasPermissions()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/hasPermissions) | `hasPermissions(channel, who, required): boolean` | Whether who has all of required in channel. |
-| [missingPermissions()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/missingPermissions) | `missingPermissions(channel, who, required): ("CreateInstantInvite" \| "KickMembers" \| "BanMembers" \| "Administrator" \| "ManageChannels" \| "ManageGuild" \| "AddReactions" \| "ViewAuditLog" \| "PrioritySpeaker" \| "Stream" \| "ViewChannel" \| "SendMessages" \| "SendTTSMessages" \| "ManageMessages" \| "EmbedLinks" \| "AttachFiles" \| "ReadMessageHistory" \| "MentionEveryone" \| "UseExternalEmojis" \| "ViewGuildInsights" \| "Connect" \| "Speak" \| "MuteMembers" \| "DeafenMembers" \| "MoveMembers" \| "UseVAD" \| "ChangeNickname" \| "ManageNicknames" \| "ManageRoles" \| "ManageWebhooks" \| "ManageEmojisAndStickers" \| "ManageGuildExpressions" \| "UseApplicationCommands" \| "RequestToSpeak" \| "ManageEvents" \| "ManageThreads" \| "CreatePublicThreads" \| "CreatePrivateThreads" \| "UseExternalStickers" \| "SendMessagesInThreads" \| "UseEmbeddedActivities" \| "ModerateMembers" \| "ViewCreatorMonetizationAnalytics" \| "UseSoundboard" \| "CreateGuildExpressions" \| "CreateEvents" \| "UseExternalSounds" \| "SendVoiceMessages" \| "SetVoiceChannelStatus" \| "SendPolls" \| "UseExternalApps" \| "PinMessages" \| "BypassSlowmode")[]` | Return the names of the required permissions that who does NOT have in channel (taking channel overwrites and Administrator into account). An empty array means every required permission is granted… |
-| [moderationCheck()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/moderationCheck) | `moderationCheck(options): ModerationCheckResult` | Validate that both the moderator and the bot may act on target, returning a ready-to-show reason on the first failing rule. Checks, in order: acting on self, acting on the server owner, moderator… |
-| [requireAllRoles()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/requireAllRoles) | `requireAllRoles(roleIds, reason?): Guard` | Require the invoking member to hold EVERY one of these role ids. |
-| [requireAnyRole()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/requireAnyRole) | `requireAnyRole(roleIds, reason?): Guard` | Require the invoking member to hold ANY of these role ids. |
-| [requireBotOwner()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/requireBotOwner) | `requireBotOwner(reason?): Guard` | Require the invoking user to be a configured bot owner (new SpearClient({ owners })) or the Discord application owner. |
-| [requireBotPermissions()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/requireBotPermissions) | `requireBotPermissions(permission, reason?): Guard` | Require the BOT's own member to hold a Discord permission flag. |
-| [requireOwner()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/requireOwner) | `requireOwner(ownerIds, reason?): Guard` | Require the invoking user to be one of ownerIds ("bot owners"). |
-| [requireUserPermissions()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/requireUserPermissions) | `requireUserPermissions(permission, reason?): Guard` | Require the invoking member to hold a Discord permission flag. |
-| [runGuards()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/runGuards) | `runGuards<TCtx>(ctx, guards): Promise<RunGuardsResult>` | Run guards in order, short-circuiting on the first denial. |
+| [botMissingPermissions()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/botMissingPermissions) | `function botMissingPermissions(channel: GuildBasedChannel, required: PermissionResolvable): ( \| "CreateInstantInvite" \| "KickMembers" \| "BanMembers" \| "Administrator" \| "ManageChannels" \| "ManageGuild" \| "AddReactions" \| "ViewAuditLog" \| "PrioritySpeaker" \| "Stream" \| "ViewChannel" \| "SendMessages" \| "SendTTSMessages" \| "ManageMessages" \| "EmbedLinks" \| "AttachFiles" \| "ReadMessageHistory" \| "MentionEveryone" \| "UseExternalEmojis" \| "ViewGuildInsights" \| "Connect" \| "Speak" \| "MuteMembers" \| "DeafenMembers" \| "MoveMembers" \| "UseVAD" \| "ChangeNickname" \| "ManageNicknames" \| "ManageRoles" \| "ManageWebhooks" \| "ManageEmojisAndStickers" \| "ManageGuildExpressions" \| "UseApplicationCommands" \| "RequestToSpeak" \| "ManageEvents" \| "ManageThreads" \| "CreatePublicThreads" \| "CreatePrivateThreads" \| "UseExternalStickers" \| "SendMessagesInThreads" \| "UseEmbeddedActivities" \| "ModerateMembers" \| "ViewCreatorMonetizationAnalytics" \| "UseSoundboard" \| "CreateGuildExpressions" \| "CreateEvents" \| "UseExternalSounds" \| "SendVoiceMessages" \| "SetVoiceChannelStatus" \| "SendPolls" \| "UseExternalApps" \| "PinMessages" \| "BypassSlowmode")[];` | Like missingPermissions but for the bot's own member in channel. Resolves channel.guild.members.me; if that isn't available, every required permission is reported missing. |
+| [canActOn()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/canActOn) | `function canActOn(actor: GuildMember, target: GuildMember): boolean;` | Whether actor outranks target enough to act on them: not the same member, target isn't the guild owner, and actor is either the owner or holds a higher top role. |
+| [compareRoles()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/compareRoles) | `function compareRoles(a: GuildMember, b: GuildMember): number;` | Compare two members by their highest role position. Returns a positive number when a is above b, negative when below, 0 when equal. This is the raw comparison Discord enforces for moderation actions. |
+| [denied()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/denied) | `function denied(reason?: string): GuardResult;` | Sugar: build a denial result with an explanation. |
+| [dmOnly()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/dmOnly) | `function dmOnly(reason?: string): Guard;` | Require the interaction/message to come from a DM. |
+| [formatPermissions()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/formatPermissions) | `function formatPermissions(permissions: PermissionResolvable): string;` | Render permission flag names into a human, comma-separated string. Accepts a PermissionsString array (the output of missingPermissions) or anything PermissionResolvable. |
+| [guard()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/guard) | `function guard<TCtx>(predicate: Guard<TCtx>): Guard<TCtx>;` | Inline custom predicate; sugar so a one-off check still types as a Guard. |
+| [guildOnly()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/guildOnly) | `function guildOnly(reason?: string): Guard;` | Require the interaction/message to come from inside a guild. |
+| [hasPermissions()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/hasPermissions) | `function hasPermissions( channel: GuildBasedChannel, who: PermissionHolder, required: PermissionResolvable): boolean;` | Whether who has all of required in channel. |
+| [missingPermissions()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/missingPermissions) | `function missingPermissions( channel: GuildBasedChannel, who: PermissionHolder, required: PermissionResolvable): ( \| "CreateInstantInvite" \| "KickMembers" \| "BanMembers" \| "Administrator" \| "ManageChannels" \| "ManageGuild" \| "AddReactions" \| "ViewAuditLog" \| "PrioritySpeaker" \| "Stream" \| "ViewChannel" \| "SendMessages" \| "SendTTSMessages" \| "ManageMessages" \| "EmbedLinks" \| "AttachFiles" \| "ReadMessageHistory" \| "MentionEveryone" \| "UseExternalEmojis" \| "ViewGuildInsights" \| "Connect" \| "Speak" \| "MuteMembers" \| "DeafenMembers" \| "MoveMembers" \| "UseVAD" \| "ChangeNickname" \| "ManageNicknames" \| "ManageRoles" \| "ManageWebhooks" \| "ManageEmojisAndStickers" \| "ManageGuildExpressions" \| "UseApplicationCommands" \| "RequestToSpeak" \| "ManageEvents" \| "ManageThreads" \| "CreatePublicThreads" \| "CreatePrivateThreads" \| "UseExternalStickers" \| "SendMessagesInThreads" \| "UseEmbeddedActivities" \| "ModerateMembers" \| "ViewCreatorMonetizationAnalytics" \| "UseSoundboard" \| "CreateGuildExpressions" \| "CreateEvents" \| "UseExternalSounds" \| "SendVoiceMessages" \| "SetVoiceChannelStatus" \| "SendPolls" \| "UseExternalApps" \| "PinMessages" \| "BypassSlowmode")[];` | Return the names of the required permissions that who does NOT have in channel (taking channel overwrites and Administrator into account). An empty array means every required permission is granted… |
+| [moderationCheck()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/moderationCheck) | `function moderationCheck(options: ModerationCheckOptions): ModerationCheckResult;` | Validate that both the moderator and the bot may act on target, returning a ready-to-show reason on the first failing rule. Checks, in order: acting on self, acting on the server owner, moderator… |
+| [requireAllRoles()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/requireAllRoles) | `function requireAllRoles(roleIds: readonly string[], reason?: string): Guard;` | Require the invoking member to hold EVERY one of these role ids. |
+| [requireAnyRole()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/requireAnyRole) | `function requireAnyRole(roleIds: readonly string[], reason?: string): Guard;` | Require the invoking member to hold ANY of these role ids. |
+| [requireBotOwner()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/requireBotOwner) | `function requireBotOwner(reason?: string): Guard;` | Require the invoking user to be a configured bot owner (new SpearClient({ owners })) or the Discord application owner. |
+| [requireBotPermissions()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/requireBotPermissions) | `function requireBotPermissions(permission: PermissionResolvable, reason?: string): Guard;` | Require the BOT's own member to hold a Discord permission flag. |
+| [requireOwner()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/requireOwner) | `function requireOwner(ownerIds: readonly string[], reason?: string): Guard;` | Require the invoking user to be one of ownerIds ("bot owners"). |
+| [requireUserPermissions()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/requireUserPermissions) | `function requireUserPermissions(permission: PermissionResolvable, reason?: string): Guard;` | Require the invoking member to hold a Discord permission flag. |
+| [runGuards()](https://spearkit.bayburt.lu/docs/api-reference/access-control/functions/runGuards) | `function runGuards<TCtx>(ctx: TCtx, guards: readonly Guard<TCtx>[] \| undefined): Promise<RunGuardsResult>;` | Run guards in order, short-circuiting on the first denial. |
 
 ### Interfaces
 
@@ -450,11 +450,11 @@ Handler preconditions, permission checks, and moderation hierarchy helpers.
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
-| [Guard\<TCtx\>](https://spearkit.bayburt.lu/docs/api-reference/access-control/type-aliases/Guard) | `Guard<TCtx> = (ctx) => Awaitable<GuardResult>` | A precondition evaluated before a handler runs. |
-| [GuardResult](https://spearkit.bayburt.lu/docs/api-reference/access-control/type-aliases/GuardResult) | `GuardResult = boolean \| { allowed: false; reason?: string; }` | A guard's outcome. true = pass; false/{ allowed: false, reason? } = deny. |
-| [ModerationCheckResult](https://spearkit.bayburt.lu/docs/api-reference/access-control/type-aliases/ModerationCheckResult) | `ModerationCheckResult = { ok: true; } \| { ok: false; reason: string; }` | The result of a moderationCheck: pass, or fail with a reason. |
-| [PermissionHolder](https://spearkit.bayburt.lu/docs/api-reference/access-control/type-aliases/PermissionHolder) | `PermissionHolder = GuildMember \| Role` | A member or role whose permissions are being resolved in a channel. |
-| [RunGuardsResult](https://spearkit.bayburt.lu/docs/api-reference/access-control/type-aliases/RunGuardsResult) | `RunGuardsResult = { allowed: true; } \| { allowed: false; reason: string \| undefined; }` | The resolved outcome of running a list of guards. |
+| [Guard](https://spearkit.bayburt.lu/docs/api-reference/access-control/type-aliases/Guard) | `type Guard<TCtx> = (ctx: TCtx) => Awaitable<GuardResult>;` | A precondition evaluated before a handler runs. |
+| [GuardResult](https://spearkit.bayburt.lu/docs/api-reference/access-control/type-aliases/GuardResult) | `type GuardResult = \| boolean \| { allowed: false; reason?: string; };` | A guard's outcome. true = pass; false/{ allowed: false, reason? } = deny. |
+| [ModerationCheckResult](https://spearkit.bayburt.lu/docs/api-reference/access-control/type-aliases/ModerationCheckResult) | `type ModerationCheckResult = \| { ok: true; } \| { ok: false; reason: string; };` | The result of a moderationCheck: pass, or fail with a reason. |
+| [PermissionHolder](https://spearkit.bayburt.lu/docs/api-reference/access-control/type-aliases/PermissionHolder) | `type PermissionHolder = GuildMember \| Role;` | A member or role whose permissions are being resolved in a channel. |
+| [RunGuardsResult](https://spearkit.bayburt.lu/docs/api-reference/access-control/type-aliases/RunGuardsResult) | `type RunGuardsResult = \| { allowed: true; } \| { allowed: false; reason: string \| undefined; };` | The resolved outcome of running a list of guards. |
 
 ## Cooldowns and scaling
 
@@ -464,18 +464,18 @@ Rate limits, shared cooldown backends, sharding, queues, and backpressure.
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
-| [effectiveDuration()](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/functions/effectiveDuration) | `effectiveDuration(config, actor): number \| null` | Resolve the cooldown an actor should serve. null means exempt (no cooldown). Otherwise a duration in milliseconds (which may be 0). |
-| [fetchShardStats()](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/functions/fetchShardStats) | `fetchShardStats(client): Promise<ShardStatsReport>` | Fetch operational snapshots from all locally managed shards. cachedUsers is cache cardinality, not a unique global user count. |
-| [formatCooldownMessage()](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/functions/formatCooldownMessage) | `formatCooldownMessage(config, remainingMs): string` | Build the user-facing message for a blocked action. |
-| [keyValueCooldownBackend()](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/functions/keyValueCooldownBackend) | `keyValueCooldownBackend(store): CooldownBackend` | Persist last-hit timestamps in any KeyValueStore. Safe across restarts; two processes hitting the same key can race (use redisCooldownBackend when you need atomic NX). |
-| [normalizeCooldown()](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/functions/normalizeCooldown) | `normalizeCooldown(input): CooldownConfig` | Normalise a CooldownInput to a full CooldownConfig. |
-| [redisCooldownBackend()](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/functions/redisCooldownBackend) | `redisCooldownBackend(client, options?): CooldownBackend` | Atomic cooldown clock over Redis SET key NX PX duration. The key exists only while the actor is cooling down, so shards share one window without a compare-and-swap race. |
-| [resolveCooldownBackend()](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/functions/resolveCooldownBackend) | `resolveCooldownBackend(input?): CooldownBackend` | Resolve CooldownStoreInput into a CooldownBackend. |
-| [shardIdForGuild()](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/functions/shardIdForGuild) | `shardIdForGuild(guildId, totalShards): number` | Discord's deterministic guild → shard routing formula. |
-| [shardListForWorker()](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/functions/shardListForWorker) | `shardListForWorker(totalShards, workerIndex, workerCount): number[]` | Assign shard ids to one worker/replica with round-robin partitioning. Every worker must use the same totalShards and workerCount. |
-| [shardOptionsFromEnv()](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/functions/shardOptionsFromEnv) | `shardOptionsFromEnv(env?): Pick<ClientOptions, "shards" \| "shardCount">` | Convert SHARDIDS=0,4,8 + SHARDCOUNT=12 into SpearClient options. Returns {} when neither variable exists, keeping small-bot startup intact. |
-| [startHealthServer()](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/functions/startHealthServer) | `startHealthServer(options?): Promise<HealthServerHandle>` | Start dependency-free Kubernetes/container probes: - GET /healthz — process is alive - GET /readyz — Discord ready + custom checks |
-| [startShards()](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/functions/startShards) | `startShards(file, options?): Promise<ShardingManager>` | Spawn a compiled bot entry with discord.js' ShardingManager. This manager is for one machine. For several machines/containers, assign each replica a shard list with shardListForWorker or |
+| [effectiveDuration()](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/functions/effectiveDuration) | `function effectiveDuration(config: CooldownConfig, actor: CooldownActor): number \| null;` | Resolve the cooldown an actor should serve. null means exempt (no cooldown). Otherwise a duration in milliseconds (which may be 0). |
+| [fetchShardStats()](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/functions/fetchShardStats) | `function fetchShardStats(client: Client): Promise<ShardStatsReport>;` | Fetch operational snapshots from all locally managed shards. |
+| [formatCooldownMessage()](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/functions/formatCooldownMessage) | `function formatCooldownMessage(config: CooldownConfig, remainingMs: number): string;` | Build the user-facing message for a blocked action. |
+| [keyValueCooldownBackend()](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/functions/keyValueCooldownBackend) | `function keyValueCooldownBackend(store: KeyValueStore): CooldownBackend;` | Persist last-hit timestamps in any KeyValueStore. |
+| [normalizeCooldown()](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/functions/normalizeCooldown) | `function normalizeCooldown(input: CooldownInput): CooldownConfig;` | Normalise a CooldownInput to a full CooldownConfig. |
+| [redisCooldownBackend()](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/functions/redisCooldownBackend) | `function redisCooldownBackend(client: RedisCommands, options?: object): CooldownBackend;` | Atomic cooldown clock over Redis SET key NX PX duration. |
+| [resolveCooldownBackend()](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/functions/resolveCooldownBackend) | `function resolveCooldownBackend(input?: CooldownStoreInput): CooldownBackend;` | Resolve CooldownStoreInput into a CooldownBackend. |
+| [shardIdForGuild()](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/functions/shardIdForGuild) | `function shardIdForGuild(guildId: string, totalShards: number): number;` | Discord's deterministic guild → shard routing formula. |
+| [shardListForWorker()](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/functions/shardListForWorker) | `function shardListForWorker( totalShards: number, workerIndex: number, workerCount: number): number[];` | Assign shard ids to one worker/replica with round-robin partitioning. |
+| [shardOptionsFromEnv()](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/functions/shardOptionsFromEnv) | `function shardOptionsFromEnv(env?: ShardEnvironment): Pick<ClientOptions, "shards" \| "shardCount">;` | Convert SHARDIDS=0,4,8 + SHARDCOUNT=12 into SpearClient options. |
+| [startHealthServer()](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/functions/startHealthServer) | `function startHealthServer(options?: HealthServerOptions): Promise<HealthServerHandle>;` | Start dependency-free Kubernetes/container probes: |
+| [startShards()](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/functions/startShards) | `function startShards(file: string, options?: StartShardsOptions): Promise<ShardingManager>;` | Spawn a compiled bot entry with discord.js' ShardingManager. |
 
 ### Classes
 
@@ -484,14 +484,14 @@ Rate limits, shared cooldown backends, sharding, queues, and backpressure.
 | [CooldownManager](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/classes/CooldownManager) |  | Tracks last-use timestamps and decides whether an action is allowed. One instance is shared on client.cooldowns. The default backend is in-memory; pass a store so shards/restarts share the same clock. |
 | [MemoryCooldownBackend](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/classes/MemoryCooldownBackend) |  | In-process timestamp map — the historical CooldownManager behaviour. |
 | [QueueFullError](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/classes/QueueFullError) |  | Thrown when a WorkQueue has no remaining waiting capacity. |
-| [WorkQueue](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/classes/WorkQueue) |  | Bounded concurrency with explicit backpressure. Use around database, AI, image-rendering, or third-party API work so a burst queues predictably instead of creating 100k simultaneous promises. |
+| [WorkQueue](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/classes/WorkQueue) |  | Bounded concurrency with explicit backpressure. |
 
 ### Interfaces
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
 | [CooldownActor](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/interfaces/CooldownActor) |  | The actor a cooldown is evaluated for. |
-| [CooldownBackend](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/interfaces/CooldownBackend) |  | Pluggable last-hit storage for CooldownManager. The in-memory backend is the default. Pass a KeyValueStore via keyValueCooldownBackend (SQLite/JSON, restart-safe) or |
+| [CooldownBackend](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/interfaces/CooldownBackend) |  | Pluggable last-hit storage for CooldownManager. |
 | [CooldownConfig](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/interfaces/CooldownConfig) |  | Full cooldown description. |
 | [CooldownExemptions](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/interfaces/CooldownExemptions) |  | Users and roles that bypass a cooldown entirely. |
 | [CooldownOverrides](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/interfaces/CooldownOverrides) |  | Per-user and per-role duration overrides (milliseconds; 0 disables). |
@@ -507,11 +507,11 @@ Rate limits, shared cooldown backends, sharding, queues, and backpressure.
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
-| [CooldownInput](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/type-aliases/CooldownInput) | `CooldownInput = number \| CooldownConfig` | A CooldownConfig, or a bare duration in milliseconds. |
-| [CooldownResult](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/type-aliases/CooldownResult) | `CooldownResult = { allowed: true; } \| { allowed: false; remaining: number; }` | Whether an action is allowed now, and if not, how long remains. |
-| [CooldownScope](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/type-aliases/CooldownScope) | `CooldownScope = "user" \| "guild" \| "channel" \| "global"` | What a cooldown is bucketed against. Default "user". |
-| [CooldownStoreInput](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/type-aliases/CooldownStoreInput) | `CooldownStoreInput = CooldownBackend \| KeyValueStore` | A cooldown backend, or a store wrapped with keyValueCooldownBackend. |
-| [HealthCheck](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/type-aliases/HealthCheck) | `HealthCheck = () => Awaitable<boolean>` | Named readiness probe. |
+| [CooldownInput](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/type-aliases/CooldownInput) | `type CooldownInput = number \| CooldownConfig;` | A CooldownConfig, or a bare duration in milliseconds. |
+| [CooldownResult](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/type-aliases/CooldownResult) | `type CooldownResult = \| { allowed: true; } \| { allowed: false; remaining: number; };` | Whether an action is allowed now, and if not, how long remains. |
+| [CooldownScope](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/type-aliases/CooldownScope) | `type CooldownScope = "user" \| "guild" \| "channel" \| "global";` | What a cooldown is bucketed against. Default "user". |
+| [CooldownStoreInput](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/type-aliases/CooldownStoreInput) | `type CooldownStoreInput = \| CooldownBackend \| KeyValueStore;` | A cooldown backend, or a store wrapped with keyValueCooldownBackend. |
+| [HealthCheck](https://spearkit.bayburt.lu/docs/api-reference/cooldowns-and-scaling/type-aliases/HealthCheck) | `type HealthCheck = () => Awaitable<boolean>;` | Named readiness probe. |
 
 ## Storage and configuration
 
@@ -521,13 +521,13 @@ Key-value stores, typed settings, caches, and configuration loading.
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
-| [createCache()](https://spearkit.bayburt.lu/docs/api-reference/storage/functions/createCache) | `createCache(): CacheStore` | Convenience factory: returns a default in-memory CacheStore. |
-| [createSettings()](https://spearkit.bayburt.lu/docs/api-reference/storage/functions/createSettings) | `createSettings<T>(options): SettingsManager<T>` | Build a typed, defaults-merged settings accessor over a KeyValueStore. get always returns a complete object (stored overrides on top of defaults), and set only persists the overrides — so widening… |
-| [loadConfig()](https://spearkit.bayburt.lu/docs/api-reference/storage/functions/loadConfig) | `loadConfig<T>(options): T` | Synchronously read + parse + (optionally) validate a config file. |
-| [loadConfigAsync()](https://spearkit.bayburt.lu/docs/api-reference/storage/functions/loadConfigAsync) | `loadConfigAsync<T>(options): Promise<T>` | Asynchronous variant of loadConfig. |
-| [lookup()](https://spearkit.bayburt.lu/docs/api-reference/storage/functions/lookup) | `lookup<K, V>(table, resourceName?): (key) => V` | Build a typed lookup over a Record<key, value> table. Throws on missing keys so config typos surface at startup, not at use. |
-| [lookupOptional()](https://spearkit.bayburt.lu/docs/api-reference/storage/functions/lookupOptional) | `lookupOptional<K, V>(table): (key) => V \| undefined` | Build a non-throwing lookup that returns undefined for missing keys. |
-| [namespaced()](https://spearkit.bayburt.lu/docs/api-reference/storage/functions/namespaced) | `namespaced(store, prefix): KeyValueStore` | Wrap a store so every key is transparently prefixed with ${prefix}:. Lets several features share one backing file without key collisions. |
+| [createCache()](https://spearkit.bayburt.lu/docs/api-reference/storage/functions/createCache) | `function createCache(): CacheStore;` | Convenience factory: returns a default in-memory CacheStore. |
+| [createSettings()](https://spearkit.bayburt.lu/docs/api-reference/storage/functions/createSettings) | `function createSettings<T>(options: CreateSettingsOptions<T>): SettingsManager<T>;` | Build a typed, defaults-merged settings accessor over a KeyValueStore. get always returns a complete object (stored overrides on top of defaults), and set only persists the overrides — so widening… |
+| [loadConfig()](https://spearkit.bayburt.lu/docs/api-reference/storage/functions/loadConfig) | `function loadConfig<T>(options: LoadConfigOptions<T>): T;` | Synchronously read + parse + (optionally) validate a config file. |
+| [loadConfigAsync()](https://spearkit.bayburt.lu/docs/api-reference/storage/functions/loadConfigAsync) | `function loadConfigAsync<T>(options: LoadConfigOptions<T>): Promise<T>;` | Asynchronous variant of loadConfig. |
+| [lookup()](https://spearkit.bayburt.lu/docs/api-reference/storage/functions/lookup) | `function lookup<K, V>(table: Readonly<Record<K, V>>, resourceName?: string): (key: K) => V;` | Build a typed lookup over a Record<key, value> table. Throws on missing keys so config typos surface at startup, not at use. |
+| [lookupOptional()](https://spearkit.bayburt.lu/docs/api-reference/storage/functions/lookupOptional) | `function lookupOptional<K, V>(table: Readonly<Record<K, V>>): (key: K) => V \| undefined;` | Build a non-throwing lookup that returns undefined for missing keys. |
+| [namespaced()](https://spearkit.bayburt.lu/docs/api-reference/storage/functions/namespaced) | `function namespaced(store: KeyValueStore, prefix: string): KeyValueStore;` | Wrap a store so every key is transparently prefixed with ${prefix}:. Lets several features share one backing file without key collisions. |
 
 ### Classes
 
@@ -545,14 +545,14 @@ Key-value stores, typed settings, caches, and configuration loading.
 | --- | --- | --- |
 | [CacheSetOptions](https://spearkit.bayburt.lu/docs/api-reference/storage/interfaces/CacheSetOptions) |  | Options accepted by every write helper. |
 | [CacheStore](https://spearkit.bayburt.lu/docs/api-reference/storage/interfaces/CacheStore) |  | A swappable cache backend. All operations are async to allow remote stores. |
-| [CreateSettingsOptions\<T\>](https://spearkit.bayburt.lu/docs/api-reference/storage/interfaces/CreateSettingsOptions) |  | Options for createSettings. |
+| [CreateSettingsOptions](https://spearkit.bayburt.lu/docs/api-reference/storage/interfaces/CreateSettingsOptions) |  | Options for createSettings. |
 | [KeyValueStore](https://spearkit.bayburt.lu/docs/api-reference/storage/interfaces/KeyValueStore) |  | A minimal async key-value store. Values must be JSON-serialisable. All backends share these semantics so you can develop against MemoryStore and ship with JsonStore (or your own) without code changes. |
-| [LoadConfigOptions\<T\>](https://spearkit.bayburt.lu/docs/api-reference/storage/interfaces/LoadConfigOptions) |  | Options accepted by loadConfig / loadConfigAsync. |
+| [LoadConfigOptions](https://spearkit.bayburt.lu/docs/api-reference/storage/interfaces/LoadConfigOptions) |  | Options accepted by loadConfig / loadConfigAsync. |
 | [RateLimitResult](https://spearkit.bayburt.lu/docs/api-reference/storage/interfaces/RateLimitResult) |  | Result of a fixed-window CacheStore.rateLimit hit. |
 | [RedisCommands](https://spearkit.bayburt.lu/docs/api-reference/storage/interfaces/RedisCommands) |  | Minimal Redis commands used by RedisStore and redisCooldownBackend. Compatible with node-redis: |
 | [RedisSetOptions](https://spearkit.bayburt.lu/docs/api-reference/storage/interfaces/RedisSetOptions) |  | Options accepted by RedisCommands.set for NX/PX writes. |
 | [RedisStoreOptions](https://spearkit.bayburt.lu/docs/api-reference/storage/interfaces/RedisStoreOptions) |  | Options for RedisStore. |
-| [SettingsManager\<T\>](https://spearkit.bayburt.lu/docs/api-reference/storage/interfaces/SettingsManager) |  | A typed settings accessor returned by createSettings. |
+| [SettingsManager](https://spearkit.bayburt.lu/docs/api-reference/storage/interfaces/SettingsManager) |  | A typed settings accessor returned by createSettings. |
 | [SqliteStoreOptions](https://spearkit.bayburt.lu/docs/api-reference/storage/interfaces/SqliteStoreOptions) |  | Options for SqliteStore. |
 
 ## Runtime services
@@ -563,21 +563,21 @@ Logging, usage tracking, environment variables, i18n, and handler errors.
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
-| [consoleSink()](https://spearkit.bayburt.lu/docs/api-reference/runtime/functions/consoleSink) | `consoleSink(entry): void` | Default sink: human-readable lines to the console (stderr for warn/error). |
-| [createI18n()](https://spearkit.bayburt.lu/docs/api-reference/runtime/functions/createI18n) | `createI18n<M>(options): I18n<Extract<KeysOfUnion<M[keyof M]>, string>>` | Create an I18n while inferring the union of catalog keys. |
-| [formatUsage()](https://spearkit.bayburt.lu/docs/api-reference/runtime/functions/formatUsage) | `formatUsage(event): string` | Default one-line rendering of a usage event for a Discord channel. |
-| [jsonlSink()](https://spearkit.bayburt.lu/docs/api-reference/runtime/functions/jsonlSink) | `jsonlSink(path, options?): LogSink` | JSON-lines sink: appends one JSON object per entry to path. Fire-and-forget; filesystem errors are swallowed so logging never crashes the bot. |
-| [loadEnv()](https://spearkit.bayburt.lu/docs/api-reference/runtime/functions/loadEnv) | `loadEnv(options?): ParsedEnv` | Read a .env file and merge it into process.env. Existing variables win unless override is set. Missing files are ignored (returns {}), so it is safe to call unconditionally. |
-| [parseEnv()](https://spearkit.bayburt.lu/docs/api-reference/runtime/functions/parseEnv) | `parseEnv(content): ParsedEnv` | Parse .env-formatted text into a flat object. Does not touch process.env. |
-| [toError()](https://spearkit.bayburt.lu/docs/api-reference/runtime/functions/toError) | `toError(value): Error` | Coerce an unknown thrown value into an Error. |
-| [webhookSink()](https://spearkit.bayburt.lu/docs/api-reference/runtime/functions/webhookSink) | `webhookSink(options): LogSink` | Discord-webhook sink: POSTs an embed to a webhook URL for entries at or above minLevel (default "warn"). Useful for sending errors to a private #bot-errors channel. |
+| [consoleSink()](https://spearkit.bayburt.lu/docs/api-reference/runtime/functions/consoleSink) | `function consoleSink(entry: LogEntry): void;` | Default sink: human-readable lines to the console (stderr for warn/error). |
+| [createI18n()](https://spearkit.bayburt.lu/docs/api-reference/runtime/functions/createI18n) | `function createI18n<M>(options: I18nOptions<M>): I18n<Extract<KeysOfUnion<M[keyof M]>, string>>;` | Create an I18n while inferring the union of catalog keys. |
+| [formatUsage()](https://spearkit.bayburt.lu/docs/api-reference/runtime/functions/formatUsage) | `function formatUsage(event: UsageEvent): string;` | Default one-line rendering of a usage event for a Discord channel. |
+| [jsonlSink()](https://spearkit.bayburt.lu/docs/api-reference/runtime/functions/jsonlSink) | `function jsonlSink(path: string, options?: object): LogSink;` | JSON-lines sink: appends one JSON object per entry to path. Fire-and-forget; filesystem errors are swallowed so logging never crashes the bot. |
+| [loadEnv()](https://spearkit.bayburt.lu/docs/api-reference/runtime/functions/loadEnv) | `function loadEnv(options?: LoadEnvOptions): ParsedEnv;` | Read a .env file and merge it into process.env. Existing variables win unless override is set. Missing files are ignored (returns {}), so it is safe to call unconditionally. |
+| [parseEnv()](https://spearkit.bayburt.lu/docs/api-reference/runtime/functions/parseEnv) | `function parseEnv(content: string): ParsedEnv;` | Parse .env-formatted text into a flat object. Does not touch process.env. |
+| [toError()](https://spearkit.bayburt.lu/docs/api-reference/runtime/functions/toError) | `function toError(value: unknown): Error;` | Coerce an unknown thrown value into an Error. |
+| [webhookSink()](https://spearkit.bayburt.lu/docs/api-reference/runtime/functions/webhookSink) | `function webhookSink(options: object): LogSink;` | Discord-webhook sink: POSTs an embed to a webhook URL for entries at or above minLevel (default "warn"). Useful for sending errors to a private #bot-errors channel. |
 
 ### Classes
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
-| [BufferedUsageStore](https://spearkit.bayburt.lu/docs/api-reference/runtime/classes/BufferedUsageStore) |  | Bounded, batched wrapper for high-volume usage telemetry. Handler dispatch remains fire-and-forget, but one event no longer means one database/file call. Downstreams implementing BatchUsageStore… |
-| [I18n\<K\>](https://spearkit.bayburt.lu/docs/api-reference/runtime/classes/I18n) |  | Runtime translator. Prefer createI18n to infer message keys. |
+| [BufferedUsageStore](https://spearkit.bayburt.lu/docs/api-reference/runtime/classes/BufferedUsageStore) |  | Bounded, batched wrapper for high-volume usage telemetry. |
+| [I18n](https://spearkit.bayburt.lu/docs/api-reference/runtime/classes/I18n) |  | Runtime translator. Prefer createI18n to infer message keys. |
 | [JsonFileUsageStore](https://spearkit.bayburt.lu/docs/api-reference/runtime/classes/JsonFileUsageStore) |  | File-backed store using newline-delimited JSON (.jsonl). Appends one line per event — durable, human-inspectable, and dependency-free. |
 | [Logger](https://spearkit.bayburt.lu/docs/api-reference/runtime/classes/Logger) |  | A leveled, scoped logger. Create one directly or read client.logger. child loggers share the parent's threshold and transports, so calling setLevel on any of them affects the whole tree. |
 | [MemoryUsageStore](https://spearkit.bayburt.lu/docs/api-reference/runtime/classes/MemoryUsageStore) |  | In-memory store; great for tests and dashboards. Optionally capped. |
@@ -591,7 +591,7 @@ Logging, usage tracking, environment variables, i18n, and handler errors.
 | [BufferedUsageStoreOptions](https://spearkit.bayburt.lu/docs/api-reference/runtime/interfaces/BufferedUsageStoreOptions) |  | Options for BufferedUsageStore. |
 | [DispatchHandlerErrorOptions](https://spearkit.bayburt.lu/docs/api-reference/runtime/interfaces/DispatchHandlerErrorOptions) |  |  |
 | [EnvReader](https://spearkit.bayburt.lu/docs/api-reference/runtime/interfaces/EnvReader) |  | Typed, ergonomic reader over process.env. |
-| [I18nOptions\<M\>](https://spearkit.bayburt.lu/docs/api-reference/runtime/interfaces/I18nOptions) |  |  |
+| [I18nOptions](https://spearkit.bayburt.lu/docs/api-reference/runtime/interfaces/I18nOptions) |  |  |
 | [LoadEnvOptions](https://spearkit.bayburt.lu/docs/api-reference/runtime/interfaces/LoadEnvOptions) |  | Options for loadEnv. |
 | [LocaleTarget](https://spearkit.bayburt.lu/docs/api-reference/runtime/interfaces/LocaleTarget) |  | Actor/location data supplied to an async locale resolver. |
 | [LogEntry](https://spearkit.bayburt.lu/docs/api-reference/runtime/interfaces/LogEntry) |  | A fully-resolved record handed to a LogSink. |
@@ -605,30 +605,30 @@ Logging, usage tracking, environment variables, i18n, and handler errors.
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
-| [HandlerErrorEvent](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/HandlerErrorEvent) | `HandlerErrorEvent = { error: Error; interaction: RepliableInteraction; name: string; source: InteractionHandlerSource; } \| { error: Error; message: Message; name: string; source: "prefix"; }` | Error details passed to SpearClient({ onHandlerError }). |
-| [HandlerErrorHandler](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/HandlerErrorHandler) | `HandlerErrorHandler = (event) => Awaitable<string \| false \| void>` | Return a string to override the user-facing message, false to suppress a response, or nothing to use spearkit's safe default. |
-| [InteractionHandlerSource](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/InteractionHandlerSource) | `InteractionHandlerSource = "command" \| "component" \| "contextMenu"` |  |
-| [LocaleResolver](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/LocaleResolver) | `LocaleResolver = (target) => Awaitable<string \| null \| undefined>` |  |
-| [LogLevel](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/LogLevel) | `LogLevel = "debug" \| "info" \| "warn" \| "error"` | Severity of a log entry, lowest to highest. |
-| [LogSink](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/LogSink) | `LogSink = (entry) => void` | Receives every entry at or above the configured threshold. |
-| [LogThreshold](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/LogThreshold) | `LogThreshold = LogLevel \| "silent"` | A minimum severity to emit, or "silent" to suppress everything. |
-| [LogValue](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/LogValue) | `LogValue = string \| number \| boolean \| bigint \| null \| undefined` | A primitive metadata value attached to a log entry. |
-| [MessageKey\<M\>](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/MessageKey) | `MessageKey<M> = Extract<KeysOfUnion<M[keyof M]>, string>` |  |
-| [ParsedEnv](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/ParsedEnv) | `ParsedEnv = Record<string, string>` | The flat key/value map parsed from a .env file. |
-| [TranslationCatalog](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/TranslationCatalog) | `TranslationCatalog = Readonly<Record<string, TranslationValue>>` |  |
-| [TranslationMessages](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/TranslationMessages) | `TranslationMessages = Readonly<Record<string, TranslationCatalog>>` |  |
-| [TranslationParam](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/TranslationParam) | `TranslationParam = string \| number \| boolean \| Date \| null \| undefined` |  |
-| [TranslationParams](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/TranslationParams) | `TranslationParams = Readonly<Record<string, TranslationParam>>` |  |
-| [TranslationValue](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/TranslationValue) | `TranslationValue = string \| ((params) => string)` |  |
-| [UsageMetaValue](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/UsageMetaValue) | `UsageMetaValue = string \| number \| boolean \| null` | A primitive metadata value attached to a usage event. |
-| [UsageOutcome](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/UsageOutcome) | `UsageOutcome = "success" \| "error"` | Outcome of a tracked use — "success" if the handler returned without throwing. |
-| [UsageType](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/UsageType) | `UsageType = "command" \| "prefix" \| "component" \| "event"` | What kind of interaction was used. |
+| [HandlerErrorEvent](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/HandlerErrorEvent) | `type HandlerErrorEvent = \| { error: Error; interaction: RepliableInteraction; name: string; source: InteractionHandlerSource; } \| { error: Error; message: Message; name: string; source: "prefix"; };` | Error details passed to SpearClient({ onHandlerError }). |
+| [HandlerErrorHandler](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/HandlerErrorHandler) | `type HandlerErrorHandler = (event: HandlerErrorEvent) => Awaitable<string \| false \| void>;` | Return a string to override the user-facing message, false to suppress a response, or nothing to use spearkit's safe default. |
+| [InteractionHandlerSource](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/InteractionHandlerSource) | `type InteractionHandlerSource = "command" \| "component" \| "contextMenu";` |  |
+| [LocaleResolver](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/LocaleResolver) | `type LocaleResolver = (target: LocaleTarget) => Awaitable<string \| null \| undefined>;` |  |
+| [LogLevel](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/LogLevel) | `type LogLevel = "debug" \| "info" \| "warn" \| "error";` | Severity of a log entry, lowest to highest. |
+| [LogSink](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/LogSink) | `type LogSink = (entry: LogEntry) => void;` | Receives every entry at or above the configured threshold. |
+| [LogThreshold](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/LogThreshold) | `type LogThreshold = LogLevel \| "silent";` | A minimum severity to emit, or "silent" to suppress everything. |
+| [LogValue](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/LogValue) | `type LogValue = string \| number \| boolean \| bigint \| null \| undefined;` | A primitive metadata value attached to a log entry. |
+| [MessageKey](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/MessageKey) | `type MessageKey<M> = Extract<KeysOfUnion<M[keyof M]>, string>;` |  |
+| [ParsedEnv](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/ParsedEnv) | `type ParsedEnv = Record<string, string>;` | The flat key/value map parsed from a .env file. |
+| [TranslationCatalog](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/TranslationCatalog) | `type TranslationCatalog = Readonly<Record<string, TranslationValue>>;` |  |
+| [TranslationMessages](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/TranslationMessages) | `type TranslationMessages = Readonly<Record<string, TranslationCatalog>>;` |  |
+| [TranslationParam](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/TranslationParam) | `type TranslationParam = string \| number \| boolean \| Date \| null \| undefined;` |  |
+| [TranslationParams](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/TranslationParams) | `type TranslationParams = Readonly<Record<string, TranslationParam>>;` |  |
+| [TranslationValue](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/TranslationValue) | `type TranslationValue = \| string \| ((params: TranslationParams) => string);` |  |
+| [UsageMetaValue](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/UsageMetaValue) | `type UsageMetaValue = string \| number \| boolean \| null;` | A primitive metadata value attached to a usage event. |
+| [UsageOutcome](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/UsageOutcome) | `type UsageOutcome = "success" \| "error";` | Outcome of a tracked use — "success" if the handler returned without throwing. |
+| [UsageType](https://spearkit.bayburt.lu/docs/api-reference/runtime/type-aliases/UsageType) | `type UsageType = "command" \| "prefix" \| "component" \| "event";` | What kind of interaction was used. |
 
 ### Variables
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
-| [env](https://spearkit.bayburt.lu/docs/api-reference/runtime/variables/env) | `const env: EnvReader` | Typed accessor over process.env. |
+| [env](https://spearkit.bayburt.lu/docs/api-reference/runtime/variables/env) | `const env: EnvReader;` | Typed accessor over process.env. |
 
 ## Utilities
 
@@ -639,32 +639,32 @@ Formatting, mentions, invites, choices, safe fetches, locks, and Discord errors.
 | Symbol | Signature | Summary |
 | --- | --- | --- |
 | [choices()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/choices) |  |  |
-| [chunkMessage()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/chunkMessage) | `chunkMessage(text, options?): string[]` | Split text into chunks that each fit within Discord's per-message limit, breaking on line boundaries (and word boundaries for over-long lines) so you never silently lose the tail of a long reply. |
-| [discordTimestamp()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/discordTimestamp) | `discordTimestamp(date, style?): string` | Render a Discord-flavoured timestamp tag (<t:1234:R>). Styles: t short time, T long time, d short date, D long date, f short date/time (default), F long date/time, R relative. |
-| [explainDiscordError()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/explainDiscordError) | `explainDiscordError(error): string \| null` | Render an end-user-appropriate sentence for a Discord error, or null if the error isn't a recognised, explainable Discord failure (in which case you should fall back to a generic "something went… |
-| [fetchChannel()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/fetchChannel) | `fetchChannel(client, channelId, options?): Promise<Channel \| null>` | Resolve a channel by id from the client. Returns null on failure. |
-| [fetchGuild()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/fetchGuild) | `fetchGuild(client, guildId, options?): Promise<Guild \| null>` | Resolve a guild by id from the client. Returns null on failure. |
-| [fetchMember()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/fetchMember) | `fetchMember(guild, userId, options?): Promise<GuildMember \| null>` | Resolve a guild member with a cache-hit fast path. Returns null on failure. |
-| [fetchMessage()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/fetchMessage) | `fetchMessage(messages, messageId, options?): Promise<Message<boolean> \| null>` | Resolve a message id in a given channel's messages manager. |
-| [fetchRole()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/fetchRole) | `fetchRole(guild, roleId, options?): Promise<Role \| null>` | Resolve a role id from a guild's roles manager. Returns null on failure. |
-| [fetchUser()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/fetchUser) | `fetchUser(client, userId, options?): Promise<User \| null>` | Resolve a user by id from the client. Returns null on failure. |
-| [filterChoices()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/filterChoices) | `filterChoices<V>(items, query, options?): OptionChoice<V>[]` | Filter a choice list by the user's current autocomplete query. Empty query returns the first limit items. Matching is case-insensitive and looks at both name and value. |
-| [formatDuration()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/formatDuration) | `formatDuration(ms, options?): string` | Format a millisecond duration into human-readable text. |
-| [inviteUrl()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/inviteUrl) | `inviteUrl(options): string` | Build a Discord OAuth2 invite URL. |
-| [isDiscordError()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/isDiscordError) | `isDiscordError(error, code?): error is DiscordAPIError` | Narrow an unknown thrown value to a DiscordAPIError. Pass a code (or several) to also assert the specific failure — ideal for "ignore this one error, re-throw the rest" recovery. |
-| [isHTTPError()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/isHTTPError) | `isHTTPError(error): error is HTTPError` | Narrow to a transport-level HTTPError (timeouts, 5xx, aborted requests) — failures with an HTTP status but no Discord JSON code. |
-| [isRateLimitError()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/isRateLimitError) | `isRateLimitError(error): boolean` | Whether the thrown value is a Discord rate-limit (HTTP 429) response. |
-| [parseChannelId()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/parseChannelId) | `parseChannelId(input): string \| null` | Channel mention (<#id>) or a bare snowflake. |
-| [parseCustomEmoji()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/parseCustomEmoji) | `parseCustomEmoji(input): ParsedCustomEmoji \| null` | Parse a custom emoji mention. Unicode emoji returns null. |
-| [parseDuration()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/parseDuration) | `parseDuration(input): number \| null` | Parse a human duration like "1h30m", "2 days", "1 saat 30 dakika" or "5000ms" into milliseconds. Returns null if nothing parseable was found. |
-| [parseRoleId()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/parseRoleId) | `parseRoleId(input): string \| null` | Role mention (<@&id>) or a bare snowflake. |
-| [parseSnowflake()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/parseSnowflake) | `parseSnowflake(input): string \| null` | Extract a snowflake from raw digits, or null. |
-| [parseUserId()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/parseUserId) | `parseUserId(input): string \| null` | User mention (<@id> / <@!id>) or a bare snowflake. |
-| [relativeTimestamp()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/relativeTimestamp) | `relativeTimestamp(date): string` | Short-hand for the relative Discord timestamp (R style). |
-| [safeTry()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/safeTry) | `safeTry<T>(op): Promise<T \| null>` | Wrap an arbitrary best-effort operation so a failure resolves to null instead of throwing. Useful for sends/deletes whose outcome is non-critical. |
-| [slashMention()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/slashMention) | `slashMention(name, commandId, subcommand?): string` | Chat-input command mention (</name:id>). Subcommands use a space: </play song:123>. |
-| [truncate()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/truncate) | `truncate(text, max, suffix?): string` | Truncate text to at most max characters, appending suffix (default …) when it had to cut. The result — suffix included — never exceeds max. |
-| [withSafeTimeout()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/withSafeTimeout) | `withSafeTimeout<T>(promise, timeoutMs): Promise<T \| null>` | Time-bound an arbitrary promise; resolves to null on timeout or rejection. |
+| [chunkMessage()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/chunkMessage) | `function chunkMessage(text: string, options?: ChunkOptions): string[];` | Split text into chunks that each fit within Discord's per-message limit, breaking on line boundaries (and word boundaries for over-long lines) so you never silently lose the tail of a long reply. |
+| [discordTimestamp()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/discordTimestamp) | `function discordTimestamp(date: number \| Date, style?: DiscordTimestampStyle): string;` | Render a Discord-flavoured timestamp tag (<t:1234:R>). |
+| [explainDiscordError()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/explainDiscordError) | `function explainDiscordError(error: unknown): string \| null;` | Render an end-user-appropriate sentence for a Discord error, or null if the error isn't a recognised, explainable Discord failure (in which case you should fall back to a generic "something went… |
+| [fetchChannel()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/fetchChannel) | `function fetchChannel( client: Client<boolean> \| null \| undefined, channelId: string \| null \| undefined, options?: SafeFetchOptions): Promise<Channel \| null>;` | Resolve a channel by id from the client. Returns null on failure. |
+| [fetchGuild()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/fetchGuild) | `function fetchGuild( client: Client<boolean> \| null \| undefined, guildId: string \| null \| undefined, options?: SafeFetchOptions): Promise<Guild \| null>;` | Resolve a guild by id from the client. Returns null on failure. |
+| [fetchMember()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/fetchMember) | `function fetchMember( guild: Guild \| null \| undefined, userId: string \| null \| undefined, options?: SafeFetchOptions): Promise<GuildMember \| null>;` | Resolve a guild member with a cache-hit fast path. Returns null on failure. |
+| [fetchMessage()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/fetchMessage) | `function fetchMessage( messages: MessageManager<boolean> \| null \| undefined, messageId: string \| null \| undefined, options?: SafeFetchOptions): Promise<Message<boolean> \| null>;` | Resolve a message id in a given channel's messages manager. |
+| [fetchRole()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/fetchRole) | `function fetchRole( guild: Guild \| null \| undefined, roleId: string \| null \| undefined, options?: SafeFetchOptions): Promise<Role \| null>;` | Resolve a role id from a guild's roles manager. Returns null on failure. |
+| [fetchUser()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/fetchUser) | `function fetchUser( client: Client<boolean> \| null \| undefined, userId: string \| null \| undefined, options?: SafeFetchOptions): Promise<User \| null>;` | Resolve a user by id from the client. Returns null on failure. |
+| [filterChoices()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/filterChoices) | `function filterChoices<V>( items: \| readonly string[] \| readonly OptionChoice<V>[], query: string, options?: FilterChoicesOptions): OptionChoice<V>[];` | Filter a choice list by the user's current autocomplete query. |
+| [formatDuration()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/formatDuration) | `function formatDuration(ms: number, options?: FormatDurationOptions): string;` | Format a millisecond duration into human-readable text. |
+| [inviteUrl()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/inviteUrl) | `function inviteUrl(options: InviteUrlOptions): string;` | Build a Discord OAuth2 invite URL. |
+| [isDiscordError()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/isDiscordError) | `function isDiscordError(error: unknown, code?: string \| number \| readonly (string \| number)[]): error is DiscordAPIError;` | Narrow an unknown thrown value to a DiscordAPIError. Pass a code (or several) to also assert the specific failure — ideal for "ignore this one error, re-throw the rest" recovery. |
+| [isHTTPError()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/isHTTPError) | `function isHTTPError(error: unknown): error is HTTPError;` | Narrow to a transport-level HTTPError (timeouts, 5xx, aborted requests) — failures with an HTTP status but no Discord JSON code. |
+| [isRateLimitError()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/isRateLimitError) | `function isRateLimitError(error: unknown): boolean;` | Whether the thrown value is a Discord rate-limit (HTTP 429) response. |
+| [parseChannelId()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/parseChannelId) | `function parseChannelId(input: string): string \| null;` | Channel mention (<#id>) or a bare snowflake. |
+| [parseCustomEmoji()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/parseCustomEmoji) | `function parseCustomEmoji(input: string): ParsedCustomEmoji \| null;` | Parse a custom emoji mention. Unicode emoji returns null. |
+| [parseDuration()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/parseDuration) | `function parseDuration(input: string): number \| null;` | Parse a human duration like "1h30m", "2 days", "1 saat 30 dakika" or "5000ms" into milliseconds. Returns null if nothing parseable was found. |
+| [parseRoleId()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/parseRoleId) | `function parseRoleId(input: string): string \| null;` | Role mention (<@&id>) or a bare snowflake. |
+| [parseSnowflake()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/parseSnowflake) | `function parseSnowflake(input: string): string \| null;` | Extract a snowflake from raw digits, or null. |
+| [parseUserId()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/parseUserId) | `function parseUserId(input: string): string \| null;` | User mention (<@id> / <@!id>) or a bare snowflake. |
+| [relativeTimestamp()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/relativeTimestamp) | `function relativeTimestamp(date: number \| Date): string;` | Short-hand for the relative Discord timestamp (R style). |
+| [safeTry()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/safeTry) | `function safeTry<T>(op: () => T \| Promise<T>): Promise<T \| null>;` | Wrap an arbitrary best-effort operation so a failure resolves to null instead of throwing. Useful for sends/deletes whose outcome is non-critical. |
+| [slashMention()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/slashMention) | `function slashMention( name: string, commandId: string, subcommand?: string): string;` | Chat-input command mention (</name:id>). Subcommands use a space: </play song:123>. |
+| [truncate()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/truncate) | `function truncate( text: string, max: number, suffix?: string): string;` | Truncate text to at most max characters, appending suffix (default …) when it had to cut. The result — suffix included — never exceeds max. |
+| [withSafeTimeout()](https://spearkit.bayburt.lu/docs/api-reference/utilities/functions/withSafeTimeout) | `function withSafeTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T \| null>;` | Time-bound an arbitrary promise; resolves to null on timeout or rejection. |
 
 ### Classes
 
@@ -688,14 +688,14 @@ Formatting, mentions, invites, choices, safe fetches, locks, and Discord errors.
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
-| [DiscordErrorCodeValue](https://spearkit.bayburt.lu/docs/api-reference/utilities/type-aliases/DiscordErrorCodeValue) | `DiscordErrorCodeValue = typeof DiscordErrorCodekeyof typeof [DiscordErrorCode]` | A numeric Discord JSON error code value. |
-| [DiscordTimestampStyle](https://spearkit.bayburt.lu/docs/api-reference/utilities/type-aliases/DiscordTimestampStyle) | `DiscordTimestampStyle = "t" \| "T" \| "d" \| "D" \| "f" \| "F" \| "R"` | Discord timestamp style: t/T/d/D/f/F/R. |
-| [LockRelease](https://spearkit.bayburt.lu/docs/api-reference/utilities/type-aliases/LockRelease) | `LockRelease = () => void` | Release a previously-acquired lease. Idempotent — safe to call multiple times. |
+| [DiscordErrorCodeValue](https://spearkit.bayburt.lu/docs/api-reference/utilities/type-aliases/DiscordErrorCodeValue) | `type DiscordErrorCodeValue = typeof DiscordErrorCode[keyof typeof DiscordErrorCode];` | A numeric Discord JSON error code value. |
+| [DiscordTimestampStyle](https://spearkit.bayburt.lu/docs/api-reference/utilities/type-aliases/DiscordTimestampStyle) | `type DiscordTimestampStyle = "t" \| "T" \| "d" \| "D" \| "f" \| "F" \| "R";` | Discord timestamp style: t/T/d/D/f/F/R. |
+| [LockRelease](https://spearkit.bayburt.lu/docs/api-reference/utilities/type-aliases/LockRelease) | `type LockRelease = () => void;` | Release a previously-acquired lease. Idempotent — safe to call multiple times. |
 
 ### Variables
 
 | Symbol | Signature | Summary |
 | --- | --- | --- |
-| [DiscordErrorCode](https://spearkit.bayburt.lu/docs/api-reference/utilities/variables/DiscordErrorCode) | `const DiscordErrorCode: object` | The Discord JSON error codes spearkit cares about most, by readable name. This is a curated subset of discord.js' RESTJSONErrorCodes covering the failures bots actually hit and can recover from… |
-| [MESSAGE\_CHARACTER\_LIMIT](https://spearkit.bayburt.lu/docs/api-reference/utilities/variables/MESSAGE_CHARACTER_LIMIT) | `const MESSAGECHARACTERLIMIT: 2000 = 2000` | The hard cap Discord enforces on a single message's content. |
-| [safeFetch](https://spearkit.bayburt.lu/docs/api-reference/utilities/variables/safeFetch) | `const safeFetch: object` | Cache-first, timeout-bounded fetch helpers grouped for ergonomic imports. |
+| [DiscordErrorCode](https://spearkit.bayburt.lu/docs/api-reference/utilities/variables/DiscordErrorCode) | `const DiscordErrorCode: object;` | The Discord JSON error codes spearkit cares about most, by readable name. This is a curated subset of discord.js' RESTJSONErrorCodes covering the failures bots actually hit and can recover from… |
+| [MESSAGE_CHARACTER_LIMIT](https://spearkit.bayburt.lu/docs/api-reference/utilities/variables/MESSAGE_CHARACTER_LIMIT) | `const MESSAGECHARACTERLIMIT: 2000 = 2000;` | The hard cap Discord enforces on a single message's content. |
+| [safeFetch](https://spearkit.bayburt.lu/docs/api-reference/utilities/variables/safeFetch) | `const safeFetch: object;` | Cache-first, timeout-bounded fetch helpers grouped for ergonomic imports. |

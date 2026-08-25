@@ -3,12 +3,14 @@ title: "truncate()"
 description: "Truncate text to at most max characters, appending suffix (default …) when it had to cut. The result — suffix included — never exceeds max."
 ---
 
-> **truncate**(`text`, `max`, `suffix?`): `string`
+```ts
+function truncate(
+   text: string, 
+   max: number, 
+   suffix?: string): string;
+```
 
 Defined in: [src/format.ts:206](https://github.com/byigitt/spearkit/blob/main/src/format.ts#L206)
-
-Truncate `text` to at most `max` characters, appending `suffix` (default `…`)
-when it had to cut. The result — suffix included — never exceeds `max`.
 
 ## Parameters
 

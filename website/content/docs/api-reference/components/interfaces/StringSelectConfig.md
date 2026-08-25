@@ -1,11 +1,9 @@
 ---
-title: "StringSelectConfig\\<P, R\\>"
+title: "StringSelectConfig"
 description: "Config for a string select created with stringSelect."
 ---
 
 Defined in: [src/components/builders.ts:164](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L164)
-
-Config for a string select created with [stringSelect](../functions/stringSelect).
 
 ## Extends
 
@@ -29,4 +27,4 @@ Config for a string select created with [stringSelect](../functions/stringSelect
 | <a id="property-minvalues"></a> `minValues?` | `number` | - | `SelectConfigBase.minValues` |
 | <a id="property-options"></a> `options` | readonly `SelectMenuComponentOptionData`[] | - | - |
 | <a id="property-placeholder"></a> `placeholder?` | `string` | - | `SelectConfigBase.placeholder` |
-| <a id="property-run"></a> `run` | (`ctx`) => `Awaitable`\<`R`\> | - | - |
+| <a id="property-run"></a> `run` | (`ctx`: [`StringSelectContext`](../classes/StringSelectContext)\<[`Params`](../type-aliases/Params)\<`P`\>\>) => `Awaitable`\<`R`\> | - | - |

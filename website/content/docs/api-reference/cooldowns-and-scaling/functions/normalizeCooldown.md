@@ -3,11 +3,11 @@ title: "normalizeCooldown()"
 description: "Normalise a CooldownInput to a full CooldownConfig."
 ---
 
-> **normalizeCooldown**(`input`): [`CooldownConfig`](../interfaces/CooldownConfig)
+```ts
+function normalizeCooldown(input: CooldownInput): CooldownConfig;
+```
 
 Defined in: [src/cooldown.ts:47](https://github.com/byigitt/spearkit/blob/main/src/cooldown.ts#L47)
-
-Normalise a [CooldownInput](../type-aliases/CooldownInput) to a full [CooldownConfig](../interfaces/CooldownConfig).
 
 ## Parameters
 

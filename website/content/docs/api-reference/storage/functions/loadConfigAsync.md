@@ -3,11 +3,11 @@ title: "loadConfigAsync()"
 description: "Asynchronous variant of loadConfig."
 ---
 
-> **loadConfigAsync**\<`T`\>(`options`): `Promise`\<`T`\>
+```ts
+function loadConfigAsync<T>(options: LoadConfigOptions<T>): Promise<T>;
+```
 
 Defined in: [src/config.ts:35](https://github.com/byigitt/spearkit/blob/main/src/config.ts#L35)
-
-Asynchronous variant of [loadConfig](loadConfig).
 
 ## Type Parameters
 

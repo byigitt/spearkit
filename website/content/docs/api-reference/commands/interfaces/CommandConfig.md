@@ -1,11 +1,9 @@
 ---
-title: "CommandConfig\\<O, R\\>"
+title: "CommandConfig"
 description: "Configuration for a leaf (non-subcommand) slash command."
 ---
 
 Defined in: [src/commands/command.ts:58](https://github.com/byigitt/spearkit/blob/main/src/commands/command.ts#L58)
-
-Configuration for a leaf (non-subcommand) slash command.
 
 ## Extends
 
@@ -36,4 +34,4 @@ Configuration for a leaf (non-subcommand) slash command.
 | <a id="property-namelocalizations"></a> `nameLocalizations?` | `Partial`\<`Record`\<`Locale`, `string` \| `null`\>\> | - | `CommonMeta.nameLocalizations` |
 | <a id="property-nsfw"></a> `nsfw?` | `boolean` | Mark the command NSFW (age-restricted). | `CommonMeta.nsfw` |
 | <a id="property-options"></a> `options?` | `O` | - | - |
-| <a id="property-run"></a> `run` | (`ctx`) => `Awaitable`\<`R`\> | - | - |
+| <a id="property-run"></a> `run` | (`ctx`: [`CommandContext`](../classes/CommandContext)\<`O`\>) => `Awaitable`\<`R`\> | - | - |

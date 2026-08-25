@@ -5,8 +5,6 @@ description: "A single checkbox field definition. Submits a boolean (never requi
 
 Defined in: [src/components/builders.ts:363](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L363)
 
-A single checkbox field definition. Submits a `boolean` (never `required`).
-
 ## Extends
 
 - [`ModalFieldDef`](ModalFieldDef)\<`boolean`, `true`\>

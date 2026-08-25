@@ -5,8 +5,6 @@ description: "Config for a link button (no handler — just opens a URL)."
 
 Defined in: [src/components/builders.ts:122](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L122)
 
-Config for a link button (no handler — just opens a URL).
-
 ## Properties
 
 | Property | Type |

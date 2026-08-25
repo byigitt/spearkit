@@ -1,6 +1,6 @@
 ---
-title: "access-control"
-description: "access-control in the spearkit API."
+title: "Guards and permissions"
+description: "Handler preconditions, permission checks, and moderation hierarchy helpers."
 ---
 
 ## Interfaces

@@ -5,8 +5,6 @@ description: "Configuration for a subcommand group (a folder of subcommands)."
 
 Defined in: [src/commands/command.ts:87](https://github.com/byigitt/spearkit/blob/main/src/commands/command.ts#L87)
 
-Configuration for a subcommand group (a folder of subcommands).
-
 ## Extended by
 
 - [`SubcommandGroup`](SubcommandGroup)

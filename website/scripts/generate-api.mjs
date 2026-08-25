@@ -2,7 +2,6 @@ import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { dirname, extname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { Application } from "typedoc";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const WEBSITE = resolve(here, "..");
@@ -10,6 +9,8 @@ const ROOT = resolve(WEBSITE, "..");
 const SRC = join(ROOT, "src");
 const OUT = join(WEBSITE, "content", "docs", "api-reference");
 const SITE = "https://spearkit.bayburt.lu";
+// TypeDoc's per-module index page; renamed to each section's Fumadocs index.
+const ENTRY_FILE = "symbols";
 // TypeScript's wildcard `include` skips dot-directories, so this cannot be
 // hidden — `tsconfig.typedoc.json` has to be able to see the entry points.
 const ENTRYPOINTS = join(WEBSITE, "generated-api-entrypoints");
@@ -177,6 +178,19 @@ const kindOrder = [
   "enumerations",
 ];
 
+/**
+ * TypeDoc titles its pages "Interface: ButtonConfig\<P, R\>". Sidebars and
+ * breadcrumbs only want the export name; type parameters are documented in the
+ * page's own table.
+ */
+function symbolTitle(heading) {
+  return heading
+    .trim()
+    .replace(/^(?:Class|Enumeration|Function|Interface|Type Alias|Variable):\s*/u, "")
+    .replace(/\\(?=[<>_*])/gu, "")
+    .replace(/<.*$/u, "");
+}
+
 /** Markdown prose to a single plain-text line, for frontmatter and tables. */
 function plainText(markdown) {
   return markdown
@@ -257,14 +271,15 @@ async function prepareForFumadocs() {
   for (const path of await markdownFiles()) {
     const file = relative(OUT, path).replaceAll("\\", "/");
     const [slug, kind, name] = file.replace(/\.md$/u, "").split("/");
-    if (kind === undefined && groups.every((item) => item.slug !== slug)) {
-      // TypeDoc's project index; `writeLandingPage` replaces it.
-      await rm(path);
-      continue;
-    }
-
     const group = groups.find((item) => item.slug === slug);
-    if (!group) throw new Error(`Generated page outside a known section: ${file}`);
+    if (!group) {
+      // TypeDoc's project index; `writeLandingPage` replaces it.
+      if (kind === undefined) {
+        await rm(path);
+        continue;
+      }
+      throw new Error(`Generated page outside a known section: ${file}`);
+    }
 
     const raw = await readFile(path, "utf8");
     const heading = /^#\s+(.+)\n+/u.exec(raw);
@@ -274,17 +289,15 @@ async function prepareForFumadocs() {
     let body = raw
       .slice(heading[0].length)
       .replace(/(\]\([^)\s#]+)\.md(?=(?:#[^)]+)?\))/gu, "$1");
-    const isGroupIndex = kind === undefined;
-    const title = isGroupIndex
-      ? group.title
-      : heading[1]
-          .trim()
-          .replace(/^(?:Class|Enumeration|Function|Interface|Type Alias|Variable):\s*/u, "");
+    const isGroupIndex = kind === ENTRY_FILE && name === undefined;
+    const title = isGroupIndex ? group.title : symbolTitle(heading[1]);
 
     const { signature, summary, start, end } = readSummary(body);
+    // Fumadocs renders the description as the page subtitle, which is where a
+    // symbol's summary belongs; only absurdly long ones get truncated.
     const description = isGroupIndex
       ? group.description
-      : truncate(summary === "" ? `${title} in the spearkit API.` : summary, 160);
+      : truncate(summary === "" ? `${title} in the spearkit API.` : summary, 300);
 
     // Fumadocs prints the description under the title, so the summary paragraph
     // would otherwise appear twice. Keep it when the description had to be
@@ -292,7 +305,7 @@ async function prepareForFumadocs() {
     if (!isGroupIndex && summary !== "" && start !== -1 && description === summary) {
       const lines = body.split("\n");
       lines.splice(start, end - start + 1);
-      body = lines.join("\n").replace(/^\n+/u, "");
+      body = lines.join("\n").replace(/^\n+/u, "").replace(/\n{3,}/gu, "\n\n");
     }
 
     const frontmatter =
@@ -439,6 +452,10 @@ async function generate() {
     return;
   }
 
+  // Imported here so a website-only deploy, which never reaches this point,
+  // does not need TypeDoc installed.
+  const { Application } = await import("typedoc");
+
   await validateGroups();
   await writeEntrypoints();
   try {
@@ -454,7 +471,7 @@ async function generate() {
       out: OUT,
       router: "member",
       readme: "none",
-      entryFileName: "symbols",
+      entryFileName: ENTRY_FILE,
       excludeExternals: true,
       excludePrivate: true,
       excludeProtected: true,

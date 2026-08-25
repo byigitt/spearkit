@@ -5,8 +5,6 @@ description: "Options for inviteUrl."
 
 Defined in: [src/invite.ts:7](https://github.com/byigitt/spearkit/blob/main/src/invite.ts#L7)
 
-Options for [inviteUrl](../functions/inviteUrl).
-
 ## Properties
 
 | Property | Type | Description |

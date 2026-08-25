@@ -3,11 +3,11 @@ title: "definePlugin()"
 description: "Identity helper that gives a plugin object its type and editor hints."
 ---
 
-> **definePlugin**(`plugin`): [`SpearPlugin`](../interfaces/SpearPlugin)
+```ts
+function definePlugin(plugin: SpearPlugin): SpearPlugin;
+```
 
 Defined in: [src/plugin.ts:14](https://github.com/byigitt/spearkit/blob/main/src/plugin.ts#L14)
-
-Identity helper that gives a plugin object its type and editor hints.
 
 ## Parameters
 

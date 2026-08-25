@@ -5,8 +5,6 @@ description: "Builds preset embeds with consistent colors and icons."
 
 Defined in: [src/embeds.ts:82](https://github.com/byigitt/spearkit/blob/main/src/embeds.ts#L82)
 
-Builds preset embeds with consistent colors and icons.
-
 ## Example
 
 ```ts
@@ -18,7 +16,9 @@ await channel.send({ embeds: [embeds.success("Saved.")] });
 
 ### Constructor
 
-> **new Embeds**(`options?`): `Embeds`
+```ts
+new Embeds(options?: EmbedsOptions): Embeds;
+```
 
 Defined in: [src/embeds.ts:88](https://github.com/byigitt/spearkit/blob/main/src/embeds.ts#L88)
 
@@ -43,7 +43,9 @@ Defined in: [src/embeds.ts:88](https://github.com/byigitt/spearkit/blob/main/src
 
 ### build()
 
-> **build**(`level`, `input`): `EmbedBuilder`
+```ts
+build(level: EmbedLevel, input: EmbedPresetInput): EmbedBuilder;
+```
 
 Defined in: [src/embeds.ts:114](https://github.com/byigitt/spearkit/blob/main/src/embeds.ts#L114)
 
@@ -64,7 +66,9 @@ Build an embed at a chosen level.
 
 ### error()
 
-> **error**(`input`): `EmbedBuilder`
+```ts
+error(input: EmbedPresetInput): EmbedBuilder;
+```
 
 Defined in: [src/embeds.ts:94](https://github.com/byigitt/spearkit/blob/main/src/embeds.ts#L94)
 
@@ -84,7 +88,9 @@ Red preset — something went wrong.
 
 ### info()
 
-> **info**(`input`): `EmbedBuilder`
+```ts
+info(input: EmbedPresetInput): EmbedBuilder;
+```
 
 Defined in: [src/embeds.ts:104](https://github.com/byigitt/spearkit/blob/main/src/embeds.ts#L104)
 
@@ -104,7 +110,9 @@ Blue preset — neutral information.
 
 ### success()
 
-> **success**(`input`): `EmbedBuilder`
+```ts
+success(input: EmbedPresetInput): EmbedBuilder;
+```
 
 Defined in: [src/embeds.ts:99](https://github.com/byigitt/spearkit/blob/main/src/embeds.ts#L99)
 
@@ -124,7 +132,9 @@ Green preset — something succeeded.
 
 ### warn()
 
-> **warn**(`input`): `EmbedBuilder`
+```ts
+warn(input: EmbedPresetInput): EmbedBuilder;
+```
 
 Defined in: [src/embeds.ts:109](https://github.com/byigitt/spearkit/blob/main/src/embeds.ts#L109)
 

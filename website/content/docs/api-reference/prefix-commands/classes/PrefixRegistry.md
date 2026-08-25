@@ -5,13 +5,13 @@ description: "Holds prefix commands and dispatches matching messages to them."
 
 Defined in: [src/prefix.ts:265](https://github.com/byigitt/spearkit/blob/main/src/prefix.ts#L265)
 
-Holds prefix commands and dispatches matching messages to them.
-
 ## Constructors
 
 ### Constructor
 
-> **new PrefixRegistry**(): `PrefixRegistry`
+```ts
+new PrefixRegistry(): PrefixRegistry;
+```
 
 #### Returns
 
@@ -23,7 +23,9 @@ Holds prefix commands and dispatches matching messages to them.
 
 #### Get Signature
 
-> **get** **size**(): `number`
+```ts
+get size(): number;
+```
 
 Defined in: [src/prefix.ts:338](https://github.com/byigitt/spearkit/blob/main/src/prefix.ts#L338)
 
@@ -37,7 +39,9 @@ Number of registered commands (excluding aliases).
 
 ### add()
 
-> **add**(...`commands`): `this`
+```ts
+add(...commands: PrefixCommand[]): this;
+```
 
 Defined in: [src/prefix.ts:319](https://github.com/byigitt/spearkit/blob/main/src/prefix.ts#L319)
 
@@ -57,7 +61,9 @@ Register one or more prefix commands (and their aliases).
 
 ### get()
 
-> **get**(`nameOrAlias`): [`PrefixCommand`](../interfaces/PrefixCommand) \| `undefined`
+```ts
+get(nameOrAlias: string): PrefixCommand | undefined;
+```
 
 Defined in: [src/prefix.ts:333](https://github.com/byigitt/spearkit/blob/main/src/prefix.ts#L333)
 
@@ -77,7 +83,9 @@ Look up a command by name or alias.
 
 ### handle()
 
-> **handle**(`message`): `Promise`\<`boolean`\>
+```ts
+handle(message: Message): Promise<boolean>;
+```
 
 Defined in: [src/prefix.ts:376](https://github.com/byigitt/spearkit/blob/main/src/prefix.ts#L376)
 
@@ -98,7 +106,9 @@ blocked by a cooldown), `false` when the message was not a prefix command.
 
 ### list()
 
-> **list**(): [`PrefixCommand`](../interfaces/PrefixCommand)[]
+```ts
+list(): PrefixCommand[];
+```
 
 Defined in: [src/prefix.ts:343](https://github.com/byigitt/spearkit/blob/main/src/prefix.ts#L343)
 
@@ -112,7 +122,9 @@ Every registered command.
 
 ### onError()
 
-> **onError**(`handler`): `this`
+```ts
+onError(handler: PrefixErrorHandler): this;
+```
 
 Defined in: [src/prefix.ts:313](https://github.com/byigitt/spearkit/blob/main/src/prefix.ts#L313)
 
@@ -132,7 +144,9 @@ Set the handler used when a prefix command throws.
 
 ### setCooldowns()
 
-> **setCooldowns**(`manager`, `defaultCooldown?`): `this`
+```ts
+setCooldowns(manager: CooldownManager, defaultCooldown?: CooldownConfig): this;
+```
 
 Defined in: [src/prefix.ts:300](https://github.com/byigitt/spearkit/blob/main/src/prefix.ts#L300)
 
@@ -153,7 +167,9 @@ Share a cooldown manager and an optional default cooldown.
 
 ### setDefaultGuards()
 
-> **setDefaultGuards**(`guards`): `this`
+```ts
+setDefaultGuards(guards: readonly Guard[]): this;
+```
 
 Defined in: [src/prefix.ts:307](https://github.com/byigitt/spearkit/blob/main/src/prefix.ts#L307)
 
@@ -173,7 +189,9 @@ Guards that run before every prefix command's own guards.
 
 ### setLogger()
 
-> **setLogger**(`logger`): `this`
+```ts
+setLogger(logger: Logger): this;
+```
 
 Defined in: [src/prefix.ts:288](https://github.com/byigitt/spearkit/blob/main/src/prefix.ts#L288)
 
@@ -193,7 +211,12 @@ Attach a logger for dispatch tracing and error reporting.
 
 ### setOptions()
 
-> **setOptions**(`input`): `this`
+```ts
+setOptions(input: 
+  | string
+  | readonly string[]
+  | PrefixOptions): this;
+```
 
 Defined in: [src/prefix.ts:282](https://github.com/byigitt/spearkit/blob/main/src/prefix.ts#L282)
 
@@ -203,7 +226,7 @@ Configure prefixes and matching behaviour.
 
 | Parameter | Type |
 | :------ | :------ |
-| `input` | `string` \| readonly `string`[] \| [`PrefixOptions`](../interfaces/PrefixOptions) |
+| `input` | \| `string` \| readonly `string`[] \| [`PrefixOptions`](../interfaces/PrefixOptions) |
 
 #### Returns
 
@@ -213,7 +236,9 @@ Configure prefixes and matching behaviour.
 
 ### setUsageHook()
 
-> **setUsageHook**(`hook`): `this`
+```ts
+setUsageHook(hook: (event: UsageEvent) => void): this;
+```
 
 Defined in: [src/prefix.ts:294](https://github.com/byigitt/spearkit/blob/main/src/prefix.ts#L294)
 
@@ -223,7 +248,7 @@ Attach a hook called after each successful prefix command run.
 
 | Parameter | Type |
 | :------ | :------ |
-| `hook` | (`event`) => `void` |
+| `hook` | (`event`: [`UsageEvent`](../../runtime/interfaces/UsageEvent)) => `void` |
 
 #### Returns
 

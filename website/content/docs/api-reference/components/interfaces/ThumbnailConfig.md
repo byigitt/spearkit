@@ -5,8 +5,6 @@ description: "Config for thumbnail."
 
 Defined in: [src/components/v2.ts:40](https://github.com/byigitt/spearkit/blob/main/src/components/v2.ts#L40)
 
-Config for [thumbnail](../functions/thumbnail).
-
 ## Properties
 
 | Property | Type |

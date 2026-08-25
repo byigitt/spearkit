@@ -1,13 +1,13 @@
 ---
 title: "keyValueCooldownBackend()"
-description: "Persist last-hit timestamps in any KeyValueStore. Safe across restarts; two processes hitting the same key can race (use redisCooldownBackend when you need…"
+description: "Persist last-hit timestamps in any KeyValueStore."
 ---
 
-> **keyValueCooldownBackend**(`store`): [`CooldownBackend`](../interfaces/CooldownBackend)
+```ts
+function keyValueCooldownBackend(store: KeyValueStore): CooldownBackend;
+```
 
 Defined in: [src/cooldown.ts:168](https://github.com/byigitt/spearkit/blob/main/src/cooldown.ts#L168)
-
-Persist last-hit timestamps in any [KeyValueStore](../../storage/interfaces/KeyValueStore).
 
 Safe across restarts; two processes hitting the same key can race (use
 [redisCooldownBackend](redisCooldownBackend) when you need atomic NX).

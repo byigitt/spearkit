@@ -3,11 +3,11 @@ title: "env"
 description: "Typed accessor over process.env."
 ---
 
-> `const` **env**: [`EnvReader`](../interfaces/EnvReader)
+```ts
+const env: EnvReader;
+```
 
 Defined in: [src/env.ts:148](https://github.com/byigitt/spearkit/blob/main/src/env.ts#L148)
-
-Typed accessor over `process.env`.
 
 ## Example
 

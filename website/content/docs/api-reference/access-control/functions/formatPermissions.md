@@ -1,15 +1,13 @@
 ---
 title: "formatPermissions()"
-description: "Render permission flag names into a human, comma-separated string. Accepts a PermissionsString array (the output of missingPermissions) or anything…"
+description: "Render permission flag names into a human, comma-separated string. Accepts a PermissionsString array (the output of missingPermissions) or anything PermissionResolvable."
 ---
 
-> **formatPermissions**(`permissions`): `string`
+```ts
+function formatPermissions(permissions: PermissionResolvable): string;
+```
 
 Defined in: [src/permissions.ts:200](https://github.com/byigitt/spearkit/blob/main/src/permissions.ts#L200)
-
-Render permission flag names into a human, comma-separated string. Accepts a
-PermissionsString array (the output of [missingPermissions](missingPermissions)) or
-anything PermissionResolvable.
 
 ## Parameters
 

@@ -1,11 +1,9 @@
 ---
-title: "PrefixContext\\<TArgs\\>"
+title: "PrefixContext"
 description: "The handler argument for a prefix command: the message plus parsed args."
 ---
 
 Defined in: [src/prefix.ts:114](https://github.com/byigitt/spearkit/blob/main/src/prefix.ts#L114)
-
-The handler argument for a prefix command: the message plus parsed args.
 
 ## Type Parameters
 
@@ -17,7 +15,14 @@ The handler argument for a prefix command: the message plus parsed args.
 
 ### Constructor
 
-> **new PrefixContext**\<`TArgs`\>(`message`, `commandName`, `args`, `rest`, `options?`): `PrefixContext`\<`TArgs`\>
+```ts
+new PrefixContext<TArgs>(
+   message: Message, 
+   commandName: string, 
+   args: string[], 
+   rest: string, 
+options?: TArgs): PrefixContext<TArgs>;
+```
 
 Defined in: [src/prefix.ts:117](https://github.com/byigitt/spearkit/blob/main/src/prefix.ts#L117)
 
@@ -51,7 +56,9 @@ Defined in: [src/prefix.ts:117](https://github.com/byigitt/spearkit/blob/main/sr
 
 #### Get Signature
 
-> **get** **author**(): `User`
+```ts
+get author(): User;
+```
 
 Defined in: [src/prefix.ts:133](https://github.com/byigitt/spearkit/blob/main/src/prefix.ts#L133)
 
@@ -65,13 +72,32 @@ Defined in: [src/prefix.ts:133](https://github.com/byigitt/spearkit/blob/main/sr
 
 #### Get Signature
 
-> **get** **channel**(): `DMChannel` \| `PartialDMChannel` \| `PartialGroupDMChannel` \| `NewsChannel` \| `StageChannel` \| `TextChannel` \| `PublicThreadChannel`\<`boolean`\> \| `PrivateThreadChannel` \| `VoiceChannel`
+```ts
+get channel(): 
+  | DMChannel
+  | PartialDMChannel
+  | PartialGroupDMChannel
+  | NewsChannel
+  | StageChannel
+  | TextChannel
+  | PublicThreadChannel<boolean>
+  | PrivateThreadChannel
+  | VoiceChannel;
+```
 
 Defined in: [src/prefix.ts:145](https://github.com/byigitt/spearkit/blob/main/src/prefix.ts#L145)
 
 ##### Returns
 
-`DMChannel` \| `PartialDMChannel` \| `PartialGroupDMChannel` \| `NewsChannel` \| `StageChannel` \| `TextChannel` \| `PublicThreadChannel`\<`boolean`\> \| `PrivateThreadChannel` \| `VoiceChannel`
+  \| `DMChannel`
+  \| `PartialDMChannel`
+  \| `PartialGroupDMChannel`
+  \| `NewsChannel`
+  \| `StageChannel`
+  \| `TextChannel`
+  \| `PublicThreadChannel`\<`boolean`\>
+  \| `PrivateThreadChannel`
+  \| `VoiceChannel`
 
 ***
 
@@ -79,7 +105,9 @@ Defined in: [src/prefix.ts:145](https://github.com/byigitt/spearkit/blob/main/sr
 
 #### Get Signature
 
-> **get** **channelId**(): `string`
+```ts
+get channelId(): string;
+```
 
 Defined in: [src/prefix.ts:148](https://github.com/byigitt/spearkit/blob/main/src/prefix.ts#L148)
 
@@ -93,7 +121,9 @@ Defined in: [src/prefix.ts:148](https://github.com/byigitt/spearkit/blob/main/sr
 
 #### Get Signature
 
-> **get** **client**(): `Client`\<`true`\>
+```ts
+get client(): Client<true>;
+```
 
 Defined in: [src/prefix.ts:130](https://github.com/byigitt/spearkit/blob/main/src/prefix.ts#L130)
 
@@ -107,7 +137,9 @@ Defined in: [src/prefix.ts:130](https://github.com/byigitt/spearkit/blob/main/sr
 
 #### Get Signature
 
-> **get** **guild**(): `Guild` \| `null`
+```ts
+get guild(): Guild | null;
+```
 
 Defined in: [src/prefix.ts:139](https://github.com/byigitt/spearkit/blob/main/src/prefix.ts#L139)
 
@@ -121,7 +153,9 @@ Defined in: [src/prefix.ts:139](https://github.com/byigitt/spearkit/blob/main/sr
 
 #### Get Signature
 
-> **get** **guildId**(): `string` \| `null`
+```ts
+get guildId(): string | null;
+```
 
 Defined in: [src/prefix.ts:142](https://github.com/byigitt/spearkit/blob/main/src/prefix.ts#L142)
 
@@ -135,7 +169,9 @@ Defined in: [src/prefix.ts:142](https://github.com/byigitt/spearkit/blob/main/sr
 
 #### Get Signature
 
-> **get** **member**(): `GuildMember` \| `null`
+```ts
+get member(): GuildMember | null;
+```
 
 Defined in: [src/prefix.ts:136](https://github.com/byigitt/spearkit/blob/main/src/prefix.ts#L136)
 
@@ -147,7 +183,9 @@ Defined in: [src/prefix.ts:136](https://github.com/byigitt/spearkit/blob/main/sr
 
 ### dm()
 
-> **dm**(`input`): `Promise`\<`Message`\<`boolean`\> \| `null`\>
+```ts
+dm(input: string | MessageCreateOptions): Promise<Message<boolean> | null>;
+```
 
 Defined in: [src/prefix.ts:197](https://github.com/byigitt/spearkit/blob/main/src/prefix.ts#L197)
 
@@ -165,7 +203,9 @@ Defined in: [src/prefix.ts:197](https://github.com/byigitt/spearkit/blob/main/sr
 
 ### reply()
 
-> **reply**(`content`): `Promise`\<`Message`\<`boolean`\>\>
+```ts
+reply(content: string | MessagePayload | MessageReplyOptions): Promise<Message<boolean>>;
+```
 
 Defined in: [src/prefix.ts:176](https://github.com/byigitt/spearkit/blob/main/src/prefix.ts#L176)
 
@@ -185,7 +225,9 @@ Reply to the triggering message.
 
 ### send()
 
-> **send**(`content`): `Promise`\<`Message`\<`boolean`\> \| `undefined`\>
+```ts
+send(content: string | MessagePayload | MessageCreateOptions): Promise<Message<boolean> | undefined>;
+```
 
 Defined in: [src/prefix.ts:181](https://github.com/byigitt/spearkit/blob/main/src/prefix.ts#L181)
 
@@ -205,7 +247,9 @@ Send a message to the same channel (no reply reference).
 
 ### sendLong()
 
-> **sendLong**(`text`): `Promise`\<`void`\>
+```ts
+sendLong(text: string): Promise<void>;
+```
 
 Defined in: [src/prefix.ts:187](https://github.com/byigitt/spearkit/blob/main/src/prefix.ts#L187)
 
@@ -223,7 +267,9 @@ Defined in: [src/prefix.ts:187](https://github.com/byigitt/spearkit/blob/main/sr
 
 ### t()
 
-> **t**(`key`, `params?`): `Promise`\<`string`\>
+```ts
+t(key: string, params?: TranslationParams): Promise<string>;
+```
 
 Defined in: [src/prefix.ts:156](https://github.com/byigitt/spearkit/blob/main/src/prefix.ts#L156)
 
@@ -245,7 +291,9 @@ so the guild preference (or custom resolver) is used.
 
 ### withTyping()
 
-> **withTyping**\<`T`\>(`fn`): `Promise`\<`T`\>
+```ts
+withTyping<T>(fn: () => Promise<T>): Promise<T>;
+```
 
 Defined in: [src/prefix.ts:207](https://github.com/byigitt/spearkit/blob/main/src/prefix.ts#L207)
 

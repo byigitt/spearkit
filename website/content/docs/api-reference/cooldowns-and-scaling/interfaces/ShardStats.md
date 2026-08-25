@@ -5,8 +5,6 @@ description: "One process/worker's cheap operational snapshot."
 
 Defined in: [src/scale.ts:153](https://github.com/byigitt/spearkit/blob/main/src/scale.ts#L153)
 
-One process/worker's cheap operational snapshot.
-
 ## Properties
 
 | Property | Type |

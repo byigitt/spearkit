@@ -5,8 +5,6 @@ description: "A string select field inside a modal. Submits the chosen values."
 
 Defined in: [src/components/builders.ts:385](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L385)
 
-A string select field inside a modal. Submits the chosen values.
-
 ## Extends
 
 - `SelectFieldBase`

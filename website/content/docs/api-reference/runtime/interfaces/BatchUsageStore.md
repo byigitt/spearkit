@@ -5,8 +5,6 @@ description: "Optional bulk-write extension used by BufferedUsageStore."
 
 Defined in: [src/usage.ts:58](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L58)
 
-Optional bulk-write extension used by [BufferedUsageStore](../classes/BufferedUsageStore).
-
 ## Extends
 
 - [`UsageStore`](UsageStore)
@@ -15,7 +13,9 @@ Optional bulk-write extension used by [BufferedUsageStore](../classes/BufferedUs
 
 ### all()
 
-> **all**(): `Awaitable`\<readonly [`UsageEvent`](UsageEvent)[]\>
+```ts
+all(): Awaitable<readonly UsageEvent[]>;
+```
 
 Defined in: [src/usage.ts:54](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L54)
 
@@ -33,7 +33,9 @@ Read every persisted event.
 
 ### record()
 
-> **record**(`event`): `Awaitable`\<`void`\>
+```ts
+record(event: UsageEvent): Awaitable<void>;
+```
 
 Defined in: [src/usage.ts:52](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L52)
 
@@ -57,7 +59,9 @@ Persist one event.
 
 ### recordMany()
 
-> **recordMany**(`events`): `Awaitable`\<`void`\>
+```ts
+recordMany(events: readonly UsageEvent[]): Awaitable<void>;
+```
 
 Defined in: [src/usage.ts:60](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L60)
 

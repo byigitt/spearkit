@@ -5,9 +5,6 @@ description: "Minimal context a guard reads. Every spearkit handler (slash/prefi
 
 Defined in: [src/guards.ts:28](https://github.com/byigitt/spearkit/blob/main/src/guards.ts#L28)
 
-Minimal context a guard reads. Every spearkit handler (slash/prefix/component
-/modal) already exposes these — guards work uniformly across all of them.
-
 ## Properties
 
 | Property | Modifier | Type |

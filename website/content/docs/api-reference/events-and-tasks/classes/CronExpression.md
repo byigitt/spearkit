@@ -5,8 +5,6 @@ description: "A parsed cron expression. Evaluates in the host's local time."
 
 Defined in: [src/scheduler.ts:66](https://github.com/byigitt/spearkit/blob/main/src/scheduler.ts#L66)
 
-A parsed cron expression. Evaluates in the host's local time.
-
 ## Example
 
 ```ts
@@ -18,7 +16,9 @@ cron("@daily").next(new Date());           // next midnight
 
 ### Constructor
 
-> **new CronExpression**(`expression`): `CronExpression`
+```ts
+new CronExpression(expression: string): CronExpression;
+```
 
 Defined in: [src/scheduler.ts:77](https://github.com/byigitt/spearkit/blob/main/src/scheduler.ts#L77)
 
@@ -42,7 +42,9 @@ Defined in: [src/scheduler.ts:77](https://github.com/byigitt/spearkit/blob/main/
 
 ### next()
 
-> **next**(`from?`): `Date`
+```ts
+next(from?: Date): Date;
+```
 
 Defined in: [src/scheduler.ts:119](https://github.com/byigitt/spearkit/blob/main/src/scheduler.ts#L119)
 

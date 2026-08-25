@@ -1,19 +1,17 @@
 ---
 title: "TaskScheduler"
-description: "Runs ScheduledTasks. The client owns one as client.scheduler, starts it on clientReady and stops it on destroy. Tasks added while running are scheduled…"
+description: "Runs ScheduledTasks. The client owns one as client.scheduler, starts it on clientReady and stops it on destroy. Tasks added while running are scheduled immediately."
 ---
 
 Defined in: [src/scheduler.ts:202](https://github.com/byigitt/spearkit/blob/main/src/scheduler.ts#L202)
-
-Runs [ScheduledTask](../interfaces/ScheduledTask)s. The client owns one as `client.scheduler`,
-starts it on `clientReady` and stops it on `destroy`. Tasks added while
-running are scheduled immediately.
 
 ## Constructors
 
 ### Constructor
 
-> **new TaskScheduler**(): `TaskScheduler`
+```ts
+new TaskScheduler(): TaskScheduler;
+```
 
 #### Returns
 
@@ -25,7 +23,9 @@ running are scheduled immediately.
 
 #### Get Signature
 
-> **get** **active**(): `boolean`
+```ts
+get active(): boolean;
+```
 
 Defined in: [src/scheduler.ts:216](https://github.com/byigitt/spearkit/blob/main/src/scheduler.ts#L216)
 
@@ -41,7 +41,9 @@ Whether the scheduler is currently running.
 
 #### Get Signature
 
-> **get** **size**(): `number`
+```ts
+get size(): number;
+```
 
 Defined in: [src/scheduler.ts:211](https://github.com/byigitt/spearkit/blob/main/src/scheduler.ts#L211)
 
@@ -55,7 +57,9 @@ Number of registered tasks.
 
 ### add()
 
-> **add**(...`tasks`): `this`
+```ts
+add(...tasks: ScheduledTask[]): this;
+```
 
 Defined in: [src/scheduler.ts:232](https://github.com/byigitt/spearkit/blob/main/src/scheduler.ts#L232)
 
@@ -75,7 +79,12 @@ Register one or more tasks. If already running, they are scheduled now.
 
 ### delay()
 
-> **delay**(`name`, `ms`, `fn`): `object`
+```ts
+delay(
+   name: string, 
+   ms: number, 
+   fn: () => Awaitable<void>): object;
+```
 
 Defined in: [src/scheduler.ts:251](https://github.com/byigitt/spearkit/blob/main/src/scheduler.ts#L251)
 
@@ -103,7 +112,12 @@ like "remind the moderator in 10 minutes if no claim happened".
 
 ### followUp()
 
-> **followUp**(`name`, `delays`, `fn`): `object`
+```ts
+followUp(
+   name: string, 
+   delays: readonly number[], 
+   fn: (index: number) => Awaitable<void>): object;
+```
 
 Defined in: [src/scheduler.ts:278](https://github.com/byigitt/spearkit/blob/main/src/scheduler.ts#L278)
 
@@ -117,7 +131,7 @@ fire. Generalises the 10s/30s/60s retry pattern in real bots.
 | :------ | :------ |
 | `name` | `string` |
 | `delays` | readonly `number`[] |
-| `fn` | (`index`) => `Awaitable`\<`void`\> |
+| `fn` | (`index`: `number`) => `Awaitable`\<`void`\> |
 
 #### Returns
 
@@ -131,7 +145,9 @@ fire. Generalises the 10s/30s/60s retry pattern in real bots.
 
 ### list()
 
-> **list**(): [`ScheduledTask`](../interfaces/ScheduledTask)[]
+```ts
+list(): ScheduledTask[];
+```
 
 Defined in: [src/scheduler.ts:221](https://github.com/byigitt/spearkit/blob/main/src/scheduler.ts#L221)
 
@@ -145,7 +161,9 @@ Every registered task.
 
 ### reconcile()
 
-> **reconcile**(`name`, `fn`): `void`
+```ts
+reconcile(name: string, fn: (client: SpearClient) => Awaitable<void>): void;
+```
 
 Defined in: [src/scheduler.ts:316](https://github.com/byigitt/spearkit/blob/main/src/scheduler.ts#L316)
 
@@ -159,7 +177,7 @@ reapplying cached channel state.
 | Parameter | Type |
 | :------ | :------ |
 | `name` | `string` |
-| `fn` | (`client`) => `Awaitable`\<`void`\> |
+| `fn` | (`client`: [`SpearClient`](../../core/classes/SpearClient)) => `Awaitable`\<`void`\> |
 
 #### Returns
 
@@ -169,7 +187,9 @@ reapplying cached channel state.
 
 ### remove()
 
-> **remove**(`name`): `boolean`
+```ts
+remove(name: string): boolean;
+```
 
 Defined in: [src/scheduler.ts:241](https://github.com/byigitt/spearkit/blob/main/src/scheduler.ts#L241)
 
@@ -189,7 +209,9 @@ Remove a task and cancel its timer.
 
 ### setLogger()
 
-> **setLogger**(`logger`): `this`
+```ts
+setLogger(logger: Logger): this;
+```
 
 Defined in: [src/scheduler.ts:226](https://github.com/byigitt/spearkit/blob/main/src/scheduler.ts#L226)
 
@@ -209,7 +231,9 @@ Attach a logger for task error reporting.
 
 ### start()
 
-> **start**(`client`): `void`
+```ts
+start(client: SpearClient): void;
+```
 
 Defined in: [src/scheduler.ts:338](https://github.com/byigitt/spearkit/blob/main/src/scheduler.ts#L338)
 
@@ -229,7 +253,9 @@ Start every task. Safe to call once; later calls are ignored.
 
 ### stop()
 
-> **stop**(): `void`
+```ts
+stop(): void;
+```
 
 Defined in: [src/scheduler.ts:348](https://github.com/byigitt/spearkit/blob/main/src/scheduler.ts#L348)
 

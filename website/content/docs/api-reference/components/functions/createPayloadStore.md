@@ -3,11 +3,11 @@ title: "createPayloadStore()"
 description: "Build a PayloadStore over any KeyValueStore."
 ---
 
-> **createPayloadStore**\<`T`\>(`options`): [`PayloadStore`](../interfaces/PayloadStore)\<`T`\>
+```ts
+function createPayloadStore<T>(options: CreatePayloadStoreOptions): PayloadStore<T>;
+```
 
 Defined in: [src/payload.ts:55](https://github.com/byigitt/spearkit/blob/main/src/payload.ts#L55)
-
-Build a [PayloadStore](../interfaces/PayloadStore) over any [KeyValueStore](../../storage/interfaces/KeyValueStore).
 
 ## Type Parameters
 

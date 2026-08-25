@@ -3,11 +3,11 @@ title: "buildHelpEntries()"
 description: "Collect command metadata from a client without sending anything."
 ---
 
-> **buildHelpEntries**(`client`, `options?`): [`HelpEntry`](../interfaces/HelpEntry)[]
+```ts
+function buildHelpEntries(client: Pick<SpearClient, "commands" | "prefix" | "contextMenus">, options?: Pick<HelpCommandOptions, "includePrefix" | "includeContextMenus"> & object): HelpEntry[];
+```
 
 Defined in: [src/help.ts:43](https://github.com/byigitt/spearkit/blob/main/src/help.ts#L43)
-
-Collect command metadata from a client without sending anything.
 
 ## Parameters
 

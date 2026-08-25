@@ -3,11 +3,11 @@ title: "requireOwner()"
 description: "Require the invoking user to be one of ownerIds (\"bot owners\")."
 ---
 
-> **requireOwner**(`ownerIds`, `reason?`): [`Guard`](../type-aliases/Guard)
+```ts
+function requireOwner(ownerIds: readonly string[], reason?: string): Guard;
+```
 
 Defined in: [src/guards.ts:119](https://github.com/byigitt/spearkit/blob/main/src/guards.ts#L119)
-
-Require the invoking user to be one of `ownerIds` ("bot owners").
 
 ## Parameters
 

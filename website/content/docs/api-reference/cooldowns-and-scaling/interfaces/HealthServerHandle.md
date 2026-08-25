@@ -5,8 +5,6 @@ description: "Running health server."
 
 Defined in: [src/scale.ts:364](https://github.com/byigitt/spearkit/blob/main/src/scale.ts#L364)
 
-Running health server.
-
 ## Properties
 
 | Property | Type |
@@ -19,7 +17,9 @@ Running health server.
 
 ### close()
 
-> **close**(): `Promise`\<`void`\>
+```ts
+close(): Promise<void>;
+```
 
 Defined in: [src/scale.ts:368](https://github.com/byigitt/spearkit/blob/main/src/scale.ts#L368)
 

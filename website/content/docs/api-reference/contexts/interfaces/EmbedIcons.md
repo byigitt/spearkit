@@ -5,8 +5,6 @@ description: "Icon glyph prepended to the description of each preset. Pass \"\" 
 
 Defined in: [src/embeds.ts:24](https://github.com/byigitt/spearkit/blob/main/src/embeds.ts#L24)
 
-Icon glyph prepended to the description of each preset. Pass `""` to drop.
-
 ## Properties
 
 | Property | Type |

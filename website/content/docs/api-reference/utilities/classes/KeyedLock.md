@@ -5,8 +5,6 @@ description: "Acquire, release and run-while-locked operations keyed on an arbit
 
 Defined in: [src/lock.ts:38](https://github.com/byigitt/spearkit/blob/main/src/lock.ts#L38)
 
-Acquire, release and run-while-locked operations keyed on an arbitrary string.
-
 ## Example
 
 ```ts
@@ -21,7 +19,9 @@ const result = await locks.run(`ticket:${id}:claim`, async () => {
 
 ### Constructor
 
-> **new KeyedLock**(`options?`): `KeyedLock`
+```ts
+new KeyedLock(options?: KeyedLockOptions): KeyedLock;
+```
 
 Defined in: [src/lock.ts:43](https://github.com/byigitt/spearkit/blob/main/src/lock.ts#L43)
 
@@ -41,7 +41,9 @@ Defined in: [src/lock.ts:43](https://github.com/byigitt/spearkit/blob/main/src/l
 
 #### Get Signature
 
-> **get** **size**(): `number`
+```ts
+get size(): number;
+```
 
 Defined in: [src/lock.ts:95](https://github.com/byigitt/spearkit/blob/main/src/lock.ts#L95)
 
@@ -55,7 +57,9 @@ Number of currently-tracked leases (including expired-but-unswept).
 
 ### dispose()
 
-> **dispose**(): `void`
+```ts
+dispose(): void;
+```
 
 Defined in: [src/lock.ts:100](https://github.com/byigitt/spearkit/blob/main/src/lock.ts#L100)
 
@@ -69,7 +73,9 @@ Drop all known leases and stop the sweep timer.
 
 ### forget()
 
-> **forget**(`key`): `boolean`
+```ts
+forget(key: string): boolean;
+```
 
 Defined in: [src/lock.ts:106](https://github.com/byigitt/spearkit/blob/main/src/lock.ts#L106)
 
@@ -89,7 +95,9 @@ Manually remove a single key without running anything.
 
 ### isHeld()
 
-> **isHeld**(`key`): `boolean`
+```ts
+isHeld(key: string): boolean;
+```
 
 Defined in: [src/lock.ts:68](https://github.com/byigitt/spearkit/blob/main/src/lock.ts#L68)
 
@@ -109,7 +117,12 @@ Whether `key` is currently held and not expired.
 
 ### run()
 
-> **run**\<`T`\>(`key`, `fn`, `options?`): `Promise`\<`T` \| `undefined`\>
+```ts
+run<T>(
+   key: string, 
+   fn: () => T | Promise<T>, 
+options?: object): Promise<T | undefined>;
+```
 
 Defined in: [src/lock.ts:78](https://github.com/byigitt/spearkit/blob/main/src/lock.ts#L78)
 
@@ -141,7 +154,9 @@ return or throw.
 
 ### tryAcquire()
 
-> **tryAcquire**(`key`, `ttl?`): [`LockRelease`](../type-aliases/LockRelease) \| `null`
+```ts
+tryAcquire(key: string, ttl?: number): LockRelease | null;
+```
 
 Defined in: [src/lock.ts:53](https://github.com/byigitt/spearkit/blob/main/src/lock.ts#L53)
 

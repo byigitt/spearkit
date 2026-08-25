@@ -5,8 +5,6 @@ description: "A registrable prefix command. Build it with prefixCommand."
 
 Defined in: [src/prefix.ts:77](https://github.com/byigitt/spearkit/blob/main/src/prefix.ts#L77)
 
-A registrable prefix command. Build it with [prefixCommand](../functions/prefixCommand).
-
 ## Properties
 
 | Property | Modifier | Type |
@@ -19,4 +17,4 @@ A registrable prefix command. Build it with [prefixCommand](../functions/prefixC
 | <a id="property-kind"></a> `kind` | `readonly` | `"prefixCommand"` |
 | <a id="property-name"></a> `name` | `readonly` | `string` |
 | <a id="property-parser"></a> `parser?` | `readonly` | [`PrefixArgsParser`](PrefixArgsParser)\<`Record`\<`string`, `unknown`\>\> |
-| <a id="property-run"></a> `run` | `readonly` | (`ctx`) => `Promise`\<`void`\> |
+| <a id="property-run"></a> `run` | `readonly` | (`ctx`: [`PrefixContext`](../classes/PrefixContext)) => `Promise`\<`void`\> |

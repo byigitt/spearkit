@@ -3,11 +3,11 @@ title: "poll()"
 description: "Build a Discord poll payload with readable names and early validation."
 ---
 
-> **poll**(`config`): `PollData`
+```ts
+function poll(config: PollConfig): PollData;
+```
 
 Defined in: [src/poll.ts:50](https://github.com/byigitt/spearkit/blob/main/src/poll.ts#L50)
-
-Build a Discord poll payload with readable names and early validation.
 
 ## Parameters
 

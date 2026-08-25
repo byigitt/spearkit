@@ -1,11 +1,9 @@
 ---
-title: "PrefixArgsOk\\<T\\>"
+title: "PrefixArgsOk"
 description: "A successful parse, returned by PrefixArgsParser.parse."
 ---
 
 Defined in: [src/prefix-args.ts:50](https://github.com/byigitt/spearkit/blob/main/src/prefix-args.ts#L50)
-
-A successful parse, returned by [PrefixArgsParser.parse](PrefixArgsParser#parse).
 
 ## Type Parameters
 

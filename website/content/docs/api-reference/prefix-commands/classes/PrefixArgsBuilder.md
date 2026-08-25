@@ -1,12 +1,9 @@
 ---
-title: "PrefixArgsBuilder\\<TShape\\>"
+title: "PrefixArgsBuilder"
 description: "Build a typed argument schema for prefixCommand. Chain calls positionally — first token → first arg, second → second arg, etc."
 ---
 
 Defined in: [src/prefix-args.ts:106](https://github.com/byigitt/spearkit/blob/main/src/prefix-args.ts#L106)
-
-Build a typed argument schema for [prefixCommand](../functions/prefixCommand). Chain calls
-positionally — first token → first arg, second → second arg, etc.
 
 ## Type Parameters
 
@@ -18,7 +15,9 @@ positionally — first token → first arg, second → second arg, etc.
 
 ### boolean()
 
-> **boolean**\<`K`, `Req`\>(`name`, `options?`): `PrefixArgsBuilder`\<`AddField`\<`TShape`, `K`, `boolean`, `Req`\>\>
+```ts
+boolean<K, Req>(name: K, options?: BooleanOpts & object): PrefixArgsBuilder<AddField<TShape, K, boolean, Req>>;
+```
 
 Defined in: [src/prefix-args.ts:139](https://github.com/byigitt/spearkit/blob/main/src/prefix-args.ts#L139)
 
@@ -46,7 +45,9 @@ A boolean (`true`/`yes`/`1`/`on` vs `false`/`no`/`0`/`off`).
 
 ### compile()
 
-> **compile**(): [`PrefixArgsParser`](../interfaces/PrefixArgsParser)\<`TShape`\>
+```ts
+compile(): PrefixArgsParser<TShape>;
+```
 
 Defined in: [src/prefix-args.ts:175](https://github.com/byigitt/spearkit/blob/main/src/prefix-args.ts#L175)
 
@@ -60,7 +61,9 @@ Compile this builder into a parser.
 
 ### duration()
 
-> **duration**\<`K`, `Req`\>(`name`, `options?`): `PrefixArgsBuilder`\<`AddField`\<`TShape`, `K`, `number`, `Req`\>\>
+```ts
+duration<K, Req>(name: K, options?: BaseOpts & object): PrefixArgsBuilder<AddField<TShape, K, number, Req>>;
+```
 
 Defined in: [src/prefix-args.ts:155](https://github.com/byigitt/spearkit/blob/main/src/prefix-args.ts#L155)
 
@@ -88,7 +91,9 @@ A duration like `"1h30m"` or `"1 saat"` parsed to milliseconds.
 
 ### integer()
 
-> **integer**\<`K`, `Req`\>(`name`, `options?`): `PrefixArgsBuilder`\<`AddField`\<`TShape`, `K`, `number`, `Req`\>\>
+```ts
+integer<K, Req>(name: K, options?: NumericOpts & object): PrefixArgsBuilder<AddField<TShape, K, number, Req>>;
+```
 
 Defined in: [src/prefix-args.ts:123](https://github.com/byigitt/spearkit/blob/main/src/prefix-args.ts#L123)
 
@@ -116,7 +121,9 @@ A whole integer.
 
 ### number()
 
-> **number**\<`K`, `Req`\>(`name`, `options?`): `PrefixArgsBuilder`\<`AddField`\<`TShape`, `K`, `number`, `Req`\>\>
+```ts
+number<K, Req>(name: K, options?: NumericOpts & object): PrefixArgsBuilder<AddField<TShape, K, number, Req>>;
+```
 
 Defined in: [src/prefix-args.ts:131](https://github.com/byigitt/spearkit/blob/main/src/prefix-args.ts#L131)
 
@@ -144,7 +151,9 @@ A floating-point number.
 
 ### rest()
 
-> **rest**\<`K`, `Req`\>(`name`, `options?`): `PrefixArgsBuilder`\<`AddField`\<`TShape`, `K`, `string`, `Req`\>\>
+```ts
+rest<K, Req>(name: K, options?: RestOpts & object): PrefixArgsBuilder<AddField<TShape, K, string, Req>>;
+```
 
 Defined in: [src/prefix-args.ts:163](https://github.com/byigitt/spearkit/blob/main/src/prefix-args.ts#L163)
 
@@ -172,7 +181,9 @@ The remainder of the message (everything after previous args).
 
 ### snowflake()
 
-> **snowflake**\<`K`, `Req`\>(`name`, `options?`): `PrefixArgsBuilder`\<`AddField`\<`TShape`, `K`, `string`, `Req`\>\>
+```ts
+snowflake<K, Req>(name: K, options?: BaseOpts & object): PrefixArgsBuilder<AddField<TShape, K, string, Req>>;
+```
 
 Defined in: [src/prefix-args.ts:147](https://github.com/byigitt/spearkit/blob/main/src/prefix-args.ts#L147)
 
@@ -200,7 +211,9 @@ A Discord snowflake id — accepts raw ids and `<@u>` / `<#c>` / `<@&r>` mention
 
 ### string()
 
-> **string**\<`K`, `Req`\>(`name`, `options?`): `PrefixArgsBuilder`\<`AddField`\<`TShape`, `K`, `string`, `Req`\>\>
+```ts
+string<K, Req>(name: K, options?: StringOpts & object): PrefixArgsBuilder<AddField<TShape, K, string, Req>>;
+```
 
 Defined in: [src/prefix-args.ts:115](https://github.com/byigitt/spearkit/blob/main/src/prefix-args.ts#L115)
 

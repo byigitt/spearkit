@@ -1,15 +1,13 @@
 ---
 title: "loadEnv()"
-description: "Read a .env file and merge it into process.env. Existing variables win unless override is set. Missing files are ignored (returns {}), so it is safe to call…"
+description: "Read a .env file and merge it into process.env. Existing variables win unless override is set. Missing files are ignored (returns {}), so it is safe to call unconditionally."
 ---
 
-> **loadEnv**(`options?`): [`ParsedEnv`](../type-aliases/ParsedEnv)
+```ts
+function loadEnv(options?: LoadEnvOptions): ParsedEnv;
+```
 
 Defined in: [src/env.ts:64](https://github.com/byigitt/spearkit/blob/main/src/env.ts#L64)
-
-Read a `.env` file and merge it into `process.env`. Existing variables win
-unless `override` is set. Missing files are ignored (returns `{}`), so it is
-safe to call unconditionally.
 
 ## Parameters
 

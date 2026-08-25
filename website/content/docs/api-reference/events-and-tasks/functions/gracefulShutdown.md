@@ -3,12 +3,11 @@ title: "gracefulShutdown()"
 description: "Wire signal handlers that gracefully tear client down once, then exit. Returns a disposer that removes the handlers (handy for tests/hot-reload)."
 ---
 
-> **gracefulShutdown**(`client`, `options?`): () => `void`
+```ts
+function gracefulShutdown(client: Destroyable, options?: GracefulShutdownOptions): () => void;
+```
 
 Defined in: [src/shutdown.ts:49](https://github.com/byigitt/spearkit/blob/main/src/shutdown.ts#L49)
-
-Wire signal handlers that gracefully tear `client` down once, then exit.
-Returns a disposer that removes the handlers (handy for tests/hot-reload).
 
 ## Parameters
 

@@ -5,8 +5,6 @@ description: "Routing entry for a user select."
 
 Defined in: [src/components/registry.ts:39](https://github.com/byigitt/spearkit/blob/main/src/components/registry.ts#L39)
 
-Routing entry for a user select.
-
 ## Extends
 
 - `RouteBase`
@@ -28,7 +26,9 @@ Routing entry for a user select.
 
 ### handle()
 
-> **handle**(`interaction`, `params`): `Promise`\<`void`\>
+```ts
+handle(interaction: UserSelectMenuInteraction, params: Record<string, string>): Promise<void>;
+```
 
 Defined in: [src/components/registry.ts:41](https://github.com/byigitt/spearkit/blob/main/src/components/registry.ts#L41)
 

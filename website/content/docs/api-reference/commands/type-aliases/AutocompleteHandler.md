@@ -1,13 +1,13 @@
 ---
-title: "AutocompleteHandler\\<V\\>"
+title: "AutocompleteHandler"
 description: "Provides autocomplete suggestions for an option as the user types."
 ---
 
-> **AutocompleteHandler**\<`V`\> = (`ctx`) => `Awaitable`\<[`OptionChoice`](../interfaces/OptionChoice)\<`V`\>[] \| `void`\>
+```ts
+type AutocompleteHandler<V> = (ctx: AutocompleteContext) => Awaitable<OptionChoice<V>[] | void>;
+```
 
 Defined in: [src/commands/options.ts:51](https://github.com/byigitt/spearkit/blob/main/src/commands/options.ts#L51)
-
-Provides autocomplete suggestions for an option as the user types.
 
 ## Type Parameters
 

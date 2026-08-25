@@ -1,11 +1,9 @@
 ---
-title: "Button\\<P\\>"
+title: "Button"
 description: "A registrable button with a typed build."
 ---
 
 Defined in: [src/components/builders.ts:84](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L84)
-
-A registrable button with a typed [build](#build).
 
 ## Extends
 
@@ -30,7 +28,9 @@ A registrable button with a typed [build](#build).
 
 ### build()
 
-> **build**(...`args`): `ButtonBuilder`
+```ts
+build(...args: BuildArgs<P>): ButtonBuilder;
+```
 
 Defined in: [src/components/builders.ts:85](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L85)
 
@@ -48,7 +48,9 @@ Defined in: [src/components/builders.ts:85](https://github.com/byigitt/spearkit/
 
 ### handle()
 
-> **handle**(`interaction`, `params`): `Promise`\<`void`\>
+```ts
+handle(interaction: ButtonInteraction, params: Record<string, string>): Promise<void>;
+```
 
 Defined in: [src/components/registry.ts:31](https://github.com/byigitt/spearkit/blob/main/src/components/registry.ts#L31)
 

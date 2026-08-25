@@ -1,6 +1,6 @@
 ---
-title: "cooldowns-and-scaling"
-description: "cooldowns-and-scaling in the spearkit API."
+title: "Cooldowns and scaling"
+description: "Rate limits, shared cooldown backends, sharding, queues, and backpressure."
 ---
 
 ## Classes

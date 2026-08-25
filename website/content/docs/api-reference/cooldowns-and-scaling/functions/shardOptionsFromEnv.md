@@ -1,13 +1,13 @@
 ---
 title: "shardOptionsFromEnv()"
-description: "Convert SHARDIDS=0,4,8 + SHARDCOUNT=12 into SpearClient options. Returns {} when neither variable exists, keeping small-bot startup intact."
+description: "Convert SHARDIDS=0,4,8 + SHARDCOUNT=12 into SpearClient options."
 ---
 
-> **shardOptionsFromEnv**(`env?`): `Pick`\<`ClientOptions`, `"shards"` \| `"shardCount"`\>
+```ts
+function shardOptionsFromEnv(env?: ShardEnvironment): Pick<ClientOptions, "shards" | "shardCount">;
+```
 
 Defined in: [src/scale.ts:121](https://github.com/byigitt/spearkit/blob/main/src/scale.ts#L121)
-
-Convert `SHARD_IDS=0,4,8` + `SHARD_COUNT=12` into `SpearClient` options.
 
 Returns `{}` when neither variable exists, keeping small-bot startup intact.
 

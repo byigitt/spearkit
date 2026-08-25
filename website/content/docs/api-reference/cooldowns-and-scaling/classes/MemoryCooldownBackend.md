@@ -5,8 +5,6 @@ description: "In-process timestamp map — the historical CooldownManager behavi
 
 Defined in: [src/cooldown.ts:129](https://github.com/byigitt/spearkit/blob/main/src/cooldown.ts#L129)
 
-In-process timestamp map — the historical [CooldownManager](CooldownManager) behaviour.
-
 ## Implements
 
 - [`CooldownBackend`](../interfaces/CooldownBackend)
@@ -15,7 +13,9 @@ In-process timestamp map — the historical [CooldownManager](CooldownManager) b
 
 ### Constructor
 
-> **new MemoryCooldownBackend**(): `MemoryCooldownBackend`
+```ts
+new MemoryCooldownBackend(): MemoryCooldownBackend;
+```
 
 #### Returns
 
@@ -25,7 +25,9 @@ In-process timestamp map — the historical [CooldownManager](CooldownManager) b
 
 ### clear()
 
-> **clear**(): `void`
+```ts
+clear(): void;
+```
 
 Defined in: [src/cooldown.ts:157](https://github.com/byigitt/spearkit/blob/main/src/cooldown.ts#L157)
 
@@ -43,7 +45,9 @@ Drop every tracked key.
 
 ### delete()
 
-> **delete**(`key`): `boolean`
+```ts
+delete(key: string): boolean;
+```
 
 Defined in: [src/cooldown.ts:153](https://github.com/byigitt/spearkit/blob/main/src/cooldown.ts#L153)
 
@@ -67,7 +71,12 @@ Drop one key. Resolves `true` if it existed.
 
 ### hit()
 
-> **hit**(`key`, `durationMs`, `now`): [`CooldownResult`](../type-aliases/CooldownResult)
+```ts
+hit(
+   key: string, 
+   durationMs: number, 
+   now: number): CooldownResult;
+```
 
 Defined in: [src/cooldown.ts:136](https://github.com/byigitt/spearkit/blob/main/src/cooldown.ts#L136)
 
@@ -93,7 +102,12 @@ Record a hit unless `key` is still cooling down.
 
 ### peek()
 
-> **peek**(`key`, `durationMs`, `now`): [`CooldownResult`](../type-aliases/CooldownResult)
+```ts
+peek(
+   key: string, 
+   durationMs: number, 
+   now: number): CooldownResult;
+```
 
 Defined in: [src/cooldown.ts:145](https://github.com/byigitt/spearkit/blob/main/src/cooldown.ts#L145)
 
@@ -119,7 +133,9 @@ Read-only check.
 
 ### size()
 
-> **size**(): `number`
+```ts
+size(): number;
+```
 
 Defined in: [src/cooldown.ts:132](https://github.com/byigitt/spearkit/blob/main/src/cooldown.ts#L132)
 

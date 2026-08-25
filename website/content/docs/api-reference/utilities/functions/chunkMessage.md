@@ -1,15 +1,13 @@
 ---
 title: "chunkMessage()"
-description: "Split text into chunks that each fit within Discord's per-message limit, breaking on line boundaries (and word boundaries for over-long lines) so you never…"
+description: "Split text into chunks that each fit within Discord's per-message limit, breaking on line boundaries (and word boundaries for over-long lines) so you never silently lose the tail of a long reply."
 ---
 
-> **chunkMessage**(`text`, `options?`): `string`[]
+```ts
+function chunkMessage(text: string, options?: ChunkOptions): string[];
+```
 
 Defined in: [src/format.ts:242](https://github.com/byigitt/spearkit/blob/main/src/format.ts#L242)
-
-Split `text` into chunks that each fit within Discord's per-message limit,
-breaking on line boundaries (and word boundaries for over-long lines) so you
-never silently lose the tail of a long reply.
 
 ## Parameters
 

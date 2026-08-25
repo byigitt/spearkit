@@ -297,8 +297,19 @@ modals add `ctx.fields`.
 
 ## For maintainers
 
-`docs/*.md` is the single source of truth. `llms.txt`, `llms-full.txt` and the
-`website/public/` copies are generated — run `npm run docs:llms` after editing
-docs. Coding agents can retrieve recipes over MCP (`npx spearkit mcp`; see
+The hand-written guides in `docs/*.md` are the single source of truth for
+prose. `llms.txt`, `llms-full.txt` and the `website/public/` copies are
+generated — run `npm run docs:llms` after editing docs.
+
+The API reference is generated from `src/` with TypeDoc, so no symbol is
+documented by hand. Run `npm run docs:api` after changing an exported
+declaration or its TSDoc comment; it writes one page per symbol under
+`website/content/docs/api-reference/` and the compact `docs/api-reference.md`.
+Never edit either by hand. Every source module must be assigned to a section in
+`website/scripts/generate-api.mjs` — generation fails on an unassigned module so
+new exports cannot silently disappear. Follow it with `npm run docs:llms` so the
+llms bundles pick up the new surface.
+
+Coding agents can retrieve recipes over MCP (`npx spearkit mcp`; see
 [`docs/mcp.md`](./docs/mcp.md)). A ready-to-use agent skill lives at
 [`.claude/skills/spearkit/`](./.claude/skills/spearkit).

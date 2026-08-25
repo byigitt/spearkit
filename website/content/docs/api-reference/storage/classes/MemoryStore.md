@@ -1,13 +1,9 @@
 ---
 title: "MemoryStore"
-description: "In-memory KeyValueStore. Values are deep-cloned on read and write so callers can't accidentally mutate stored state — matching what a persistent backend would…"
+description: "In-memory KeyValueStore. Values are deep-cloned on read and write so callers can't accidentally mutate stored state — matching what a persistent backend would do. Ideal for tests and ephemeral data."
 ---
 
 Defined in: [src/store.ts:56](https://github.com/byigitt/spearkit/blob/main/src/store.ts#L56)
-
-In-memory [KeyValueStore](../interfaces/KeyValueStore). Values are deep-cloned on read and write so
-callers can't accidentally mutate stored state — matching what a persistent
-backend would do. Ideal for tests and ephemeral data.
 
 ## Implements
 
@@ -17,7 +13,9 @@ backend would do. Ideal for tests and ephemeral data.
 
 ### Constructor
 
-> **new MemoryStore**(): `MemoryStore`
+```ts
+new MemoryStore(): MemoryStore;
+```
 
 #### Returns
 
@@ -27,7 +25,9 @@ backend would do. Ideal for tests and ephemeral data.
 
 ### clear()
 
-> **clear**(): `Promise`\<`void`\>
+```ts
+clear(): Promise<void>;
+```
 
 Defined in: [src/store.ts:74](https://github.com/byigitt/spearkit/blob/main/src/store.ts#L74)
 
@@ -45,7 +45,9 @@ Remove every key.
 
 ### delete()
 
-> **delete**(`key`): `Promise`\<`boolean`\>
+```ts
+delete(key: string): Promise<boolean>;
+```
 
 Defined in: [src/store.ts:68](https://github.com/byigitt/spearkit/blob/main/src/store.ts#L68)
 
@@ -69,7 +71,9 @@ Remove `key`. Resolves `true` if it existed.
 
 ### get()
 
-> **get**\<`T`\>(`key`): `Promise`\<`T` \| `undefined`\>
+```ts
+get<T>(key: string): Promise<T | undefined>;
+```
 
 Defined in: [src/store.ts:59](https://github.com/byigitt/spearkit/blob/main/src/store.ts#L59)
 
@@ -99,7 +103,9 @@ Resolve the value for `key`, or `undefined` if absent.
 
 ### has()
 
-> **has**(`key`): `Promise`\<`boolean`\>
+```ts
+has(key: string): Promise<boolean>;
+```
 
 Defined in: [src/store.ts:65](https://github.com/byigitt/spearkit/blob/main/src/store.ts#L65)
 
@@ -123,7 +129,9 @@ Whether `key` currently has a value.
 
 ### keys()
 
-> **keys**(): `Promise`\<`string`[]\>
+```ts
+keys(): Promise<string[]>;
+```
 
 Defined in: [src/store.ts:71](https://github.com/byigitt/spearkit/blob/main/src/store.ts#L71)
 
@@ -141,7 +149,9 @@ Every key currently stored.
 
 ### set()
 
-> **set**\<`T`\>(`key`, `value`): `Promise`\<`void`\>
+```ts
+set<T>(key: string, value: T): Promise<void>;
+```
 
 Defined in: [src/store.ts:62](https://github.com/byigitt/spearkit/blob/main/src/store.ts#L62)
 

@@ -5,9 +5,6 @@ description: "A type-erased, ready-to-attach event listener. Built by event; the
 
 Defined in: [src/events.ts:20](https://github.com/byigitt/spearkit/blob/main/src/events.ts#L20)
 
-A type-erased, ready-to-attach event listener. Built by [event](../functions/event); the
-concrete event type is captured in the closures so binding stays type-safe.
-
 ## Properties
 
 | Property | Modifier | Type |
@@ -19,7 +16,9 @@ concrete event type is captured in the closures so binding stays type-safe.
 
 ### attach()
 
-> **attach**(`client`): `void`
+```ts
+attach(client: Client): void;
+```
 
 Defined in: [src/events.ts:24](https://github.com/byigitt/spearkit/blob/main/src/events.ts#L24)
 
@@ -39,7 +38,9 @@ Attach the listener to a client.
 
 ### detach()
 
-> **detach**(`client`): `void`
+```ts
+detach(client: Client): void;
+```
 
 Defined in: [src/events.ts:26](https://github.com/byigitt/spearkit/blob/main/src/events.ts#L26)
 

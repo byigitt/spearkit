@@ -5,8 +5,6 @@ description: "A pluggable persistence backend for UsageEvents."
 
 Defined in: [src/usage.ts:50](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L50)
 
-A pluggable persistence backend for [UsageEvent](UsageEvent)s.
-
 ## Extended by
 
 - [`BatchUsageStore`](BatchUsageStore)
@@ -15,7 +13,9 @@ A pluggable persistence backend for [UsageEvent](UsageEvent)s.
 
 ### all()
 
-> **all**(): `Awaitable`\<readonly [`UsageEvent`](UsageEvent)[]\>
+```ts
+all(): Awaitable<readonly UsageEvent[]>;
+```
 
 Defined in: [src/usage.ts:54](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L54)
 
@@ -29,7 +29,9 @@ Read every persisted event.
 
 ### record()
 
-> **record**(`event`): `Awaitable`\<`void`\>
+```ts
+record(event: UsageEvent): Awaitable<void>;
+```
 
 Defined in: [src/usage.ts:52](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L52)
 

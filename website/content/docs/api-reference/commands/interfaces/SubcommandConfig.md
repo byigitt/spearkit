@@ -1,11 +1,9 @@
 ---
-title: "SubcommandConfig\\<O, R\\>"
+title: "SubcommandConfig"
 description: "Configuration for one subcommand."
 ---
 
 Defined in: [src/commands/command.ts:66](https://github.com/byigitt/spearkit/blob/main/src/commands/command.ts#L66)
-
-Configuration for one subcommand.
 
 ## Type Parameters
 
@@ -22,4 +20,4 @@ Configuration for one subcommand.
 | <a id="property-descriptionlocalizations"></a> `descriptionLocalizations?` | `Partial`\<`Record`\<`Locale`, `string` \| `null`\>\> |
 | <a id="property-namelocalizations"></a> `nameLocalizations?` | `Partial`\<`Record`\<`Locale`, `string` \| `null`\>\> |
 | <a id="property-options"></a> `options?` | `O` |
-| <a id="property-run"></a> `run` | (`ctx`) => `Awaitable`\<`R`\> |
+| <a id="property-run"></a> `run` | (`ctx`: [`CommandContext`](../classes/CommandContext)\<`O`\>) => `Awaitable`\<`R`\> |

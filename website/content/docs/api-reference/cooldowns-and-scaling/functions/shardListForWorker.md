@@ -1,13 +1,16 @@
 ---
 title: "shardListForWorker()"
-description: "Assign shard ids to one worker/replica with round-robin partitioning. Every worker must use the same totalShards and workerCount."
+description: "Assign shard ids to one worker/replica with round-robin partitioning."
 ---
 
-> **shardListForWorker**(`totalShards`, `workerIndex`, `workerCount`): `number`[]
+```ts
+function shardListForWorker(
+   totalShards: number, 
+   workerIndex: number, 
+   workerCount: number): number[];
+```
 
 Defined in: [src/scale.ts:89](https://github.com/byigitt/spearkit/blob/main/src/scale.ts#L89)
-
-Assign shard ids to one worker/replica with round-robin partitioning.
 
 Every worker must use the same `totalShards` and `workerCount`.
 

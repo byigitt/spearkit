@@ -3,12 +3,11 @@ title: "fileUpload()"
 description: "Define a modal file-upload field. The handler receives the uploaded Attachments (CDN links — file bodies are not part of the interaction)."
 ---
 
-> **fileUpload**(`config`): [`FileUploadDef`](../interfaces/FileUploadDef)
+```ts
+function fileUpload(config: FieldConfigBase & object): FileUploadDef;
+```
 
 Defined in: [src/components/builders.ts:573](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L573)
-
-Define a modal file-upload field. The handler receives the uploaded
-Attachments (CDN links — file bodies are not part of the interaction).
 
 ## Parameters
 

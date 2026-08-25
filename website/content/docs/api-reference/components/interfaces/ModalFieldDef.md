@@ -1,14 +1,9 @@
 ---
-title: "ModalFieldDef\\<TValue, TRequired\\>"
-description: "Base of every modal field definition. The two type parameters are phantom markers used purely for compile-time inference of the submitted value: - TValue is…"
+title: "ModalFieldDef"
+description: "Base of every modal field definition. The two type parameters are phantom markers used purely for compile-time inference of the submitted value: - TValue is the type produced for the modal handler. - TRequired controls nullability (false => value may be missing)."
 ---
 
 Defined in: [src/components/builders.ts:320](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L320)
-
-Base of every modal field definition. The two type parameters are phantom
-markers used purely for compile-time inference of the submitted value:
-- `TValue` is the type produced for the modal handler.
-- `TRequired` controls nullability (`false` => value may be missing).
 
 Every field renders as a Discord **Label** component (the recommended modal
 surface); legacy Action Row + Text Input modals are no longer emitted.

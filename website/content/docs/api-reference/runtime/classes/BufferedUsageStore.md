@@ -1,11 +1,9 @@
 ---
 title: "BufferedUsageStore"
-description: "Bounded, batched wrapper for high-volume usage telemetry. Handler dispatch remains fire-and-forget, but one event no longer means one database/file call…"
+description: "Bounded, batched wrapper for high-volume usage telemetry."
 ---
 
 Defined in: [src/usage.ts:84](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L84)
-
-Bounded, batched wrapper for high-volume usage telemetry.
 
 Handler dispatch remains fire-and-forget, but one event no longer means one
 database/file call. Downstreams implementing [BatchUsageStore](../interfaces/BatchUsageStore) receive
@@ -19,7 +17,9 @@ real bulk writes; other stores are written sequentially inside each batch.
 
 ### Constructor
 
-> **new BufferedUsageStore**(`downstream`, `options?`): `BufferedUsageStore`
+```ts
+new BufferedUsageStore(downstream: UsageStore, options?: BufferedUsageStoreOptions): BufferedUsageStore;
+```
 
 Defined in: [src/usage.ts:92](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L92)
 
@@ -40,7 +40,9 @@ Defined in: [src/usage.ts:92](https://github.com/byigitt/spearkit/blob/main/src/
 
 #### Get Signature
 
-> **get** **dropped**(): `number`
+```ts
+get dropped(): number;
+```
 
 Defined in: [src/usage.ts:123](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L123)
 
@@ -56,7 +58,9 @@ Total events discarded because the buffer hit `maxBuffered`.
 
 #### Get Signature
 
-> **get** **size**(): `number`
+```ts
+get size(): number;
+```
 
 Defined in: [src/usage.ts:118](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L118)
 
@@ -70,7 +74,9 @@ Events waiting for a downstream write.
 
 ### all()
 
-> **all**(): `Promise`\<readonly [`UsageEvent`](../interfaces/UsageEvent)[]\>
+```ts
+all(): Promise<readonly UsageEvent[]>;
+```
 
 Defined in: [src/usage.ts:139](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L139)
 
@@ -88,7 +94,9 @@ Read every persisted event.
 
 ### close()
 
-> **close**(): `Promise`\<`void`\>
+```ts
+close(): Promise<void>;
+```
 
 Defined in: [src/usage.ts:160](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L160)
 
@@ -102,7 +110,9 @@ Stop the timer and flush remaining events.
 
 ### flush()
 
-> **flush**(): `Promise`\<`void`\>
+```ts
+flush(): Promise<void>;
+```
 
 Defined in: [src/usage.ts:145](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L145)
 
@@ -116,7 +126,9 @@ Drain all currently buffered events through serialized batches.
 
 ### record()
 
-> **record**(`event`): `void`
+```ts
+record(event: UsageEvent): void;
+```
 
 Defined in: [src/usage.ts:127](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L127)
 

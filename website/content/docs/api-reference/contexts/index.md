@@ -1,6 +1,6 @@
 ---
-title: "contexts"
-description: "contexts in the spearkit API."
+title: "Contexts and replies"
+description: "Shared handler contexts, collectors, and reply embed helpers."
 ---
 
 ## Classes

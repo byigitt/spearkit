@@ -5,8 +5,6 @@ description: "Construction options for a Logger."
 
 Defined in: [src/logger.ts:45](https://github.com/byigitt/spearkit/blob/main/src/logger.ts#L45)
 
-Construction options for a [Logger](../classes/Logger).
-
 ## Properties
 
 | Property | Type | Description |

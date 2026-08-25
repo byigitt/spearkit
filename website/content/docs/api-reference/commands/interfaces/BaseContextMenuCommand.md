@@ -5,8 +5,6 @@ description: "Common shape for any context-menu command (user or message)."
 
 Defined in: [src/context-menus.ts:71](https://github.com/byigitt/spearkit/blob/main/src/context-menus.ts#L71)
 
-Common shape for any context-menu command (user or message).
-
 ## Extended by
 
 - [`UserContextMenu`](UserContextMenu)
@@ -26,7 +24,9 @@ Common shape for any context-menu command (user or message).
 
 ### toJSON()
 
-> **toJSON**(): `RESTPostAPIContextMenuApplicationCommandsJSONBody`
+```ts
+toJSON(): RESTPostAPIContextMenuApplicationCommandsJSONBody;
+```
 
 Defined in: [src/context-menus.ts:77](https://github.com/byigitt/spearkit/blob/main/src/context-menus.ts#L77)
 

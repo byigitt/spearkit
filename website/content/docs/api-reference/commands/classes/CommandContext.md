@@ -1,12 +1,9 @@
 ---
-title: "CommandContext\\<O\\>"
+title: "CommandContext"
 description: "The handler argument for a slash command. Wraps the discord.js interaction and exposes the resolved, fully-typed options."
 ---
 
 Defined in: [src/commands/context.ts:24](https://github.com/byigitt/spearkit/blob/main/src/commands/context.ts#L24)
-
-The handler argument for a slash command. Wraps the discord.js interaction
-and exposes the resolved, fully-typed [options](#property-options).
 
 ## Extends
 
@@ -22,7 +19,9 @@ and exposes the resolved, fully-typed [options](#property-options).
 
 ### Constructor
 
-> **new CommandContext**\<`O`\>(`interaction`, `options`): `CommandContext`\<`O`\>
+```ts
+new CommandContext<O>(interaction: ChatInputCommandInteraction, options: ResolvedOptions<O>): CommandContext<O>;
+```
 
 Defined in: [src/commands/context.ts:25](https://github.com/byigitt/spearkit/blob/main/src/commands/context.ts#L25)
 
@@ -54,7 +53,9 @@ Defined in: [src/commands/context.ts:25](https://github.com/byigitt/spearkit/blo
 
 #### Get Signature
 
-> **get** **botPermissions**(): `Readonly`\<`PermissionsBitField`\>
+```ts
+get botPermissions(): Readonly<PermissionsBitField>;
+```
 
 Defined in: [src/context.ts:252](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L252)
 
@@ -74,7 +75,9 @@ The bot's resolved permissions in the current channel.
 
 #### Get Signature
 
-> **get** **channel**(): `TextBasedChannel` \| `null`
+```ts
+get channel(): TextBasedChannel | null;
+```
 
 Defined in: [src/context.ts:168](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L168)
 
@@ -92,7 +95,9 @@ Defined in: [src/context.ts:168](https://github.com/byigitt/spearkit/blob/main/s
 
 #### Get Signature
 
-> **get** **channelId**(): `string` \| `null`
+```ts
+get channelId(): string | null;
+```
 
 Defined in: [src/context.ts:171](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L171)
 
@@ -110,7 +115,9 @@ Defined in: [src/context.ts:171](https://github.com/byigitt/spearkit/blob/main/s
 
 #### Get Signature
 
-> **get** **client**(): `I`\[`"client"`\]
+```ts
+get client(): I["client"];
+```
 
 Defined in: [src/context.ts:153](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L153)
 
@@ -128,7 +135,9 @@ Defined in: [src/context.ts:153](https://github.com/byigitt/spearkit/blob/main/s
 
 #### Get Signature
 
-> **get** **commandName**(): `string`
+```ts
+get commandName(): string;
+```
 
 Defined in: [src/commands/context.ts:33](https://github.com/byigitt/spearkit/blob/main/src/commands/context.ts#L33)
 
@@ -142,7 +151,9 @@ Defined in: [src/commands/context.ts:33](https://github.com/byigitt/spearkit/blo
 
 #### Get Signature
 
-> **get** **deferred**(): `boolean`
+```ts
+get deferred(): boolean;
+```
 
 Defined in: [src/context.ts:201](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L201)
 
@@ -162,7 +173,9 @@ Whether the interaction is already deferred.
 
 #### Get Signature
 
-> **get** **guild**(): `Guild` \| `null`
+```ts
+get guild(): Guild | null;
+```
 
 Defined in: [src/context.ts:162](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L162)
 
@@ -180,7 +193,9 @@ Defined in: [src/context.ts:162](https://github.com/byigitt/spearkit/blob/main/s
 
 #### Get Signature
 
-> **get** **guildId**(): `string` \| `null`
+```ts
+get guildId(): string | null;
+```
 
 Defined in: [src/context.ts:165](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L165)
 
@@ -198,7 +213,9 @@ Defined in: [src/context.ts:165](https://github.com/byigitt/spearkit/blob/main/s
 
 #### Get Signature
 
-> **get** **locale**(): `Locale`
+```ts
+get locale(): Locale;
+```
 
 Defined in: [src/context.ts:174](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L174)
 
@@ -216,7 +233,9 @@ Defined in: [src/context.ts:174](https://github.com/byigitt/spearkit/blob/main/s
 
 #### Get Signature
 
-> **get** **member**(): `GuildMember` \| `APIInteractionGuildMember` \| `null`
+```ts
+get member(): GuildMember | APIInteractionGuildMember | null;
+```
 
 Defined in: [src/context.ts:159](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L159)
 
@@ -234,7 +253,9 @@ Defined in: [src/context.ts:159](https://github.com/byigitt/spearkit/blob/main/s
 
 #### Get Signature
 
-> **get** **replied**(): `boolean`
+```ts
+get replied(): boolean;
+```
 
 Defined in: [src/context.ts:205](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L205)
 
@@ -254,7 +275,9 @@ Whether the interaction already received an initial response.
 
 #### Get Signature
 
-> **get** **subcommand**(): `string` \| `null`
+```ts
+get subcommand(): string | null;
+```
 
 Defined in: [src/commands/context.ts:38](https://github.com/byigitt/spearkit/blob/main/src/commands/context.ts#L38)
 
@@ -270,7 +293,9 @@ The invoked subcommand name, if any.
 
 #### Get Signature
 
-> **get** **user**(): `User`
+```ts
+get user(): User;
+```
 
 Defined in: [src/context.ts:156](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L156)
 
@@ -286,7 +311,9 @@ Defined in: [src/context.ts:156](https://github.com/byigitt/spearkit/blob/main/s
 
 ### awaitMessageFrom()
 
-> **awaitMessageFrom**(`userId?`, `options?`): `Promise`\<`Message`\<`boolean`\> \| `null`\>
+```ts
+awaitMessageFrom(userId?: string, options?: AwaitMessageOptions): Promise<Message<boolean> | null>;
+```
 
 Defined in: [src/context.ts:277](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L277)
 
@@ -313,7 +340,9 @@ flow without hand-rolling a collector.
 
 ### awaitModal()
 
-> **awaitModal**(`modal`, `options?`): `Promise`\<`ModalSubmitInteraction`\<`CacheType`\> \| `null`\>
+```ts
+awaitModal(modal: ModalLike, options?: AwaitModalOptions): Promise<ModalSubmitInteraction<CacheType> | null>;
+```
 
 Defined in: [src/commands/context.ts:53](https://github.com/byigitt/spearkit/blob/main/src/commands/context.ts#L53)
 
@@ -335,7 +364,62 @@ or `null` if they dismiss it / it times out. Scoped to this user and modal.
 
 ### botMissing()
 
-> **botMissing**(`required`): (`"CreateInstantInvite"` \| `"KickMembers"` \| `"BanMembers"` \| `"Administrator"` \| `"ManageChannels"` \| `"ManageGuild"` \| `"AddReactions"` \| `"ViewAuditLog"` \| `"PrioritySpeaker"` \| `"Stream"` \| `"ViewChannel"` \| `"SendMessages"` \| `"SendTTSMessages"` \| `"ManageMessages"` \| `"EmbedLinks"` \| `"AttachFiles"` \| `"ReadMessageHistory"` \| `"MentionEveryone"` \| `"UseExternalEmojis"` \| `"ViewGuildInsights"` \| `"Connect"` \| `"Speak"` \| `"MuteMembers"` \| `"DeafenMembers"` \| `"MoveMembers"` \| `"UseVAD"` \| `"ChangeNickname"` \| `"ManageNicknames"` \| `"ManageRoles"` \| `"ManageWebhooks"` \| `"ManageEmojisAndStickers"` \| `"ManageGuildExpressions"` \| `"UseApplicationCommands"` \| `"RequestToSpeak"` \| `"ManageEvents"` \| `"ManageThreads"` \| `"CreatePublicThreads"` \| `"CreatePrivateThreads"` \| `"UseExternalStickers"` \| `"SendMessagesInThreads"` \| `"UseEmbeddedActivities"` \| `"ModerateMembers"` \| `"ViewCreatorMonetizationAnalytics"` \| `"UseSoundboard"` \| `"CreateGuildExpressions"` \| `"CreateEvents"` \| `"UseExternalSounds"` \| `"SendVoiceMessages"` \| `"SetVoiceChannelStatus"` \| `"SendPolls"` \| `"UseExternalApps"` \| `"PinMessages"` \| `"BypassSlowmode"`)[]
+```ts
+botMissing(required: PermissionResolvable): (
+  | "CreateInstantInvite"
+  | "KickMembers"
+  | "BanMembers"
+  | "Administrator"
+  | "ManageChannels"
+  | "ManageGuild"
+  | "AddReactions"
+  | "ViewAuditLog"
+  | "PrioritySpeaker"
+  | "Stream"
+  | "ViewChannel"
+  | "SendMessages"
+  | "SendTTSMessages"
+  | "ManageMessages"
+  | "EmbedLinks"
+  | "AttachFiles"
+  | "ReadMessageHistory"
+  | "MentionEveryone"
+  | "UseExternalEmojis"
+  | "ViewGuildInsights"
+  | "Connect"
+  | "Speak"
+  | "MuteMembers"
+  | "DeafenMembers"
+  | "MoveMembers"
+  | "UseVAD"
+  | "ChangeNickname"
+  | "ManageNicknames"
+  | "ManageRoles"
+  | "ManageWebhooks"
+  | "ManageEmojisAndStickers"
+  | "ManageGuildExpressions"
+  | "UseApplicationCommands"
+  | "RequestToSpeak"
+  | "ManageEvents"
+  | "ManageThreads"
+  | "CreatePublicThreads"
+  | "CreatePrivateThreads"
+  | "UseExternalStickers"
+  | "SendMessagesInThreads"
+  | "UseEmbeddedActivities"
+  | "ModerateMembers"
+  | "ViewCreatorMonetizationAnalytics"
+  | "UseSoundboard"
+  | "CreateGuildExpressions"
+  | "CreateEvents"
+  | "UseExternalSounds"
+  | "SendVoiceMessages"
+  | "SetVoiceChannelStatus"
+  | "SendPolls"
+  | "UseExternalApps"
+  | "PinMessages"
+  | "BypassSlowmode")[];
+```
 
 Defined in: [src/context.ts:261](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L261)
 
@@ -351,7 +435,60 @@ interaction. Use before an action that needs elevated permissions.
 
 #### Returns
 
-(`"CreateInstantInvite"` \| `"KickMembers"` \| `"BanMembers"` \| `"Administrator"` \| `"ManageChannels"` \| `"ManageGuild"` \| `"AddReactions"` \| `"ViewAuditLog"` \| `"PrioritySpeaker"` \| `"Stream"` \| `"ViewChannel"` \| `"SendMessages"` \| `"SendTTSMessages"` \| `"ManageMessages"` \| `"EmbedLinks"` \| `"AttachFiles"` \| `"ReadMessageHistory"` \| `"MentionEveryone"` \| `"UseExternalEmojis"` \| `"ViewGuildInsights"` \| `"Connect"` \| `"Speak"` \| `"MuteMembers"` \| `"DeafenMembers"` \| `"MoveMembers"` \| `"UseVAD"` \| `"ChangeNickname"` \| `"ManageNicknames"` \| `"ManageRoles"` \| `"ManageWebhooks"` \| `"ManageEmojisAndStickers"` \| `"ManageGuildExpressions"` \| `"UseApplicationCommands"` \| `"RequestToSpeak"` \| `"ManageEvents"` \| `"ManageThreads"` \| `"CreatePublicThreads"` \| `"CreatePrivateThreads"` \| `"UseExternalStickers"` \| `"SendMessagesInThreads"` \| `"UseEmbeddedActivities"` \| `"ModerateMembers"` \| `"ViewCreatorMonetizationAnalytics"` \| `"UseSoundboard"` \| `"CreateGuildExpressions"` \| `"CreateEvents"` \| `"UseExternalSounds"` \| `"SendVoiceMessages"` \| `"SetVoiceChannelStatus"` \| `"SendPolls"` \| `"UseExternalApps"` \| `"PinMessages"` \| `"BypassSlowmode"`)[]
+(
+  \| `"CreateInstantInvite"`
+  \| `"KickMembers"`
+  \| `"BanMembers"`
+  \| `"Administrator"`
+  \| `"ManageChannels"`
+  \| `"ManageGuild"`
+  \| `"AddReactions"`
+  \| `"ViewAuditLog"`
+  \| `"PrioritySpeaker"`
+  \| `"Stream"`
+  \| `"ViewChannel"`
+  \| `"SendMessages"`
+  \| `"SendTTSMessages"`
+  \| `"ManageMessages"`
+  \| `"EmbedLinks"`
+  \| `"AttachFiles"`
+  \| `"ReadMessageHistory"`
+  \| `"MentionEveryone"`
+  \| `"UseExternalEmojis"`
+  \| `"ViewGuildInsights"`
+  \| `"Connect"`
+  \| `"Speak"`
+  \| `"MuteMembers"`
+  \| `"DeafenMembers"`
+  \| `"MoveMembers"`
+  \| `"UseVAD"`
+  \| `"ChangeNickname"`
+  \| `"ManageNicknames"`
+  \| `"ManageRoles"`
+  \| `"ManageWebhooks"`
+  \| `"ManageEmojisAndStickers"`
+  \| `"ManageGuildExpressions"`
+  \| `"UseApplicationCommands"`
+  \| `"RequestToSpeak"`
+  \| `"ManageEvents"`
+  \| `"ManageThreads"`
+  \| `"CreatePublicThreads"`
+  \| `"CreatePrivateThreads"`
+  \| `"UseExternalStickers"`
+  \| `"SendMessagesInThreads"`
+  \| `"UseEmbeddedActivities"`
+  \| `"ModerateMembers"`
+  \| `"ViewCreatorMonetizationAnalytics"`
+  \| `"UseSoundboard"`
+  \| `"CreateGuildExpressions"`
+  \| `"CreateEvents"`
+  \| `"UseExternalSounds"`
+  \| `"SendVoiceMessages"`
+  \| `"SetVoiceChannelStatus"`
+  \| `"SendPolls"`
+  \| `"UseExternalApps"`
+  \| `"PinMessages"`
+  \| `"BypassSlowmode"`)[]
 
 #### Inherited from
 
@@ -361,7 +498,9 @@ interaction. Use before an action that needs elevated permissions.
 
 ### defer()
 
-> **defer**(`options?`): `Promise`\<`InteractionResponse`\<`boolean`\>\>
+```ts
+defer(options?: object): Promise<InteractionResponse<boolean>>;
+```
 
 Defined in: [src/context.ts:220](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L220)
 
@@ -386,7 +525,9 @@ Acknowledge now and respond later via [editReply](#editreply).
 
 ### dm()
 
-> **dm**(`input`): `Promise`\<`Message`\<`boolean`\> \| `null`\>
+```ts
+dm(input: string | MessageCreateOptions): Promise<Message<boolean> | null>;
+```
 
 Defined in: [src/context.ts:302](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L302)
 
@@ -410,7 +551,9 @@ DM the invoking user. Resolves `null` if their DMs are closed.
 
 ### editReply()
 
-> **editReply**(`input`): `Promise`\<`Message`\<`boolean`\>\>
+```ts
+editReply(input: ReplyInput): Promise<Message<boolean>>;
+```
 
 Defined in: [src/context.ts:227](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L227)
 
@@ -434,7 +577,9 @@ Edit the original (or deferred) response.
 
 ### error()
 
-> **error**(`input`, `options?`): `Promise`\<`void`\>
+```ts
+error(input: EmbedPresetInput, options?: object): Promise<void>;
+```
 
 Defined in: [src/context.ts:343](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L343)
 
@@ -460,7 +605,9 @@ State-aware send of a red error embed. Defaults to ephemeral.
 
 ### followUp()
 
-> **followUp**(`input`): `Promise`\<`Message`\<`boolean`\>\>
+```ts
+followUp(input: ReplyInput): Promise<Message<boolean>>;
+```
 
 Defined in: [src/context.ts:232](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L232)
 
@@ -484,7 +631,9 @@ Add an additional message after the initial response.
 
 ### info()
 
-> **info**(`input`, `options?`): `Promise`\<`void`\>
+```ts
+info(input: EmbedPresetInput, options?: object): Promise<void>;
+```
 
 Defined in: [src/context.ts:353](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L353)
 
@@ -510,7 +659,9 @@ State-aware send of a blue info embed.
 
 ### progress()
 
-> **progress**(`initial`): `Promise`\<[`ProgressHandle`](../../contexts/interfaces/ProgressHandle)\>
+```ts
+progress(initial: string): Promise<ProgressHandle>;
+```
 
 Defined in: [src/context.ts:329](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L329)
 
@@ -534,7 +685,9 @@ Post an initial progress line, then edit it as work proceeds.
 
 ### reply()
 
-> **reply**(`input`): `Promise`\<`InteractionResponse`\<`boolean`\>\>
+```ts
+reply(input: ReplyInput): Promise<InteractionResponse<boolean>>;
+```
 
 Defined in: [src/context.ts:210](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L210)
 
@@ -558,7 +711,9 @@ Send the initial response to the interaction.
 
 ### replyEphemeral()
 
-> **replyEphemeral**(`input`): `Promise`\<`InteractionResponse`\<`boolean`\>\>
+```ts
+replyEphemeral(input: ReplyInput): Promise<InteractionResponse<boolean>>;
+```
 
 Defined in: [src/context.ts:215](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L215)
 
@@ -582,7 +737,9 @@ Reply, but always hidden to everyone except the invoking user.
 
 ### replyError()
 
-> **replyError**(`input`, `options?`): `Promise`\<`InteractionResponse`\<`boolean`\>\>
+```ts
+replyError(input: EmbedPresetInput, options?: object): Promise<InteractionResponse<boolean>>;
+```
 
 Defined in: [src/context.ts:363](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L363)
 
@@ -608,7 +765,9 @@ Initial-reply variant of [error](#error) (always `reply`, never `editReply`/`fol
 
 ### replyInfo()
 
-> **replyInfo**(`input`, `options?`): `Promise`\<`InteractionResponse`\<`boolean`\>\>
+```ts
+replyInfo(input: EmbedPresetInput, options?: object): Promise<InteractionResponse<boolean>>;
+```
 
 Defined in: [src/context.ts:373](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L373)
 
@@ -634,7 +793,9 @@ Initial-reply variant of [info](#info).
 
 ### replySuccess()
 
-> **replySuccess**(`input`, `options?`): `Promise`\<`InteractionResponse`\<`boolean`\>\>
+```ts
+replySuccess(input: EmbedPresetInput, options?: object): Promise<InteractionResponse<boolean>>;
+```
 
 Defined in: [src/context.ts:368](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L368)
 
@@ -660,7 +821,9 @@ Initial-reply variant of [success](#success).
 
 ### replyWarn()
 
-> **replyWarn**(`input`, `options?`): `Promise`\<`InteractionResponse`\<`boolean`\>\>
+```ts
+replyWarn(input: EmbedPresetInput, options?: object): Promise<InteractionResponse<boolean>>;
+```
 
 Defined in: [src/context.ts:378](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L378)
 
@@ -686,7 +849,9 @@ Initial-reply variant of [warn](#warn).
 
 ### send()
 
-> **send**(`input`): `Promise`\<`void`\>
+```ts
+send(input: ReplyInput): Promise<void>;
+```
 
 Defined in: [src/context.ts:241](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L241)
 
@@ -712,7 +877,9 @@ most handlers ever need.
 
 ### sendLong()
 
-> **sendLong**(`text`): `Promise`\<`void`\>
+```ts
+sendLong(text: string): Promise<void>;
+```
 
 Defined in: [src/context.ts:294](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L294)
 
@@ -737,7 +904,12 @@ the rest are follow-ups.
 
 ### showModal()
 
-> **showModal**(`modal`): `Promise`\<`void`\>
+```ts
+showModal(modal: 
+  | ModalComponentData
+  | JSONEncodable<APIModalInteractionResponseCallbackData>
+| ModalBuilder): Promise<void>;
+```
 
 Defined in: [src/commands/context.ts:43](https://github.com/byigitt/spearkit/blob/main/src/commands/context.ts#L43)
 
@@ -747,7 +919,7 @@ Present a modal to the user in response to this command.
 
 | Parameter | Type |
 | :------ | :------ |
-| `modal` | `ModalComponentData` \| `JSONEncodable`\<`APIModalInteractionResponseCallbackData`\> \| `ModalBuilder` |
+| `modal` | \| `ModalComponentData` \| `JSONEncodable`\<`APIModalInteractionResponseCallbackData`\> \| `ModalBuilder` |
 
 #### Returns
 
@@ -757,7 +929,9 @@ Present a modal to the user in response to this command.
 
 ### success()
 
-> **success**(`input`, `options?`): `Promise`\<`void`\>
+```ts
+success(input: EmbedPresetInput, options?: object): Promise<void>;
+```
 
 Defined in: [src/context.ts:348](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L348)
 
@@ -783,7 +957,9 @@ State-aware send of a green success embed.
 
 ### t()
 
-> **t**(`key`, `params?`): `Promise`\<`string`\>
+```ts
+t(key: string, params?: TranslationParams): Promise<string>;
+```
 
 Defined in: [src/context.ts:182](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L182)
 
@@ -809,7 +985,62 @@ asynchronously (for example from per-guild settings).
 
 ### userMissing()
 
-> **userMissing**(`required`): (`"CreateInstantInvite"` \| `"KickMembers"` \| `"BanMembers"` \| `"Administrator"` \| `"ManageChannels"` \| `"ManageGuild"` \| `"AddReactions"` \| `"ViewAuditLog"` \| `"PrioritySpeaker"` \| `"Stream"` \| `"ViewChannel"` \| `"SendMessages"` \| `"SendTTSMessages"` \| `"ManageMessages"` \| `"EmbedLinks"` \| `"AttachFiles"` \| `"ReadMessageHistory"` \| `"MentionEveryone"` \| `"UseExternalEmojis"` \| `"ViewGuildInsights"` \| `"Connect"` \| `"Speak"` \| `"MuteMembers"` \| `"DeafenMembers"` \| `"MoveMembers"` \| `"UseVAD"` \| `"ChangeNickname"` \| `"ManageNicknames"` \| `"ManageRoles"` \| `"ManageWebhooks"` \| `"ManageEmojisAndStickers"` \| `"ManageGuildExpressions"` \| `"UseApplicationCommands"` \| `"RequestToSpeak"` \| `"ManageEvents"` \| `"ManageThreads"` \| `"CreatePublicThreads"` \| `"CreatePrivateThreads"` \| `"UseExternalStickers"` \| `"SendMessagesInThreads"` \| `"UseEmbeddedActivities"` \| `"ModerateMembers"` \| `"ViewCreatorMonetizationAnalytics"` \| `"UseSoundboard"` \| `"CreateGuildExpressions"` \| `"CreateEvents"` \| `"UseExternalSounds"` \| `"SendVoiceMessages"` \| `"SetVoiceChannelStatus"` \| `"SendPolls"` \| `"UseExternalApps"` \| `"PinMessages"` \| `"BypassSlowmode"`)[]
+```ts
+userMissing(required: PermissionResolvable): (
+  | "CreateInstantInvite"
+  | "KickMembers"
+  | "BanMembers"
+  | "Administrator"
+  | "ManageChannels"
+  | "ManageGuild"
+  | "AddReactions"
+  | "ViewAuditLog"
+  | "PrioritySpeaker"
+  | "Stream"
+  | "ViewChannel"
+  | "SendMessages"
+  | "SendTTSMessages"
+  | "ManageMessages"
+  | "EmbedLinks"
+  | "AttachFiles"
+  | "ReadMessageHistory"
+  | "MentionEveryone"
+  | "UseExternalEmojis"
+  | "ViewGuildInsights"
+  | "Connect"
+  | "Speak"
+  | "MuteMembers"
+  | "DeafenMembers"
+  | "MoveMembers"
+  | "UseVAD"
+  | "ChangeNickname"
+  | "ManageNicknames"
+  | "ManageRoles"
+  | "ManageWebhooks"
+  | "ManageEmojisAndStickers"
+  | "ManageGuildExpressions"
+  | "UseApplicationCommands"
+  | "RequestToSpeak"
+  | "ManageEvents"
+  | "ManageThreads"
+  | "CreatePublicThreads"
+  | "CreatePrivateThreads"
+  | "UseExternalStickers"
+  | "SendMessagesInThreads"
+  | "UseEmbeddedActivities"
+  | "ModerateMembers"
+  | "ViewCreatorMonetizationAnalytics"
+  | "UseSoundboard"
+  | "CreateGuildExpressions"
+  | "CreateEvents"
+  | "UseExternalSounds"
+  | "SendVoiceMessages"
+  | "SetVoiceChannelStatus"
+  | "SendPolls"
+  | "UseExternalApps"
+  | "PinMessages"
+  | "BypassSlowmode")[];
+```
 
 Defined in: [src/context.ts:266](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L266)
 
@@ -823,7 +1054,60 @@ Permission flag names the invoking USER is missing in the current channel.
 
 #### Returns
 
-(`"CreateInstantInvite"` \| `"KickMembers"` \| `"BanMembers"` \| `"Administrator"` \| `"ManageChannels"` \| `"ManageGuild"` \| `"AddReactions"` \| `"ViewAuditLog"` \| `"PrioritySpeaker"` \| `"Stream"` \| `"ViewChannel"` \| `"SendMessages"` \| `"SendTTSMessages"` \| `"ManageMessages"` \| `"EmbedLinks"` \| `"AttachFiles"` \| `"ReadMessageHistory"` \| `"MentionEveryone"` \| `"UseExternalEmojis"` \| `"ViewGuildInsights"` \| `"Connect"` \| `"Speak"` \| `"MuteMembers"` \| `"DeafenMembers"` \| `"MoveMembers"` \| `"UseVAD"` \| `"ChangeNickname"` \| `"ManageNicknames"` \| `"ManageRoles"` \| `"ManageWebhooks"` \| `"ManageEmojisAndStickers"` \| `"ManageGuildExpressions"` \| `"UseApplicationCommands"` \| `"RequestToSpeak"` \| `"ManageEvents"` \| `"ManageThreads"` \| `"CreatePublicThreads"` \| `"CreatePrivateThreads"` \| `"UseExternalStickers"` \| `"SendMessagesInThreads"` \| `"UseEmbeddedActivities"` \| `"ModerateMembers"` \| `"ViewCreatorMonetizationAnalytics"` \| `"UseSoundboard"` \| `"CreateGuildExpressions"` \| `"CreateEvents"` \| `"UseExternalSounds"` \| `"SendVoiceMessages"` \| `"SetVoiceChannelStatus"` \| `"SendPolls"` \| `"UseExternalApps"` \| `"PinMessages"` \| `"BypassSlowmode"`)[]
+(
+  \| `"CreateInstantInvite"`
+  \| `"KickMembers"`
+  \| `"BanMembers"`
+  \| `"Administrator"`
+  \| `"ManageChannels"`
+  \| `"ManageGuild"`
+  \| `"AddReactions"`
+  \| `"ViewAuditLog"`
+  \| `"PrioritySpeaker"`
+  \| `"Stream"`
+  \| `"ViewChannel"`
+  \| `"SendMessages"`
+  \| `"SendTTSMessages"`
+  \| `"ManageMessages"`
+  \| `"EmbedLinks"`
+  \| `"AttachFiles"`
+  \| `"ReadMessageHistory"`
+  \| `"MentionEveryone"`
+  \| `"UseExternalEmojis"`
+  \| `"ViewGuildInsights"`
+  \| `"Connect"`
+  \| `"Speak"`
+  \| `"MuteMembers"`
+  \| `"DeafenMembers"`
+  \| `"MoveMembers"`
+  \| `"UseVAD"`
+  \| `"ChangeNickname"`
+  \| `"ManageNicknames"`
+  \| `"ManageRoles"`
+  \| `"ManageWebhooks"`
+  \| `"ManageEmojisAndStickers"`
+  \| `"ManageGuildExpressions"`
+  \| `"UseApplicationCommands"`
+  \| `"RequestToSpeak"`
+  \| `"ManageEvents"`
+  \| `"ManageThreads"`
+  \| `"CreatePublicThreads"`
+  \| `"CreatePrivateThreads"`
+  \| `"UseExternalStickers"`
+  \| `"SendMessagesInThreads"`
+  \| `"UseEmbeddedActivities"`
+  \| `"ModerateMembers"`
+  \| `"ViewCreatorMonetizationAnalytics"`
+  \| `"UseSoundboard"`
+  \| `"CreateGuildExpressions"`
+  \| `"CreateEvents"`
+  \| `"UseExternalSounds"`
+  \| `"SendVoiceMessages"`
+  \| `"SetVoiceChannelStatus"`
+  \| `"SendPolls"`
+  \| `"UseExternalApps"`
+  \| `"PinMessages"`
+  \| `"BypassSlowmode"`)[]
 
 #### Inherited from
 
@@ -833,7 +1117,9 @@ Permission flag names the invoking USER is missing in the current channel.
 
 ### warn()
 
-> **warn**(`input`, `options?`): `Promise`\<`void`\>
+```ts
+warn(input: EmbedPresetInput, options?: object): Promise<void>;
+```
 
 Defined in: [src/context.ts:358](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L358)
 
@@ -859,7 +1145,9 @@ State-aware send of a yellow warn embed.
 
 ### withTyping()
 
-> **withTyping**\<`T`\>(`fn`): `Promise`\<`T`\>
+```ts
+withTyping<T>(fn: () => Promise<T>): Promise<T>;
+```
 
 Defined in: [src/context.ts:314](https://github.com/byigitt/spearkit/blob/main/src/context.ts#L314)
 

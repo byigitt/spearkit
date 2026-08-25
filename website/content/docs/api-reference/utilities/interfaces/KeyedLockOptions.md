@@ -5,8 +5,6 @@ description: "Construction options for KeyedLock."
 
 Defined in: [src/lock.ts:11](https://github.com/byigitt/spearkit/blob/main/src/lock.ts#L11)
 
-Construction options for [KeyedLock](../classes/KeyedLock).
-
 ## Properties
 
 | Property | Type | Description |

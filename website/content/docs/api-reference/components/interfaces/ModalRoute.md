@@ -5,8 +5,6 @@ description: "Routing entry for a modal submission."
 
 Defined in: [src/components/registry.ts:62](https://github.com/byigitt/spearkit/blob/main/src/components/registry.ts#L62)
 
-Routing entry for a modal submission.
-
 ## Extends
 
 - `RouteBase`
@@ -28,7 +26,9 @@ Routing entry for a modal submission.
 
 ### handle()
 
-> **handle**(`interaction`, `params`): `Promise`\<`void`\>
+```ts
+handle(interaction: ModalSubmitInteraction, params: Record<string, string>): Promise<void>;
+```
 
 Defined in: [src/components/registry.ts:64](https://github.com/byigitt/spearkit/blob/main/src/components/registry.ts#L64)
 

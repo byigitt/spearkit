@@ -5,8 +5,6 @@ description: "Options for the directory loader."
 
 Defined in: [src/loader.ts:8](https://github.com/byigitt/spearkit/blob/main/src/loader.ts#L8)
 
-Options for the directory loader.
-
 ## Properties
 
 | Property | Type | Description |

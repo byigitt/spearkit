@@ -1,15 +1,13 @@
 ---
 title: "webhookSink()"
-description: "Discord-webhook sink: POSTs an embed to a webhook URL for entries at or above minLevel (default \"warn\"). Useful for sending errors to a private #bot-errors…"
+description: "Discord-webhook sink: POSTs an embed to a webhook URL for entries at or above minLevel (default \"warn\"). Useful for sending errors to a private #bot-errors channel."
 ---
 
-> **webhookSink**(`options`): [`LogSink`](../type-aliases/LogSink)
+```ts
+function webhookSink(options: object): LogSink;
+```
 
 Defined in: [src/logger.ts:120](https://github.com/byigitt/spearkit/blob/main/src/logger.ts#L120)
-
-Discord-webhook sink: POSTs an embed to a webhook URL for entries at or
-above `minLevel` (default `"warn"`). Useful for sending errors to a private
-`#bot-errors` channel.
 
 ## Parameters
 

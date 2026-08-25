@@ -1,13 +1,13 @@
 ---
 title: "row()"
-description: "Wrap one or more component builders in an action row. A row holds up to five buttons, or exactly one select menu."
+description: "Wrap one or more component builders in an action row."
 ---
 
-> **row**\<`C`\>(...`components`): `ActionRowBuilder`\<`C`\>
+```ts
+function row<C>(...components: C[]): ActionRowBuilder<C>;
+```
 
 Defined in: [src/components/row.ts:14](https://github.com/byigitt/spearkit/blob/main/src/components/row.ts#L14)
-
-Wrap one or more component builders in an action row.
 
 A row holds up to five buttons, or exactly one select menu.
 

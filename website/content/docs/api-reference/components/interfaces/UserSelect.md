@@ -1,11 +1,9 @@
 ---
-title: "UserSelect\\<P\\>"
+title: "UserSelect"
 description: "A registrable user select."
 ---
 
 Defined in: [src/components/builders.ts:199](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L199)
-
-A registrable user select.
 
 ## Extends
 
@@ -30,7 +28,9 @@ A registrable user select.
 
 ### build()
 
-> **build**(...`args`): `UserSelectMenuBuilder`
+```ts
+build(...args: BuildArgs<P>): UserSelectMenuBuilder;
+```
 
 Defined in: [src/components/builders.ts:200](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L200)
 
@@ -48,7 +48,9 @@ Defined in: [src/components/builders.ts:200](https://github.com/byigitt/spearkit
 
 ### handle()
 
-> **handle**(`interaction`, `params`): `Promise`\<`void`\>
+```ts
+handle(interaction: UserSelectMenuInteraction, params: Record<string, string>): Promise<void>;
+```
 
 Defined in: [src/components/registry.ts:41](https://github.com/byigitt/spearkit/blob/main/src/components/registry.ts#L41)
 

@@ -3,11 +3,11 @@ title: "formatDuration()"
 description: "Format a millisecond duration into human-readable text."
 ---
 
-> **formatDuration**(`ms`, `options?`): `string`
+```ts
+function formatDuration(ms: number, options?: FormatDurationOptions): string;
+```
 
 Defined in: [src/format.ts:87](https://github.com/byigitt/spearkit/blob/main/src/format.ts#L87)
-
-Format a millisecond duration into human-readable text.
 
 ## Parameters
 

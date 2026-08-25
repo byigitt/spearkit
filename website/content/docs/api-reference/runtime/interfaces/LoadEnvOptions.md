@@ -5,8 +5,6 @@ description: "Options for loadEnv."
 
 Defined in: [src/env.ts:14](https://github.com/byigitt/spearkit/blob/main/src/env.ts#L14)
 
-Options for [loadEnv](../functions/loadEnv).
-
 ## Properties
 
 | Property | Type | Description |

@@ -1,6 +1,6 @@
 ---
-title: "core"
-description: "core in the spearkit API."
+title: "Core"
+description: "Client setup, plugins, file loading, and command scope."
 ---
 
 ## Classes

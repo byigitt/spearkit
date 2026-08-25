@@ -1,11 +1,9 @@
 ---
-title: "HybridContext\\<TValues\\>"
+title: "HybridContext"
 description: "The shared handler context for a hybrid command invocation."
 ---
 
 Defined in: [src/hybrid.ts:69](https://github.com/byigitt/spearkit/blob/main/src/hybrid.ts#L69)
-
-The shared handler context for a hybrid command invocation.
 
 ## Type Parameters
 
@@ -32,7 +30,9 @@ The shared handler context for a hybrid command invocation.
 
 ### reply()
 
-> **reply**(`input`): `Promise`\<`InteractionResponse`\<`boolean`\> \| `Message`\<`boolean`\>\>
+```ts
+reply(input: HybridReplyInput): Promise<InteractionResponse<boolean> | Message<boolean>>;
+```
 
 Defined in: [src/hybrid.ts:84](https://github.com/byigitt/spearkit/blob/main/src/hybrid.ts#L84)
 
@@ -50,7 +50,9 @@ Defined in: [src/hybrid.ts:84](https://github.com/byigitt/spearkit/blob/main/src
 
 ### t()
 
-> **t**(`key`, `params?`): `Promise`\<`string`\>
+```ts
+t(key: string, params?: Readonly<Record<string, TranslationParam>>): Promise<string>;
+```
 
 Defined in: [src/hybrid.ts:83](https://github.com/byigitt/spearkit/blob/main/src/hybrid.ts#L83)
 

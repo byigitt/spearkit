@@ -5,8 +5,6 @@ description: "Result of confirm."
 
 Defined in: [src/confirm.ts:59](https://github.com/byigitt/spearkit/blob/main/src/confirm.ts#L59)
 
-Result of [confirm](../functions/confirm).
-
 ## Properties
 
 | Property | Type | Description |

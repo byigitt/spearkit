@@ -3,12 +3,11 @@ title: "Intents"
 description: "Ready-made intent presets. Pass one to SpearClient as intents. all includes privileged intents — enable them in the developer portal."
 ---
 
-> `const` **Intents**: `object`
+```ts
+const Intents: object;
+```
 
 Defined in: [src/client.ts:56](https://github.com/byigitt/spearkit/blob/main/src/client.ts#L56)
-
-Ready-made intent presets. Pass one to [SpearClient](../classes/SpearClient) as `intents`.
-`all` includes privileged intents — enable them in the developer portal.
 
 ## Type Declaration
 

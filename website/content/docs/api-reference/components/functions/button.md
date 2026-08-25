@@ -3,12 +3,11 @@ title: "button()"
 description: "Define an interactive button: its appearance, its custom-id pattern and its click handler, all in one place. Register it with client.components.add."
 ---
 
-> **button**\<`P`, `R`\>(`config`): [`Button`](../interfaces/Button)\<`P`\>
+```ts
+function button<P, R>(config: ButtonConfig<P, R>): Button<P>;
+```
 
 Defined in: [src/components/builders.ts:103](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L103)
-
-Define an interactive button: its appearance, its custom-id pattern and its
-click handler, all in one place. Register it with `client.components.add`.
 
 ## Type Parameters
 

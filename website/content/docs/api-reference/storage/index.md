@@ -1,6 +1,6 @@
 ---
-title: "storage"
-description: "storage in the spearkit API."
+title: "Storage and configuration"
+description: "Key-value stores, typed settings, caches, and configuration loading."
 ---
 
 ## Classes

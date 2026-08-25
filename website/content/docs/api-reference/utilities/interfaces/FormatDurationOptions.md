@@ -5,8 +5,6 @@ description: "Options for formatDuration."
 
 Defined in: [src/format.ts:62](https://github.com/byigitt/spearkit/blob/main/src/format.ts#L62)
 
-Options for [formatDuration](../functions/formatDuration).
-
 ## Properties
 
 | Property | Type | Description |

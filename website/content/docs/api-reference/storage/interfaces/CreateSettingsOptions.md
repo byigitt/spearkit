@@ -1,11 +1,9 @@
 ---
-title: "CreateSettingsOptions\\<T\\>"
+title: "CreateSettingsOptions"
 description: "Options for createSettings."
 ---
 
 Defined in: [src/store.ts:184](https://github.com/byigitt/spearkit/blob/main/src/store.ts#L184)
-
-Options for [createSettings](../functions/createSettings).
 
 ## Type Parameters
 

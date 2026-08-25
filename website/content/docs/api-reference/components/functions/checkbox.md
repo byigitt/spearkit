@@ -3,12 +3,11 @@ title: "checkbox()"
 description: "Define a modal checkbox field (a single yes/no tick). Checkboxes cannot be required per the Discord spec; the handler always receives a boolean."
 ---
 
-> **checkbox**(`config`): [`CheckboxDef`](../interfaces/CheckboxDef)
+```ts
+function checkbox(config: object): CheckboxDef;
+```
 
 Defined in: [src/components/builders.ts:550](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L550)
-
-Define a modal checkbox field (a single yes/no tick). Checkboxes cannot be
-required per the Discord spec; the handler always receives a `boolean`.
 
 ## Parameters
 

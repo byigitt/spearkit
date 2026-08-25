@@ -5,7 +5,9 @@ description: "choices() in the spearkit API."
 
 ## Call Signature
 
-> **choices**\<`T`\>(`map`): `object`[]
+```ts
+function choices<T>(map: T): object[];
+```
 
 Defined in: [src/choices.ts:10](https://github.com/byigitt/spearkit/blob/main/src/choices.ts#L10)
 
@@ -29,7 +31,9 @@ Build `{ name, value }` choices from a display→value map.
 
 ## Call Signature
 
-> **choices**\<`T`\>(...`values`): `object`[]
+```ts
+function choices<T>(...values: T): object[];
+```
 
 Defined in: [src/choices.ts:14](https://github.com/byigitt/spearkit/blob/main/src/choices.ts#L14)
 

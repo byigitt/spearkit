@@ -5,9 +5,6 @@ description: "Minimal Redis commands used by RedisStore and redisCooldownBackend
 
 Defined in: [src/redis-store.ts:29](https://github.com/byigitt/spearkit/blob/main/src/redis-store.ts#L29)
 
-Minimal Redis commands used by [RedisStore](../classes/RedisStore) and
-redisCooldownBackend. Compatible with node-redis:
-
 ```ts
 import { createClient } from "redis";
 const redis = createClient();
@@ -19,7 +16,9 @@ const store = new RedisStore(redis);
 
 ### del()
 
-> **del**(`key`): `Promise`\<`unknown`\>
+```ts
+del(key: string | readonly string[]): Promise<unknown>;
+```
 
 Defined in: [src/redis-store.ts:32](https://github.com/byigitt/spearkit/blob/main/src/redis-store.ts#L32)
 
@@ -37,7 +36,9 @@ Defined in: [src/redis-store.ts:32](https://github.com/byigitt/spearkit/blob/mai
 
 ### get()
 
-> **get**(`key`): `Promise`\<`string` \| `null`\>
+```ts
+get(key: string): Promise<string | null>;
+```
 
 Defined in: [src/redis-store.ts:30](https://github.com/byigitt/spearkit/blob/main/src/redis-store.ts#L30)
 
@@ -55,7 +56,9 @@ Defined in: [src/redis-store.ts:30](https://github.com/byigitt/spearkit/blob/mai
 
 ### keys()
 
-> **keys**(`pattern`): `Promise`\<`string`[]\>
+```ts
+keys(pattern: string): Promise<string[]>;
+```
 
 Defined in: [src/redis-store.ts:33](https://github.com/byigitt/spearkit/blob/main/src/redis-store.ts#L33)
 
@@ -73,7 +76,9 @@ Defined in: [src/redis-store.ts:33](https://github.com/byigitt/spearkit/blob/mai
 
 ### pttl()?
 
-> `optional` **pttl**(`key`): `Promise`\<`number`\>
+```ts
+optional pttl(key: string): Promise<number>;
+```
 
 Defined in: [src/redis-store.ts:34](https://github.com/byigitt/spearkit/blob/main/src/redis-store.ts#L34)
 
@@ -91,7 +96,12 @@ Defined in: [src/redis-store.ts:34](https://github.com/byigitt/spearkit/blob/mai
 
 ### set()
 
-> **set**(`key`, `value`, `options?`): `Promise`\<`unknown`\>
+```ts
+set(
+   key: string, 
+   value: string, 
+options?: RedisSetOptions): Promise<unknown>;
+```
 
 Defined in: [src/redis-store.ts:31](https://github.com/byigitt/spearkit/blob/main/src/redis-store.ts#L31)
 

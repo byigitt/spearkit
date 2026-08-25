@@ -3,12 +3,11 @@ title: "checkboxGroup()"
 description: "Define a modal checkbox-group field (zero or more selectable options). Checkbox groups cannot be required; an untouched submit resolves to []."
 ---
 
-> **checkboxGroup**\<`C`\>(`config`): [`CheckboxGroupDef`](../interfaces/CheckboxGroupDef)\<`OptionValues`\<`C`\>\>
+```ts
+function checkboxGroup<C>(config: C): CheckboxGroupDef<OptionValues<C>>;
+```
 
 Defined in: [src/components/builders.ts:521](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L521)
-
-Define a modal checkbox-group field (zero or more selectable options).
-Checkbox groups cannot be `required`; an untouched submit resolves to `[]`.
 
 ## Type Parameters
 

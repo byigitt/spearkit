@@ -3,11 +3,11 @@ title: "separator()"
 description: "A spacing/divider block."
 ---
 
-> **separator**(`config?`): `SeparatorBuilder`
+```ts
+function separator(config?: SeparatorConfig): SeparatorBuilder;
+```
 
 Defined in: [src/components/v2.ts:77](https://github.com/byigitt/spearkit/blob/main/src/components/v2.ts#L77)
-
-A spacing/divider block.
 
 ## Parameters
 

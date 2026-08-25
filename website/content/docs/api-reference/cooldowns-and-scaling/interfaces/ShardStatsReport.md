@@ -5,8 +5,6 @@ description: "Aggregate returned by fetchShardStats."
 
 Defined in: [src/scale.ts:164](https://github.com/byigitt/spearkit/blob/main/src/scale.ts#L164)
 
-Aggregate returned by [fetchShardStats](../functions/fetchShardStats).
-
 ## Properties
 
 | Property | Type |

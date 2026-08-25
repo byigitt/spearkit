@@ -3,11 +3,11 @@ title: "resolveCooldownBackend()"
 description: "Resolve CooldownStoreInput into a CooldownBackend."
 ---
 
-> **resolveCooldownBackend**(`input?`): [`CooldownBackend`](../interfaces/CooldownBackend)
+```ts
+function resolveCooldownBackend(input?: CooldownStoreInput): CooldownBackend;
+```
 
 Defined in: [src/cooldown.ts:267](https://github.com/byigitt/spearkit/blob/main/src/cooldown.ts#L267)
-
-Resolve [CooldownStoreInput](../type-aliases/CooldownStoreInput) into a [CooldownBackend](../interfaces/CooldownBackend).
 
 ## Parameters
 

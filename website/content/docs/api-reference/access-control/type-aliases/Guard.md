@@ -1,13 +1,13 @@
 ---
-title: "Guard\\<TCtx\\>"
+title: "Guard"
 description: "A precondition evaluated before a handler runs."
 ---
 
-> **Guard**\<`TCtx`\> = (`ctx`) => `Awaitable`\<[`GuardResult`](GuardResult)\>
+```ts
+type Guard<TCtx> = (ctx: TCtx) => Awaitable<GuardResult>;
+```
 
 Defined in: [src/guards.ts:41](https://github.com/byigitt/spearkit/blob/main/src/guards.ts#L41)
-
-A precondition evaluated before a handler runs.
 
 ## Type Parameters
 

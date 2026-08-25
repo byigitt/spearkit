@@ -5,8 +5,6 @@ description: "Routing entry for a button."
 
 Defined in: [src/components/registry.ts:29](https://github.com/byigitt/spearkit/blob/main/src/components/registry.ts#L29)
 
-Routing entry for a button.
-
 ## Extends
 
 - `RouteBase`
@@ -28,7 +26,9 @@ Routing entry for a button.
 
 ### handle()
 
-> **handle**(`interaction`, `params`): `Promise`\<`void`\>
+```ts
+handle(interaction: ButtonInteraction, params: Record<string, string>): Promise<void>;
+```
 
 Defined in: [src/components/registry.ts:31](https://github.com/byigitt/spearkit/blob/main/src/components/registry.ts#L31)
 

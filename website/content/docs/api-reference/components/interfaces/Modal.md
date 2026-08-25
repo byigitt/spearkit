@@ -1,11 +1,9 @@
 ---
-title: "Modal\\<P\\>"
+title: "Modal"
 description: "A registrable modal with a typed build."
 ---
 
 Defined in: [src/components/builders.ts:709](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L709)
-
-A registrable modal with a typed [build](#build).
 
 ## Extends
 
@@ -30,7 +28,9 @@ A registrable modal with a typed [build](#build).
 
 ### build()
 
-> **build**(...`args`): `ModalBuilder`
+```ts
+build(...args: BuildArgs<P>): ModalBuilder;
+```
 
 Defined in: [src/components/builders.ts:710](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L710)
 
@@ -48,7 +48,9 @@ Defined in: [src/components/builders.ts:710](https://github.com/byigitt/spearkit
 
 ### handle()
 
-> **handle**(`interaction`, `params`): `Promise`\<`void`\>
+```ts
+handle(interaction: ModalSubmitInteraction, params: Record<string, string>): Promise<void>;
+```
 
 Defined in: [src/components/registry.ts:64](https://github.com/byigitt/spearkit/blob/main/src/components/registry.ts#L64)
 

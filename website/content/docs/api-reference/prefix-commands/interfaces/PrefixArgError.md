@@ -5,8 +5,6 @@ description: "A failed parse, returned by PrefixArgsParser.parse."
 
 Defined in: [src/prefix-args.ts:43](https://github.com/byigitt/spearkit/blob/main/src/prefix-args.ts#L43)
 
-A failed parse, returned by [PrefixArgsParser.parse](PrefixArgsParser#parse).
-
 ## Properties
 
 | Property | Modifier | Type |

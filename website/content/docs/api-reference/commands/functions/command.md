@@ -3,11 +3,11 @@ title: "command()"
 description: "Define a slash command with type-safe options and a co-located handler."
 ---
 
-> **command**\<`O`, `R`\>(`config`): [`SlashCommand`](../classes/SlashCommand)
+```ts
+function command<O, R>(config: CommandConfig<O, R>): SlashCommand;
+```
 
 Defined in: [src/commands/command.ts:259](https://github.com/byigitt/spearkit/blob/main/src/commands/command.ts#L259)
-
-Define a slash command with type-safe options and a co-located handler.
 
 ## Type Parameters
 

@@ -5,8 +5,6 @@ description: "A subcommand group created with subcommandGroup."
 
 Defined in: [src/commands/command.ts:95](https://github.com/byigitt/spearkit/blob/main/src/commands/command.ts#L95)
 
-A subcommand group created with [subcommandGroup](../functions/subcommandGroup).
-
 ## Extends
 
 - [`SubcommandGroupConfig`](SubcommandGroupConfig)

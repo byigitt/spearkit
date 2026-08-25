@@ -1,6 +1,6 @@
 ---
-title: "commands"
-description: "commands in the spearkit API."
+title: "Commands"
+description: "Slash commands, options, contexts, registries, hybrid commands, and context menus."
 ---
 
 ## Classes

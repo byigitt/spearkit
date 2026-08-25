@@ -1,13 +1,9 @@
 ---
 title: "SlashCommand"
-description: "A registered slash command. Serialises itself for the discord REST API and executes its matching interactions. Construct via command or commandGroup rather…"
+description: "A registered slash command. Serialises itself for the discord REST API and executes its matching interactions. Construct via command or commandGroup rather than directly."
 ---
 
 Defined in: [src/commands/command.ts:125](https://github.com/byigitt/spearkit/blob/main/src/commands/command.ts#L125)
-
-A registered slash command. Serialises itself for the discord REST API and
-executes its matching interactions. Construct via [command](../functions/command) or
-[commandGroup](../functions/commandGroup) rather than directly.
 
 ## Properties
 
@@ -24,7 +20,9 @@ executes its matching interactions. Construct via [command](../functions/command
 
 ### autocomplete()
 
-> **autocomplete**(`interaction`): `Promise`\<`void`\>
+```ts
+autocomplete(interaction: AutocompleteInteraction): Promise<void>;
+```
 
 Defined in: [src/commands/command.ts:166](https://github.com/byigitt/spearkit/blob/main/src/commands/command.ts#L166)
 
@@ -44,7 +42,9 @@ Execute autocomplete for the focused option.
 
 ### execute()
 
-> **execute**(`interaction`): `Promise`\<`void`\>
+```ts
+execute(interaction: ChatInputCommandInteraction): Promise<void>;
+```
 
 Defined in: [src/commands/command.ts:161](https://github.com/byigitt/spearkit/blob/main/src/commands/command.ts#L161)
 
@@ -64,7 +64,9 @@ Execute the command for an incoming chat-input interaction.
 
 ### toJSON()
 
-> **toJSON**(): `RESTPostAPIChatInputApplicationCommandsJSONBody`
+```ts
+toJSON(): RESTPostAPIChatInputApplicationCommandsJSONBody;
+```
 
 Defined in: [src/commands/command.ts:156](https://github.com/byigitt/spearkit/blob/main/src/commands/command.ts#L156)
 

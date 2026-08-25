@@ -1,11 +1,9 @@
 ---
-title: "HybridCommandConfig\\<O, TArgs, R\\>"
+title: "HybridCommandConfig"
 description: "Configuration for hybridCommand."
 ---
 
 Defined in: [src/hybrid.ts:171](https://github.com/byigitt/spearkit/blob/main/src/hybrid.ts#L171)
-
-Configuration for [hybridCommand](../functions/hybridCommand).
 
 ## Extends
 
@@ -24,7 +22,7 @@ Configuration for [hybridCommand](../functions/hybridCommand).
 | Property | Type | Description | Inherited from |
 | :------ | :------ | :------ | :------ |
 | <a id="property-aliases"></a> `aliases?` | readonly `string`[] | Alternative prefix names. | - |
-| <a id="property-args"></a> `args?` | (`builder`) => [`PrefixArgsBuilder`](../../prefix-commands/classes/PrefixArgsBuilder)\<`TArgs`\> | Prefix-side typed argument schema. | - |
+| <a id="property-args"></a> `args?` | (`builder`: [`PrefixArgsBuilder`](../../prefix-commands/classes/PrefixArgsBuilder)\<\{ \}\>) => [`PrefixArgsBuilder`](../../prefix-commands/classes/PrefixArgsBuilder)\<`TArgs`\> | Prefix-side typed argument schema. | - |
 | <a id="property-autodefer"></a> `autoDefer?` | [`AutoDeferInput`](../type-aliases/AutoDeferInput) | - | - |
 | <a id="property-contexts"></a> `contexts?` | readonly [`ContextKind`](../../core/type-aliases/ContextKind)[] | Where the command may run; omit to inherit the installation default. | [`CommandScopeMeta`](../../core/interfaces/CommandScopeMeta).[`contexts`](../../core/interfaces/CommandScopeMeta#property-contexts) |
 | <a id="property-cooldown"></a> `cooldown?` | [`CooldownInput`](../../cooldowns-and-scaling/type-aliases/CooldownInput) | - | - |
@@ -39,4 +37,4 @@ Configuration for [hybridCommand](../functions/hybridCommand).
 | <a id="property-namelocalizations"></a> `nameLocalizations?` | `Partial`\<`Record`\<`Locale`, `string` \| `null`\>\> | - | - |
 | <a id="property-nsfw"></a> `nsfw?` | `boolean` | - | - |
 | <a id="property-options"></a> `options?` | `O` | Slash-side typed options. | - |
-| <a id="property-run"></a> `run` | (`ctx`) => `Awaitable`\<`R`\> | - | - |
+| <a id="property-run"></a> `run` | (`ctx`: [`HybridContext`](HybridContext)\<`TArgs` \| [`ResolvedOptions`](../type-aliases/ResolvedOptions)\<`O`\>\>) => `Awaitable`\<`R`\> | - | - |

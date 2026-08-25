@@ -5,8 +5,6 @@ description: "In-memory store; great for tests and dashboards. Optionally capped
 
 Defined in: [src/usage.ts:167](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L167)
 
-In-memory store; great for tests and dashboards. Optionally capped.
-
 ## Implements
 
 - [`BatchUsageStore`](../interfaces/BatchUsageStore)
@@ -15,7 +13,9 @@ In-memory store; great for tests and dashboards. Optionally capped.
 
 ### Constructor
 
-> **new MemoryUsageStore**(`limit?`): `MemoryUsageStore`
+```ts
+new MemoryUsageStore(limit?: number): MemoryUsageStore;
+```
 
 Defined in: [src/usage.ts:170](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L170)
 
@@ -35,7 +35,9 @@ Defined in: [src/usage.ts:170](https://github.com/byigitt/spearkit/blob/main/src
 
 #### Get Signature
 
-> **get** **size**(): `number`
+```ts
+get size(): number;
+```
 
 Defined in: [src/usage.ts:186](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L186)
 
@@ -49,7 +51,9 @@ Total recorded events.
 
 ### all()
 
-> **all**(): readonly [`UsageEvent`](../interfaces/UsageEvent)[]
+```ts
+all(): readonly UsageEvent[];
+```
 
 Defined in: [src/usage.ts:181](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L181)
 
@@ -67,7 +71,9 @@ readonly [`UsageEvent`](../interfaces/UsageEvent)[]
 
 ### byUser()
 
-> **byUser**(`userId`): [`UsageEvent`](../interfaces/UsageEvent)[]
+```ts
+byUser(userId: string): UsageEvent[];
+```
 
 Defined in: [src/usage.ts:191](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L191)
 
@@ -87,7 +93,9 @@ Events recorded for a given user id.
 
 ### clear()
 
-> **clear**(): `void`
+```ts
+clear(): void;
+```
 
 Defined in: [src/usage.ts:196](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L196)
 
@@ -101,7 +109,9 @@ Forget everything.
 
 ### record()
 
-> **record**(`event`): `void`
+```ts
+record(event: UsageEvent): void;
+```
 
 Defined in: [src/usage.ts:172](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L172)
 
@@ -125,7 +135,9 @@ Persist one event.
 
 ### recordMany()
 
-> **recordMany**(`events`): `void`
+```ts
+recordMany(events: readonly UsageEvent[]): void;
+```
 
 Defined in: [src/usage.ts:177](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L177)
 

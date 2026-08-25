@@ -5,8 +5,6 @@ description: "A role select field inside a modal. Submits role ids."
 
 Defined in: [src/components/builders.ts:396](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L396)
 
-A role select field inside a modal. Submits role ids.
-
 ## Extends
 
 - `SelectFieldBase`

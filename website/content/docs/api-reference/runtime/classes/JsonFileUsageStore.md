@@ -5,9 +5,6 @@ description: "File-backed store using newline-delimited JSON (.jsonl). Appends o
 
 Defined in: [src/usage.ts:216](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L216)
 
-File-backed store using newline-delimited JSON (`.jsonl`). Appends one line
-per event — durable, human-inspectable, and dependency-free.
-
 ## Implements
 
 - [`BatchUsageStore`](../interfaces/BatchUsageStore)
@@ -16,7 +13,9 @@ per event — durable, human-inspectable, and dependency-free.
 
 ### Constructor
 
-> **new JsonFileUsageStore**(`path`): `JsonFileUsageStore`
+```ts
+new JsonFileUsageStore(path: string): JsonFileUsageStore;
+```
 
 Defined in: [src/usage.ts:217](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L217)
 
@@ -34,7 +33,9 @@ Defined in: [src/usage.ts:217](https://github.com/byigitt/spearkit/blob/main/src
 
 ### all()
 
-> **all**(): `Promise`\<readonly [`UsageEvent`](../interfaces/UsageEvent)[]\>
+```ts
+all(): Promise<readonly UsageEvent[]>;
+```
 
 Defined in: [src/usage.ts:238](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L238)
 
@@ -52,7 +53,9 @@ Read every persisted event.
 
 ### record()
 
-> **record**(`event`): `Promise`\<`void`\>
+```ts
+record(event: UsageEvent): Promise<void>;
+```
 
 Defined in: [src/usage.ts:219](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L219)
 
@@ -76,7 +79,9 @@ Persist one event.
 
 ### recordMany()
 
-> **recordMany**(`events`): `Promise`\<`void`\>
+```ts
+recordMany(events: readonly UsageEvent[]): Promise<void>;
+```
 
 Defined in: [src/usage.ts:223](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L223)
 

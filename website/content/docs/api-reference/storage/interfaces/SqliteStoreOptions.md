@@ -5,8 +5,6 @@ description: "Options for SqliteStore."
 
 Defined in: [src/sqlite-store.ts:12](https://github.com/byigitt/spearkit/blob/main/src/sqlite-store.ts#L12)
 
-Options for [SqliteStore](../classes/SqliteStore).
-
 ## Properties
 
 | Property | Type | Description |

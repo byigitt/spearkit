@@ -5,8 +5,6 @@ description: "Thrown when a WorkQueue has no remaining waiting capacity."
 
 Defined in: [src/scale.ts:236](https://github.com/byigitt/spearkit/blob/main/src/scale.ts#L236)
 
-Thrown when a [WorkQueue](WorkQueue) has no remaining waiting capacity.
-
 ## Extends
 
 - `Error`
@@ -15,7 +13,9 @@ Thrown when a [WorkQueue](WorkQueue) has no remaining waiting capacity.
 
 ### Constructor
 
-> **new QueueFullError**(`maxQueued`): `QueueFullError`
+```ts
+new QueueFullError(maxQueued: number): QueueFullError;
+```
 
 Defined in: [src/scale.ts:237](https://github.com/byigitt/spearkit/blob/main/src/scale.ts#L237)
 
@@ -31,7 +31,9 @@ Defined in: [src/scale.ts:237](https://github.com/byigitt/spearkit/blob/main/src
 
 #### Overrides
 
-`Error.constructor`
+```ts
+Error.constructor
+```
 
 ## Properties
 

@@ -3,11 +3,11 @@ title: "requireBotPermissions()"
 description: "Require the BOT's own member to hold a Discord permission flag."
 ---
 
-> **requireBotPermissions**(`permission`, `reason?`): [`Guard`](../type-aliases/Guard)
+```ts
+function requireBotPermissions(permission: PermissionResolvable, reason?: string): Guard;
+```
 
 Defined in: [src/guards.ts:167](https://github.com/byigitt/spearkit/blob/main/src/guards.ts#L167)
-
-Require the BOT's own member to hold a Discord permission flag.
 
 ## Parameters
 

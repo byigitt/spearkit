@@ -5,8 +5,6 @@ description: "Shared options for every safe-fetch helper."
 
 Defined in: [src/safe-fetch.ts:19](https://github.com/byigitt/spearkit/blob/main/src/safe-fetch.ts#L19)
 
-Shared options for every safe-fetch helper.
-
 ## Properties
 
 | Property | Type | Description |

@@ -5,8 +5,6 @@ description: "A custom emoji parsed from <:name:id> / <a:name:id>."
 
 Defined in: [src/mentions.ts:12](https://github.com/byigitt/spearkit/blob/main/src/mentions.ts#L12)
 
-A custom emoji parsed from `<:name:id>` / `<a:name:id>`.
-
 ## Properties
 
 | Property | Type |

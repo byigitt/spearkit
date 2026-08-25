@@ -5,8 +5,6 @@ description: "A single recorded use."
 
 Defined in: [src/usage.ts:28](https://github.com/byigitt/spearkit/blob/main/src/usage.ts#L28)
 
-A single recorded use.
-
 ## Properties
 
 | Property | Modifier | Type | Description |

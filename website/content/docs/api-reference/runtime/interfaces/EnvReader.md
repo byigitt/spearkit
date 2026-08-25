@@ -5,15 +5,15 @@ description: "Typed, ergonomic reader over process.env."
 
 Defined in: [src/env.ts:123](https://github.com/byigitt/spearkit/blob/main/src/env.ts#L123)
 
-Typed, ergonomic reader over `process.env`.
-
 ## Methods
 
 ### boolean()
 
 #### Call Signature
 
-> **boolean**(`key`): `boolean` \| `undefined`
+```ts
+boolean(key: string): boolean | undefined;
+```
 
 Defined in: [src/env.ts:131](https://github.com/byigitt/spearkit/blob/main/src/env.ts#L131)
 
@@ -31,7 +31,9 @@ A boolean (`true/1/yes/on` vs `false/0/no/off`), or `undefined`/`fallback`.
 
 #### Call Signature
 
-> **boolean**(`key`, `fallback`): `boolean`
+```ts
+boolean(key: string, fallback: boolean): boolean;
+```
 
 Defined in: [src/env.ts:132](https://github.com/byigitt/spearkit/blob/main/src/env.ts#L132)
 
@@ -52,7 +54,9 @@ Defined in: [src/env.ts:132](https://github.com/byigitt/spearkit/blob/main/src/e
 
 #### Call Signature
 
-> **number**(`key`): `number` \| `undefined`
+```ts
+number(key: string): number | undefined;
+```
 
 Defined in: [src/env.ts:128](https://github.com/byigitt/spearkit/blob/main/src/env.ts#L128)
 
@@ -70,7 +74,9 @@ A numeric value, or `undefined`/`fallback` when missing or non-numeric.
 
 #### Call Signature
 
-> **number**(`key`, `fallback`): `number`
+```ts
+number(key: string, fallback: number): number;
+```
 
 Defined in: [src/env.ts:129](https://github.com/byigitt/spearkit/blob/main/src/env.ts#L129)
 
@@ -89,7 +95,9 @@ Defined in: [src/env.ts:129](https://github.com/byigitt/spearkit/blob/main/src/e
 
 ### require()
 
-> **require**(`key`): `string`
+```ts
+require(key: string): string;
+```
 
 Defined in: [src/env.ts:134](https://github.com/byigitt/spearkit/blob/main/src/env.ts#L134)
 
@@ -111,7 +119,9 @@ A string value, throwing if the variable is missing or empty.
 
 #### Call Signature
 
-> **string**(`key`): `string` \| `undefined`
+```ts
+string(key: string): string | undefined;
+```
 
 Defined in: [src/env.ts:125](https://github.com/byigitt/spearkit/blob/main/src/env.ts#L125)
 
@@ -129,7 +139,9 @@ A string value (empty strings count as missing), or `undefined`/`fallback`.
 
 #### Call Signature
 
-> **string**(`key`, `fallback`): `string`
+```ts
+string(key: string, fallback: string): string;
+```
 
 Defined in: [src/env.ts:126](https://github.com/byigitt/spearkit/blob/main/src/env.ts#L126)
 

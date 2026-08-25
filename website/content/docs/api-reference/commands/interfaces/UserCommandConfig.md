@@ -1,11 +1,9 @@
 ---
-title: "UserCommandConfig\\<R\\>"
+title: "UserCommandConfig"
 description: "Configuration for userCommand."
 ---
 
 Defined in: [src/context-menus.ts:60](https://github.com/byigitt/spearkit/blob/main/src/context-menus.ts#L60)
-
-Configuration for [userCommand](../functions/userCommand).
 
 ## Extends
 
@@ -32,4 +30,4 @@ Configuration for [userCommand](../functions/userCommand).
 | <a id="property-name"></a> `name` | `string` | - | - |
 | <a id="property-namelocalizations"></a> `nameLocalizations?` | `Partial`\<`Record`\<`Locale`, `string` \| `null`\>\> | - | `ContextMenuMeta.nameLocalizations` |
 | <a id="property-nsfw"></a> `nsfw?` | `boolean` | - | `ContextMenuMeta.nsfw` |
-| <a id="property-run"></a> `run` | (`ctx`) => `Awaitable`\<`R`\> | - | - |
+| <a id="property-run"></a> `run` | (`ctx`: [`UserContextMenuContext`](../classes/UserContextMenuContext)) => `Awaitable`\<`R`\> | - | - |

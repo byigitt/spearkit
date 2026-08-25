@@ -5,13 +5,13 @@ description: "A swappable cache backend. All operations are async to allow remot
 
 Defined in: [src/cache.ts:29](https://github.com/byigitt/spearkit/blob/main/src/cache.ts#L29)
 
-A swappable cache backend. All operations are async to allow remote stores.
-
 ## Methods
 
 ### clear()
 
-> **clear**(): `Promise`\<`void`\>
+```ts
+clear(): Promise<void>;
+```
 
 Defined in: [src/cache.ts:43](https://github.com/byigitt/spearkit/blob/main/src/cache.ts#L43)
 
@@ -25,7 +25,9 @@ Drop every entry.
 
 ### delete()
 
-> **delete**(`key`): `Promise`\<`boolean`\>
+```ts
+delete(key: string): Promise<boolean>;
+```
 
 Defined in: [src/cache.ts:35](https://github.com/byigitt/spearkit/blob/main/src/cache.ts#L35)
 
@@ -45,7 +47,9 @@ Remove a key. Resolves to `true` if it existed.
 
 ### get()
 
-> **get**\<`T`\>(`key`): `Promise`\<`T` \| `undefined`\>
+```ts
+get<T>(key: string): Promise<T | undefined>;
+```
 
 Defined in: [src/cache.ts:31](https://github.com/byigitt/spearkit/blob/main/src/cache.ts#L31)
 
@@ -71,7 +75,9 @@ Read a previously set value, or `undefined` if missing/expired.
 
 ### has()
 
-> **has**(`key`): `Promise`\<`boolean`\>
+```ts
+has(key: string): Promise<boolean>;
+```
 
 Defined in: [src/cache.ts:37](https://github.com/byigitt/spearkit/blob/main/src/cache.ts#L37)
 
@@ -91,7 +97,12 @@ Whether a non-expired key is present.
 
 ### increment()
 
-> **increment**(`key`, `delta?`, `options?`): `Promise`\<`number`\>
+```ts
+increment(
+   key: string, 
+   delta?: number, 
+options?: CacheSetOptions): Promise<number>;
+```
 
 Defined in: [src/cache.ts:39](https://github.com/byigitt/spearkit/blob/main/src/cache.ts#L39)
 
@@ -113,7 +124,9 @@ Atomically increment a numeric counter. Returns the new value.
 
 ### rateLimit()
 
-> **rateLimit**(`key`, `options`): `Promise`\<[`RateLimitResult`](RateLimitResult)\>
+```ts
+rateLimit(key: string, options: object): Promise<RateLimitResult>;
+```
 
 Defined in: [src/cache.ts:41](https://github.com/byigitt/spearkit/blob/main/src/cache.ts#L41)
 
@@ -136,7 +149,12 @@ Fixed-window rate limit hit. Atomic per key.
 
 ### set()
 
-> **set**\<`T`\>(`key`, `value`, `options?`): `Promise`\<`void`\>
+```ts
+set<T>(
+   key: string, 
+   value: T, 
+options?: CacheSetOptions): Promise<void>;
+```
 
 Defined in: [src/cache.ts:33](https://github.com/byigitt/spearkit/blob/main/src/cache.ts#L33)
 

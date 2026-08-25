@@ -1,15 +1,13 @@
 ---
 title: "explainDiscordError()"
-description: "Render an end-user-appropriate sentence for a Discord error, or null if the error isn't a recognised, explainable Discord failure (in which case you should…"
+description: "Render an end-user-appropriate sentence for a Discord error, or null if the error isn't a recognised, explainable Discord failure (in which case you should fall back to a generic \"something went wrong\" message and log it)."
 ---
 
-> **explainDiscordError**(`error`): `string` \| `null`
+```ts
+function explainDiscordError(error: unknown): string | null;
+```
 
 Defined in: [src/discord-errors.ts:129](https://github.com/byigitt/spearkit/blob/main/src/discord-errors.ts#L129)
-
-Render an end-user-appropriate sentence for a Discord error, or `null` if the
-error isn't a recognised, explainable Discord failure (in which case you
-should fall back to a generic "something went wrong" message and log it).
 
 ## Parameters
 

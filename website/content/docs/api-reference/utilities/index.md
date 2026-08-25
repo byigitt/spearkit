@@ -1,6 +1,6 @@
 ---
-title: "utilities"
-description: "utilities in the spearkit API."
+title: "Utilities"
+description: "Formatting, mentions, invites, choices, safe fetches, locks, and Discord errors."
 ---
 
 ## Classes

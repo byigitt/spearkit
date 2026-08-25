@@ -5,8 +5,6 @@ description: "A fully-resolved record handed to a LogSink."
 
 Defined in: [src/logger.ts:32](https://github.com/byigitt/spearkit/blob/main/src/logger.ts#L32)
 
-A fully-resolved record handed to a [LogSink](../type-aliases/LogSink).
-
 ## Properties
 
 | Property | Modifier | Type |

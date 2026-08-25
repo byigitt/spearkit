@@ -3,11 +3,11 @@ title: "requireAllRoles()"
 description: "Require the invoking member to hold EVERY one of these role ids."
 ---
 
-> **requireAllRoles**(`roleIds`, `reason?`): [`Guard`](../type-aliases/Guard)
+```ts
+function requireAllRoles(roleIds: readonly string[], reason?: string): Guard;
+```
 
 Defined in: [src/guards.ts:108](https://github.com/byigitt/spearkit/blob/main/src/guards.ts#L108)
-
-Require the invoking member to hold EVERY one of these role ids.
 
 ## Parameters
 

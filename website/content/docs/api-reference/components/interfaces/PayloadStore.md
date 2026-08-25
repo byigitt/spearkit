@@ -1,11 +1,9 @@
 ---
-title: "PayloadStore\\<T\\>"
+title: "PayloadStore"
 description: "A token → payload map backed by a KeyValueStore."
 ---
 
 Defined in: [src/payload.ts:15](https://github.com/byigitt/spearkit/blob/main/src/payload.ts#L15)
-
-A token → payload map backed by a [KeyValueStore](../../storage/interfaces/KeyValueStore).
 
 ## Type Parameters
 
@@ -17,7 +15,9 @@ A token → payload map backed by a [KeyValueStore](../../storage/interfaces/Key
 
 ### delete()
 
-> **delete**(`token`): `Promise`\<`boolean`\>
+```ts
+delete(token: string): Promise<boolean>;
+```
 
 Defined in: [src/payload.ts:21](https://github.com/byigitt/spearkit/blob/main/src/payload.ts#L21)
 
@@ -37,7 +37,9 @@ Drop `token`. Resolves `true` if it existed.
 
 ### get()
 
-> **get**(`token`): `Promise`\<`T` \| `undefined`\>
+```ts
+get(token: string): Promise<T | undefined>;
+```
 
 Defined in: [src/payload.ts:19](https://github.com/byigitt/spearkit/blob/main/src/payload.ts#L19)
 
@@ -57,7 +59,9 @@ Resolve `token`, or `undefined` if missing/expired.
 
 ### put()
 
-> **put**(`value`): `Promise`\<`string`\>
+```ts
+put(value: T): Promise<string>;
+```
 
 Defined in: [src/payload.ts:17](https://github.com/byigitt/spearkit/blob/main/src/payload.ts#L17)
 

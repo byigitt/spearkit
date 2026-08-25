@@ -5,8 +5,6 @@ description: "Extra context passed alongside a log message."
 
 Defined in: [src/logger.ts:24](https://github.com/byigitt/spearkit/blob/main/src/logger.ts#L24)
 
-Extra context passed alongside a log message.
-
 ## Properties
 
 | Property | Type | Description |

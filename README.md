@@ -33,7 +33,7 @@ npx spearkit create my-bot
 - **Plugins & file-based loading** for organising larger bots.
 - **Guards** — declarative `requireAnyRole`/`requireUserPermissions`/`guildOnly`/`requireOwner` preconditions on commands, components and prefix commands ([guide](./docs/guards.md)).
 - **Context-menu commands** — `userCommand` / `messageCommand` with typed `targetUser` / `targetMessage` ([guide](./docs/context-menus.md)).
-- **Preset embeds** — `ctx.success/info/warn/error` and `client.embeds` factory with configurable colors/icons ([API ref](./docs/api-reference.md#embeds--preset-replies)).
+- **Preset embeds** — `ctx.success/info/warn/error` and `client.embeds` factory with configurable colors/icons ([API ref](./docs/api-reference.md)).
 - **Pagination & confirmation** — `paginate(...)` and `confirm(...)` button flows with user-only filter and timeout.
 - **Automatic help** — `helpCommand(...)` lists live slash, prefix and context-menu commands.
 - **Native polls** — `poll(...)` validates Discord poll limits and returns `PollData`.
@@ -42,20 +42,21 @@ npx spearkit create my-bot
 - **Logger transports** — multi-sink (`consoleSink`, `jsonlSink`, `webhookSink`); per-level routing.
 - **Scheduler extras** — `scheduler.delay/followUp/reconcile` for one-shot jobs and on-ready recovery.
 - **Deploy strategy** — `deployAllCommands({ dryRun, strategy: "diff" })` for safe CI deploys.
-- **Auto-defer** — `command({ autoDefer: true })` / `new SpearClient({ autoDefer: true })` to dodge `Unknown interaction` (10062) on slow handlers ([API ref](./docs/api-reference.md#auto-defer)).
-- **Graceful shutdown** — `client.enableGracefulShutdown({ onShutdown })` for clean `SIGINT`/`SIGTERM` teardown ([API ref](./docs/api-reference.md#graceful-shutdown)).
-- **Permissions & moderation** — `moderationCheck`, `missingPermissions`, `canActOn`, `ctx.botMissing(...)` role-hierarchy/permission preflights ([API ref](./docs/api-reference.md#permissions--moderation)).
-- **Persistent storage** — `MemoryStore`/`JsonStore`/`SqliteStore`/`RedisStore` + `createSettings(...)` + `createPayloadStore` for short custom-id tokens ([API ref](./docs/api-reference.md#persistent-storage)).
+- **Auto-defer** — `command({ autoDefer: true })` / `new SpearClient({ autoDefer: true })` to dodge `Unknown interaction` (10062) on slow handlers ([API ref](./docs/api-reference.md)).
+- **Graceful shutdown** — `client.enableGracefulShutdown({ onShutdown })` for clean `SIGINT`/`SIGTERM` teardown ([API ref](./docs/api-reference.md)).
+- **Permissions & moderation** — `moderationCheck`, `missingPermissions`, `canActOn`, `ctx.botMissing(...)` role-hierarchy/permission preflights ([API ref](./docs/api-reference.md)).
+- **Persistent storage** — `MemoryStore`/`JsonStore`/`SqliteStore`/`RedisStore` + `createSettings(...)` + `createPayloadStore` for short custom-id tokens ([API ref](./docs/api-reference.md)).
 - **Hybrid commands** — one `hybridCommand` for slash + prefix ([guide](./docs/hybrid.md)).
-- **Collectors** — `ctx.awaitMessageFrom(...)`, `ctx.awaitModal(...)`, `awaitComponent(...)` without hand-rolled collectors ([API ref](./docs/api-reference.md#collectors)).
-- **Discord error helpers** — `isDiscordError(err, DiscordErrorCode.UnknownMessage)`, `explainDiscordError(...)` ([API ref](./docs/api-reference.md#discord-errors)).
+- **Collectors** — `ctx.awaitMessageFrom(...)`, `ctx.awaitModal(...)`, `awaitComponent(...)` without hand-rolled collectors ([API ref](./docs/api-reference.md)).
+- **Discord error helpers** — `isDiscordError(err, DiscordErrorCode.UnknownMessage)`, `explainDiscordError(...)` ([API ref](./docs/api-reference.md)).
 - **One handler-error policy** — `new SpearClient({ onHandlerError })` covers every routed surface.
 - **Dynamic prefixes** — per-guild prefix resolution via `prefix: { dynamic }` ([guide](./docs/prefix.md#dynamic-per-guild-prefixes)).
 
 ## Documentation
 
 - **Docs site** ([`website/`](./website)) — a [Fumadocs](https://fumadocs.dev) site themed like the discord.js docs. Run it with `cd website && pnpm install && pnpm dev`.
-- **Guides & API reference** ([`docs/`](./docs)) — the Markdown the site is built from.
+- **Guides** ([`docs/`](./docs)) — hand-written Markdown the site is built from.
+- **API reference** — generated from the TypeScript source with [TypeDoc](https://typedoc.org): one page per symbol on the site, and a compact single-file summary at [`docs/api-reference.md`](./docs/api-reference.md). Regenerate with `npm run docs:api`.
 - **Examples** ([`examples/`](./examples)) — one folder per topic (commands, options, components, events, loading, …).
 
 ## For AI agents
@@ -70,7 +71,8 @@ spearkit ships machine-readable guidance so coding agents write correct code wit
 `AGENTS.md`, `llms.txt`, `llms-full.txt`, `docs/`, `examples/`, `mcp/` and the agent skill ship in the
 npm package as plain files (no install hook), so an installed copy lives under
 `node_modules/spearkit/` — e.g. `node_modules/spearkit/.claude/skills/spearkit/SKILL.md`.
-The `llms` files are generated from `docs/`; run `npm run docs:llms` after editing docs.
+The `llms` files are generated from `docs/`; run `npm run docs:api && npm run docs:llms`
+after changing the public API or editing docs.
 
 ## Quick start
 

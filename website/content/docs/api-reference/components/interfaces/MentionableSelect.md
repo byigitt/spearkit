@@ -1,11 +1,9 @@
 ---
-title: "MentionableSelect\\<P\\>"
+title: "MentionableSelect"
 description: "A registrable mentionable select."
 ---
 
 Defined in: [src/components/builders.ts:266](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L266)
-
-A registrable mentionable select.
 
 ## Extends
 
@@ -30,7 +28,9 @@ A registrable mentionable select.
 
 ### build()
 
-> **build**(...`args`): `MentionableSelectMenuBuilder`
+```ts
+build(...args: BuildArgs<P>): MentionableSelectMenuBuilder;
+```
 
 Defined in: [src/components/builders.ts:267](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L267)
 
@@ -48,7 +48,9 @@ Defined in: [src/components/builders.ts:267](https://github.com/byigitt/spearkit
 
 ### handle()
 
-> **handle**(`interaction`, `params`): `Promise`\<`void`\>
+```ts
+handle(interaction: MentionableSelectMenuInteraction, params: Record<string, string>): Promise<void>;
+```
 
 Defined in: [src/components/registry.ts:56](https://github.com/byigitt/spearkit/blob/main/src/components/registry.ts#L56)
 

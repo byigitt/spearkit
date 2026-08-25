@@ -5,8 +5,6 @@ description: "Routing entry for a channel select."
 
 Defined in: [src/components/registry.ts:49](https://github.com/byigitt/spearkit/blob/main/src/components/registry.ts#L49)
 
-Routing entry for a channel select.
-
 ## Extends
 
 - `RouteBase`
@@ -28,7 +26,9 @@ Routing entry for a channel select.
 
 ### handle()
 
-> **handle**(`interaction`, `params`): `Promise`\<`void`\>
+```ts
+handle(interaction: ChannelSelectMenuInteraction, params: Record<string, string>): Promise<void>;
+```
 
 Defined in: [src/components/registry.ts:51](https://github.com/byigitt/spearkit/blob/main/src/components/registry.ts#L51)
 

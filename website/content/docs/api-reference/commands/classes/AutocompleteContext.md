@@ -5,14 +5,13 @@ description: "The handler argument for autocomplete requests. Provides the focus
 
 Defined in: [src/commands/context.ts:62](https://github.com/byigitt/spearkit/blob/main/src/commands/context.ts#L62)
 
-The handler argument for autocomplete requests. Provides the focused value
-and a typed [respond](#respond) helper.
-
 ## Constructors
 
 ### Constructor
 
-> **new AutocompleteContext**(`interaction`): `AutocompleteContext`
+```ts
+new AutocompleteContext(interaction: AutocompleteInteraction): AutocompleteContext;
+```
 
 Defined in: [src/commands/context.ts:63](https://github.com/byigitt/spearkit/blob/main/src/commands/context.ts#L63)
 
@@ -38,7 +37,9 @@ Defined in: [src/commands/context.ts:63](https://github.com/byigitt/spearkit/blo
 
 #### Get Signature
 
-> **get** **client**(): `Client`\<`true`\>
+```ts
+get client(): Client<true>;
+```
 
 Defined in: [src/commands/context.ts:65](https://github.com/byigitt/spearkit/blob/main/src/commands/context.ts#L65)
 
@@ -52,7 +53,9 @@ Defined in: [src/commands/context.ts:65](https://github.com/byigitt/spearkit/blo
 
 #### Get Signature
 
-> **get** **commandName**(): `string`
+```ts
+get commandName(): string;
+```
 
 Defined in: [src/commands/context.ts:80](https://github.com/byigitt/spearkit/blob/main/src/commands/context.ts#L80)
 
@@ -66,7 +69,9 @@ Defined in: [src/commands/context.ts:80](https://github.com/byigitt/spearkit/blo
 
 #### Get Signature
 
-> **get** **focusedName**(): `string`
+```ts
+get focusedName(): string;
+```
 
 Defined in: [src/commands/context.ts:85](https://github.com/byigitt/spearkit/blob/main/src/commands/context.ts#L85)
 
@@ -82,7 +87,9 @@ Name of the option currently being completed.
 
 #### Get Signature
 
-> **get** **guild**(): `Guild` \| `null`
+```ts
+get guild(): Guild | null;
+```
 
 Defined in: [src/commands/context.ts:71](https://github.com/byigitt/spearkit/blob/main/src/commands/context.ts#L71)
 
@@ -96,7 +103,9 @@ Defined in: [src/commands/context.ts:71](https://github.com/byigitt/spearkit/blo
 
 #### Get Signature
 
-> **get** **guildId**(): `string` \| `null`
+```ts
+get guildId(): string | null;
+```
 
 Defined in: [src/commands/context.ts:74](https://github.com/byigitt/spearkit/blob/main/src/commands/context.ts#L74)
 
@@ -110,7 +119,9 @@ Defined in: [src/commands/context.ts:74](https://github.com/byigitt/spearkit/blo
 
 #### Get Signature
 
-> **get** **locale**(): `Locale`
+```ts
+get locale(): Locale;
+```
 
 Defined in: [src/commands/context.ts:77](https://github.com/byigitt/spearkit/blob/main/src/commands/context.ts#L77)
 
@@ -124,7 +135,9 @@ Defined in: [src/commands/context.ts:77](https://github.com/byigitt/spearkit/blo
 
 #### Get Signature
 
-> **get** **user**(): `User`
+```ts
+get user(): User;
+```
 
 Defined in: [src/commands/context.ts:68](https://github.com/byigitt/spearkit/blob/main/src/commands/context.ts#L68)
 
@@ -138,7 +151,9 @@ Defined in: [src/commands/context.ts:68](https://github.com/byigitt/spearkit/blo
 
 #### Get Signature
 
-> **get** **value**(): `string`
+```ts
+get value(): string;
+```
 
 Defined in: [src/commands/context.ts:90](https://github.com/byigitt/spearkit/blob/main/src/commands/context.ts#L90)
 
@@ -152,7 +167,9 @@ Current partial value typed by the user.
 
 ### respond()
 
-> **respond**(`choices`): `Promise`\<`void`\>
+```ts
+respond(choices: OptionChoice<string | number>[]): Promise<void>;
+```
 
 Defined in: [src/commands/context.ts:119](https://github.com/byigitt/spearkit/blob/main/src/commands/context.ts#L119)
 
@@ -172,7 +189,11 @@ Send autocomplete suggestions (capped at the discord limit of 25).
 
 ### suggest()
 
-> **suggest**(`items`, `options?`): `Promise`\<`void`\>
+```ts
+suggest(items: 
+  | readonly string[]
+| readonly OptionChoice<string | number>[], options?: FilterChoicesOptions): Promise<void>;
+```
 
 Defined in: [src/commands/context.ts:133](https://github.com/byigitt/spearkit/blob/main/src/commands/context.ts#L133)
 
@@ -183,7 +204,7 @@ first 25 entries.
 
 | Parameter | Type |
 | :------ | :------ |
-| `items` | readonly `string`[] \| readonly [`OptionChoice`](../interfaces/OptionChoice)\<`string` \| `number`\>[] |
+| `items` | \| readonly `string`[] \| readonly [`OptionChoice`](../interfaces/OptionChoice)\<`string` \| `number`\>[] |
 | `options?` | [`FilterChoicesOptions`](../../utilities/interfaces/FilterChoicesOptions) |
 
 #### Returns
@@ -194,7 +215,9 @@ first 25 entries.
 
 ### t()
 
-> **t**(`key`, `params?`): `Promise`\<`string`\>
+```ts
+t(key: string, params?: TranslationParams): Promise<string>;
+```
 
 Defined in: [src/commands/context.ts:95](https://github.com/byigitt/spearkit/blob/main/src/commands/context.ts#L95)
 

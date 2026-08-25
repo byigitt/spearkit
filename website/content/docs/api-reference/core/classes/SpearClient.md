@@ -1,13 +1,9 @@
 ---
 title: "SpearClient"
-description: "A discord.js Client with batteries included: command, event, component, prefix-command, scheduler and context-menu registries plus interaction routing wired up…"
+description: "A discord.js Client with batteries included: command, event, component, prefix-command, scheduler and context-menu registries plus interaction routing wired up automatically."
 ---
 
 Defined in: [src/client.ts:138](https://github.com/byigitt/spearkit/blob/main/src/client.ts#L138)
-
-A discord.js Client with batteries included: command, event,
-component, prefix-command, scheduler and context-menu registries plus
-interaction routing wired up automatically.
 
 ## Example
 
@@ -26,7 +22,9 @@ await client.deployAllCommands({ guildId: "123" });
 
 ### Constructor
 
-> **new SpearClient**(`options?`): `SpearClient`
+```ts
+new SpearClient(options?: SpearClientOptions): SpearClient;
+```
 
 Defined in: [src/client.ts:165](https://github.com/byigitt/spearkit/blob/main/src/client.ts#L165)
 
@@ -42,7 +40,9 @@ Defined in: [src/client.ts:165](https://github.com/byigitt/spearkit/blob/main/sr
 
 #### Overrides
 
-`Client.constructor`
+```ts
+Client.constructor
+```
 
 ## Properties
 
@@ -65,7 +65,15 @@ Defined in: [src/client.ts:165](https://github.com/byigitt/spearkit/blob/main/sr
 
 ### deployAllCommands()
 
-> **deployAllCommands**(`options?`): `Promise`\<[`DeployResult`](../../commands/type-aliases/DeployResult) \| \{ `body`: readonly `unknown`[]; `reason`: `"dry-run"` \| `"no-changes"`; `skipped`: `true`; \}\>
+```ts
+deployAllCommands(options?: object): Promise<
+  | DeployResult
+  | {
+  body: readonly unknown[];
+  reason: "dry-run" | "no-changes";
+  skipped: true;
+}>;
+```
 
 Defined in: [src/client.ts:365](https://github.com/byigitt/spearkit/blob/main/src/client.ts#L365)
 
@@ -86,7 +94,13 @@ touching Discord (perfect for CI deploy gates).
 
 #### Returns
 
-`Promise`\<[`DeployResult`](../../commands/type-aliases/DeployResult) \| \{ `body`: readonly `unknown`[]; `reason`: `"dry-run"` \| `"no-changes"`; `skipped`: `true`; \}\>
+`Promise`\<
+  \| [`DeployResult`](../../commands/type-aliases/DeployResult)
+  \| \{
+  `body`: readonly `unknown`[];
+  `reason`: `"dry-run"` \| `"no-changes"`;
+  `skipped`: `true`;
+\}\>
 
 the API's DeployResult on PUT, or a skipped report when
 `dryRun: true` is set OR `strategy: "diff"` finds no changes.
@@ -95,7 +109,9 @@ the API's DeployResult on PUT, or a skipped report when
 
 ### deployCommands()
 
-> **deployCommands**(`options?`): `Promise`\<[`DeployResult`](../../commands/type-aliases/DeployResult)\>
+```ts
+deployCommands(options?: object): Promise<DeployResult>;
+```
 
 Defined in: [src/client.ts:344](https://github.com/byigitt/spearkit/blob/main/src/client.ts#L344)
 
@@ -118,7 +134,9 @@ menus in the same request.
 
 ### destroy()
 
-> **destroy**(): `Promise`\<`void`\>
+```ts
+destroy(): Promise<void>;
+```
 
 Defined in: [src/client.ts:401](https://github.com/byigitt/spearkit/blob/main/src/client.ts#L401)
 
@@ -130,13 +148,17 @@ Stop the scheduler, then tear down the discord.js client.
 
 #### Overrides
 
-`Client.destroy`
+```ts
+Client.destroy
+```
 
 ***
 
 ### enableGracefulShutdown()
 
-> **enableGracefulShutdown**(`options?`): () => `void`
+```ts
+enableGracefulShutdown(options?: GracefulShutdownOptions): () => void;
+```
 
 Defined in: [src/client.ts:411](https://github.com/byigitt/spearkit/blob/main/src/client.ts#L411)
 
@@ -158,7 +180,9 @@ disposer that removes the signal handlers. Logs progress via `client.logger`.
 
 ### inviteUrl()
 
-> **inviteUrl**(`options?`): `string`
+```ts
+inviteUrl(options?: Omit<InviteUrlOptions, "clientId">): string;
+```
 
 Defined in: [src/client.ts:331](https://github.com/byigitt/spearkit/blob/main/src/client.ts#L331)
 
@@ -179,7 +203,9 @@ OAuth2 invite URL for this application. Call after the client is ready
 
 ### load()
 
-> **load**(`dir`, `options?`): `Promise`\<`number`\>
+```ts
+load(dir: string, options?: LoadOptions): Promise<number>;
+```
 
 Defined in: [src/client.ts:309](https://github.com/byigitt/spearkit/blob/main/src/client.ts#L309)
 
@@ -201,7 +227,9 @@ component it exports. Returns the number of items registered.
 
 ### register()
 
-> **register**(...`items`): `this`
+```ts
+register(...items: Registerable[]): this;
+```
 
 Defined in: [src/client.ts:273](https://github.com/byigitt/spearkit/blob/main/src/client.ts#L273)
 
@@ -222,7 +250,9 @@ and context menus in one call. Each item is routed to its matching registry.
 
 ### schedule()
 
-> **schedule**(`config`): [`ScheduledTask`](../../events-and-tasks/interfaces/ScheduledTask)
+```ts
+schedule(config: TaskConfig): ScheduledTask;
+```
 
 Defined in: [src/client.ts:394](https://github.com/byigitt/spearkit/blob/main/src/client.ts#L394)
 
@@ -242,7 +272,9 @@ Define and register a scheduled task in one call.
 
 ### start()
 
-> **start**(`token?`): `Promise`\<`SpearClient`\>
+```ts
+start(token?: string): Promise<SpearClient>;
+```
 
 Defined in: [src/client.ts:317](https://github.com/byigitt/spearkit/blob/main/src/client.ts#L317)
 
@@ -263,7 +295,9 @@ token is passed.
 
 ### use()
 
-> **use**(...`plugins`): `Promise`\<`SpearClient`\>
+```ts
+use(...plugins: SpearPlugin[]): Promise<SpearClient>;
+```
 
 Defined in: [src/client.ts:298](https://github.com/byigitt/spearkit/blob/main/src/client.ts#L298)
 

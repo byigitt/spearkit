@@ -1,13 +1,9 @@
 ---
 title: "RedisStore"
-description: "A minimal async key-value store. Values must be JSON-serialisable. All backends share these semantics so you can develop against MemoryStore and ship with…"
+description: "A minimal async key-value store. Values must be JSON-serialisable. All backends share these semantics so you can develop against MemoryStore and ship with JsonStore (or your own) without code changes."
 ---
 
 Defined in: [src/redis-store.ts:59](https://github.com/byigitt/spearkit/blob/main/src/redis-store.ts#L59)
-
-A minimal async key-value store. Values must be JSON-serialisable. All
-backends share these semantics so you can develop against [MemoryStore](MemoryStore)
-and ship with [JsonStore](JsonStore) (or your own) without code changes.
 
 ## Implements
 
@@ -17,7 +13,11 @@ and ship with [JsonStore](JsonStore) (or your own) without code changes.
 
 ### Constructor
 
-> **new RedisStore**(`client`): `RedisStore`
+```ts
+new RedisStore(client: 
+  | RedisCommands
+  | RedisStoreOptions): RedisStore;
+```
 
 Defined in: [src/redis-store.ts:63](https://github.com/byigitt/spearkit/blob/main/src/redis-store.ts#L63)
 
@@ -25,7 +25,7 @@ Defined in: [src/redis-store.ts:63](https://github.com/byigitt/spearkit/blob/mai
 
 | Parameter | Type |
 | :------ | :------ |
-| `client` | [`RedisCommands`](../interfaces/RedisCommands) \| [`RedisStoreOptions`](../interfaces/RedisStoreOptions) |
+| `client` | \| [`RedisCommands`](../interfaces/RedisCommands) \| [`RedisStoreOptions`](../interfaces/RedisStoreOptions) |
 
 #### Returns
 
@@ -35,7 +35,9 @@ Defined in: [src/redis-store.ts:63](https://github.com/byigitt/spearkit/blob/mai
 
 ### clear()
 
-> **clear**(): `Promise`\<`void`\>
+```ts
+clear(): Promise<void>;
+```
 
 Defined in: [src/redis-store.ts:100](https://github.com/byigitt/spearkit/blob/main/src/redis-store.ts#L100)
 
@@ -53,7 +55,9 @@ Remove every key.
 
 ### delete()
 
-> **delete**(`key`): `Promise`\<`boolean`\>
+```ts
+delete(key: string): Promise<boolean>;
+```
 
 Defined in: [src/redis-store.ts:90](https://github.com/byigitt/spearkit/blob/main/src/redis-store.ts#L90)
 
@@ -77,7 +81,9 @@ Remove `key`. Resolves `true` if it existed.
 
 ### get()
 
-> **get**\<`T`\>(`key`): `Promise`\<`T` \| `undefined`\>
+```ts
+get<T>(key: string): Promise<T | undefined>;
+```
 
 Defined in: [src/redis-store.ts:77](https://github.com/byigitt/spearkit/blob/main/src/redis-store.ts#L77)
 
@@ -107,7 +113,9 @@ Resolve the value for `key`, or `undefined` if absent.
 
 ### has()
 
-> **has**(`key`): `Promise`\<`boolean`\>
+```ts
+has(key: string): Promise<boolean>;
+```
 
 Defined in: [src/redis-store.ts:86](https://github.com/byigitt/spearkit/blob/main/src/redis-store.ts#L86)
 
@@ -131,7 +139,9 @@ Whether `key` currently has a value.
 
 ### keys()
 
-> **keys**(): `Promise`\<`string`[]\>
+```ts
+keys(): Promise<string[]>;
+```
 
 Defined in: [src/redis-store.ts:95](https://github.com/byigitt/spearkit/blob/main/src/redis-store.ts#L95)
 
@@ -149,7 +159,9 @@ Every key currently stored.
 
 ### set()
 
-> **set**\<`T`\>(`key`, `value`): `Promise`\<`void`\>
+```ts
+set<T>(key: string, value: T): Promise<void>;
+```
 
 Defined in: [src/redis-store.ts:82](https://github.com/byigitt/spearkit/blob/main/src/redis-store.ts#L82)
 

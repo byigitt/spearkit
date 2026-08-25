@@ -3,12 +3,11 @@ title: "requireBotOwner()"
 description: "Require the invoking user to be a configured bot owner (new SpearClient({ owners })) or the Discord application owner."
 ---
 
-> **requireBotOwner**(`reason?`): [`Guard`](../type-aliases/Guard)
+```ts
+function requireBotOwner(reason?: string): Guard;
+```
 
 Defined in: [src/guards.ts:141](https://github.com/byigitt/spearkit/blob/main/src/guards.ts#L141)
-
-Require the invoking user to be a configured bot owner
-(`new SpearClient({ owners })`) or the Discord application owner.
 
 ## Parameters
 

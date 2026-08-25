@@ -5,8 +5,6 @@ description: "A resolved text-input field definition. Submits a string."
 
 Defined in: [src/components/builders.ts:330](https://github.com/byigitt/spearkit/blob/main/src/components/builders.ts#L330)
 
-A resolved text-input field definition. Submits a `string`.
-
 ## Extends
 
 - [`ModalFieldDef`](ModalFieldDef)\<`string`, `true`\>

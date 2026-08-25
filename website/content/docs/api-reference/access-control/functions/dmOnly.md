@@ -3,11 +3,11 @@ title: "dmOnly()"
 description: "Require the interaction/message to come from a DM."
 ---
 
-> **dmOnly**(`reason?`): [`Guard`](../type-aliases/Guard)
+```ts
+function dmOnly(reason?: string): Guard;
+```
 
 Defined in: [src/guards.ts:74](https://github.com/byigitt/spearkit/blob/main/src/guards.ts#L74)
-
-Require the interaction/message to come from a DM.
 
 ## Parameters
 

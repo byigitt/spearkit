@@ -5,8 +5,6 @@ description: "Resolved auto-defer settings."
 
 Defined in: [src/auto-defer.ts:27](https://github.com/byigitt/spearkit/blob/main/src/auto-defer.ts#L27)
 
-Resolved auto-defer settings.
-
 ## Properties
 
 | Property | Type | Description |
